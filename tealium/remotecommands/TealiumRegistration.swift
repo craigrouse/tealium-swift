@@ -25,7 +25,7 @@ public protocol TealiumRegistration {
     func pushAuthorization(fromUserNotificationCenter: Bool)
 }
 
-extension TealiumRegistration {
+public extension TealiumRegistration {
     
     func pushAuthorization(fromUserNotificationCenter: Bool) { }
     @available(iOS 10.0, *)

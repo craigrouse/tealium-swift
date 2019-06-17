@@ -35,6 +35,7 @@ public extension Disk {
             let folderUrl = try createURL(for: path, in: directory)
             try createSubfoldersBeforeCreatingFile(at: folderUrl)
             try FileManager.default.createDirectory(at: folderUrl, withIntermediateDirectories: false, attributes: nil)
+            // swiftlint:disable identifier_name
             for i in 0..<value.count {
                 let data = value[i]
                 let dataName = "\(i)"
@@ -45,7 +46,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Append a file with Data to a folder
     ///
     /// - Parameters:
@@ -79,7 +80,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Append an array of data objects as files to a folder
     ///
     /// - Parameters:
@@ -100,7 +101,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Retrieve an array of Data objects from disk
     ///
     /// - Parameters:
@@ -113,7 +114,7 @@ public extension Disk {
         do {
             let url = try getExistingFileURL(for: path, in: directory)
             let fileUrls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])
-            let sortedFileUrls = fileUrls.sorted(by: { (url1, url2) -> Bool in
+            let sortedFileUrls = fileUrls.sorted(by: { url1, url2 -> Bool in
                 if let fileNameInt1 = fileNameInt(url1), let fileNameInt2 = fileNameInt(url2) {
                     return fileNameInt1 <= fileNameInt2
                 }
@@ -131,4 +132,4 @@ public extension Disk {
         }
     }
 }
-
+// swiftlint:enable identifier_name

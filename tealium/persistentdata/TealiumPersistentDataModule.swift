@@ -13,7 +13,7 @@ import Foundation
 
 #if defaultsstorage
 import TealiumCore
-#elseif filestorage
+#elseif diskstorage
 import TealiumCore
 #endif
 
@@ -130,7 +130,7 @@ public class TealiumPersistentData {
         self.delegate = delegate
         self.delegate?.requestLoad(completion: { _, data, _ in
 
-            guard let savedData = data else {
+            guard let savedData = data as? [String: Any] else {
                 // No data to load
                 return
             }

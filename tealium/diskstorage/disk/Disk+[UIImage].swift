@@ -19,7 +19,8 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-
+// swiftlint:disable shorthand_operator
+// swiftlint:disable identifier_name
 #if os(macOS)
 #else
 import Foundation
@@ -78,7 +79,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Append an image to a folder
     ///
     /// - Parameters:
@@ -141,7 +142,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Append an array of images to a folder
     ///
     /// - Parameters:
@@ -162,7 +163,7 @@ public extension Disk {
             throw error
         }
     }
-    
+
     /// Retrieve an array of images from a folder on disk
     ///
     /// - Parameters:
@@ -175,7 +176,7 @@ public extension Disk {
         do {
             let url = try getExistingFileURL(for: path, in: directory)
             let fileUrls = try FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil, options: [])
-            let sortedFileUrls = fileUrls.sorted(by: { (url1, url2) -> Bool in
+            let sortedFileUrls = fileUrls.sorted(by: { url1, url2 -> Bool in
                 if let fileNameInt1 = fileNameInt(url1), let fileNameInt2 = fileNameInt(url2) {
                     return fileNameInt1 <= fileNameInt2
                 }
@@ -194,6 +195,8 @@ public extension Disk {
             throw error
         }
     }
-    
+
 }
 #endif
+// swiftlint:enable shorthand_operator
+// swiftlint:enable identifier_name

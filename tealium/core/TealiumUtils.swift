@@ -45,3 +45,22 @@ public func += <K, V> (left: inout [K: V], right: [K: V]) {
 public func == (lhs: [String: Any], rhs: [String: Any] ) -> Bool {
     return NSDictionary(dictionary: lhs).isEqual(to: rhs)
 }
+
+extension Dictionary where Key == String, Value == Any {
+
+    public var codable: [String: AnyCodable] {
+        var newDict = [String: AnyCodable]()
+        for item in self {
+                newDict[item.key] = AnyCodable(item.value)
+        }
+        return newDict
+    }
+
+    public var encodable: [String: AnyEncodable] {
+        var newDict = [String: AnyEncodable]()
+        for item in self {
+            newDict[item.key] = AnyEncodable(item.value)
+        }
+        return newDict
+    }
+}

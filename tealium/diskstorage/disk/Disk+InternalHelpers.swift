@@ -26,7 +26,7 @@ extension Disk {
     /// Create and returns a URL constructed from specified directory/path
     static func createURL(for path: String?, in directory: Directory) throws -> URL {
         let filePrefix = "file://"
-        var validPath: String? = nil
+        var validPath: String?
         if let path = path {
             do {
                 validPath = try getValidFilePath(from: path)
@@ -100,7 +100,7 @@ extension Disk {
             )
         }
     }
-    
+
     /// Find an existing file's URL or throw an error if it doesn't exist
     static func getExistingFileURL(for path: String?, in directory: Directory) throws -> URL {
             let url = try createURL(for: path, in: directory)
@@ -114,7 +114,7 @@ extension Disk {
             }
         return url
     }
-    
+
     /// Convert a user generated name to a valid file name
     static func getValidFilePath(from originalString: String) throws -> String {
         var invalidCharacters = CharacterSet(charactersIn: ":")
@@ -125,7 +125,7 @@ extension Disk {
             .components(separatedBy: invalidCharacters)
             .joined(separator: "")
         let validFileName = removeSlashesAtBeginning(of: pathWithoutIllegalCharacters)
-        guard validFileName.count > 0  && validFileName != "." else {
+        guard validFileName.count > 0 && validFileName != "." else {
             throw createError(
                 .invalidFileName,
                 description: "\(originalString) is an invalid file name.",
@@ -135,7 +135,7 @@ extension Disk {
         }
         return validFileName
     }
-    
+
     /// Helper method for getValidFilePath(from:) to remove all "/" at the beginning of a String
     static func removeSlashesAtBeginning(of string: String) -> String {
         var string = string
@@ -147,7 +147,7 @@ extension Disk {
         }
         return string
     }
-    
+
     /// Set 'isExcludedFromBackup' BOOL property of a file or directory in the file system
     static func setIsExcludedFromBackup(to isExcludedFromBackup: Bool, for path: String?, in directory: Directory) throws {
         do {
@@ -160,7 +160,7 @@ extension Disk {
             throw error
         }
     }
-    
+
     /// Set 'isExcludedFromBackup' BOOL property of a file or directory in the file system
     static func setIsExcludedFromBackup(to isExcludedFromBackup: Bool, for url: URL) throws {
         do {
@@ -172,7 +172,7 @@ extension Disk {
             throw error
         }
     }
-    
+
     /// Create necessary sub folders before creating a file
     static func createSubfoldersBeforeCreatingFile(at url: URL) throws {
         do {
@@ -191,7 +191,7 @@ extension Disk {
             throw error
         }
     }
-    
+
     /// Get Int from a file name
     static func fileNameInt(_ url: URL) -> Int? {
         let fileExtension = url.pathExtension

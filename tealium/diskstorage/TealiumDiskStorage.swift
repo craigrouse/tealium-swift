@@ -4,3 +4,16 @@
 //
 
 import Foundation
+
+class TealiumDiskStorage {
+
+//    init () {
+//
+//    }
+//
+//
+//    class func save(_ data: Any) {
+//
+//    }
+
+}

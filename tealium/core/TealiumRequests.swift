@@ -181,6 +181,7 @@ public struct TealiumSaveRequest: TealiumRequest {
     public var typeId = TealiumSaveRequest.instanceTypeId()
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
+    public var requestingModule: String?
 
     public let name: String
     public let data: [String: Any]

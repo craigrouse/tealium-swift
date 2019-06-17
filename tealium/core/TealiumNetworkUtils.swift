@@ -8,7 +8,7 @@
 
 import Foundation
 
-public func jsonStringWithDictionary(_ dictionary: [AnyHashable: Any]) -> String? {
+public func jsonStringWithDictionary(_ dictionary: [String: Any]) -> String? {
     var writingOptions: JSONSerialization.WritingOptions
 
     if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, OSX 10.13, *) {
@@ -17,7 +17,15 @@ public func jsonStringWithDictionary(_ dictionary: [AnyHashable: Any]) -> String
         writingOptions = [.prettyPrinted]
     }
 
-    if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: writingOptions) {
+//    if let jsonData = try? JSONSerialization.data(withJSONObject: dictionary, options: writingOptions) {
+//        return String(data: jsonData, encoding: .utf8)
+//    } else {
+//        return nil
+//    }
+    let encoder = JSONEncoder()
+    //print(dictionary.codable)
+    let coded = dictionary.encodable
+    if let jsonData = try? encoder.encode(coded) {
         return String(data: jsonData, encoding: .utf8)
     } else {
         return nil

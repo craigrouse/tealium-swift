@@ -103,8 +103,8 @@ public class Tealium {
             newData += data
         }
 
-        newData[TealiumKey.callType] = TealiumTrackType.view.description()
-        newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
+//        newData[TealiumKey.callType] = TealiumTrackType.view.description()
+//        newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
 
         self.track(title: title,
                    data: newData,
@@ -123,7 +123,7 @@ public class Tealium {
     /// - Returns: Dictionary of type [String:Any]
     public class func trackDataFor(title: String,
                                    optionalData: [String: Any]?) -> [String: Any] {
-        let newTitle = title
+        let newTitle = AnyCodable(title)
         let newOptionalData = optionalData
 
         var trackData: [String: Any] = [TealiumKey.event: newTitle]
@@ -134,5 +134,5 @@ public class Tealium {
 
         return trackData
     }
-    
+
 }

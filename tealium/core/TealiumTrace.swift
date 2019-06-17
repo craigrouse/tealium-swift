@@ -35,6 +35,6 @@ public extension Tealium {
         guard let traceId = self.config.optionalData[TealiumKey.traceId] as? String else {
             return
         }
-        self.track(title: TealiumKey.killVisitorSession, data: ["event": AnyCodable(TealiumKey.killVisitorSession), "call_type": AnyCodable(TealiumKey.killVisitorSession), TealiumKey.traceId: AnyCodable(traceId)], completion: nil)
+        self.track(title: TealiumKey.killVisitorSession, data: ["event": TealiumKey.killVisitorSession, "call_type": TealiumKey.killVisitorSession, TealiumKey.traceId: traceId], completion: nil)
     }
 }

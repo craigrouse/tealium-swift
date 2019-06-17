@@ -130,12 +130,12 @@ public class TealiumPersistentData {
         self.delegate = delegate
         self.delegate?.requestLoad(completion: { _, data, _ in
 
-            guard let savedData = data as? [String: Any] else {
+            guard let data = data else {
                 // No data to load
                 return
             }
 
-            self.persistentDataCache += savedData
+            self.persistentDataCache += data
         })
     }
 

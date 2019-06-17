@@ -26,7 +26,7 @@ import Foundation
      let encoder = JSONEncoder()
      let json = try! encoder.encode(dictionary)
  */
-// swiftlint:disable cyclomatic_complexity
+
 public struct AnyEncodable: Encodable {
     public let value: Any
 
@@ -88,9 +88,13 @@ extension _AnyEncodable {
         case let url as URL:
             try container.encode(url)
         case let array as [Any?]:
-            try container.encode(array.map { AnyCodable($0) })
+            try container.encode(array.map {
+                $0 as? AnyCodable ?? AnyCodable($0)
+            })
         case let dictionary as [String: Any?]:
-            try container.encode(dictionary.mapValues { AnyCodable($0) })
+            try container.encode(dictionary.mapValues {
+                $0 as? AnyCodable ?? AnyCodable($0)
+            })
         default:
             let context = EncodingError.Context(codingPath: container.codingPath, debugDescription: "AnyCodable value cannot be encoded")
             throw EncodingError.invalidValue(value, context)
@@ -164,7 +168,7 @@ extension AnyEncodable: Equatable {
             return lhs == rhs
         case let (lhs as String, rhs as String):
             return lhs == rhs
-        case let (lhs as [String: Any], rhs as [String: Any]):
+        case let (lhs as [String: AnyEncodable], rhs as [String: AnyEncodable]):
             return lhs == rhs
         case let (lhs as [AnyEncodable], rhs as [AnyEncodable]):
             return lhs == rhs

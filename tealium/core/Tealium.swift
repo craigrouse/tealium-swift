@@ -123,10 +123,9 @@ public class Tealium {
     /// - Returns: Dictionary of type [String:Any]
     public class func trackDataFor(title: String,
                                    optionalData: [String: Any]?) -> [String: Any] {
-        let newTitle = AnyCodable(title)
         let newOptionalData = optionalData
 
-        var trackData: [String: Any] = [TealiumKey.event: newTitle]
+        var trackData: [String: Any] = [TealiumKey.event: title]
 
         if let clientOptionalVariables = newOptionalData {
             trackData += clientOptionalVariables

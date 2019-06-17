@@ -51,7 +51,8 @@ class TealiumDiskStorageModule: TealiumModule {
             didFinishWithNoResponse(request)
             return
         }
-        request.completion?(true, storedData, nil)
+
+        request.completion?(true, storedData as [String: Any], nil)
     }
 
     func save(_ request: TealiumSaveRequest) {

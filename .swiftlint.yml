@@ -5,6 +5,7 @@ excluded:
 disabled_rules:
   - trailing_comma
   - unused_optional_binding
+  - extension_access_modifier
 opt_in_rules:
   - file_header
   - explicit_init
@@ -37,6 +38,9 @@ file_header:
                     \/\/  Created by .*? on \d{1,2}\/\d{1,2}\/\d{2}\.
                     \/\/  Copyright © \d{4} Tealium\, Inc\. All rights reserved\.
                     \/\/
+cyclomatic_complexity:
+    ignores_case_statements: true
+
 identifier_name:
   excluded:
     - id

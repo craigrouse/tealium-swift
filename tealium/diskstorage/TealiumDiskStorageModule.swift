@@ -58,7 +58,8 @@ class TealiumDiskStorageModule: TealiumModule {
     func save(_ request: TealiumSaveRequest) {
         let requestingModule = request.name
 
-        try? Disk.save(request.data.codable, to: defaultDirectory, as: requestingModule)
+//        try? Disk.save(request.data.codable, to: defaultDirectory, as: requestingModule)
+        try? Disk.append(request.data.codable, to: requestingModule, in: defaultDirectory)
 
     }
 

@@ -24,6 +24,7 @@ import Foundation
 
 extension Disk {
     /// Create and returns a URL constructed from specified directory/path
+    // swiftlint:disable function_body_length
     static func createURL(for path: String?, in directory: Directory) throws -> URL {
         let filePrefix = "file://"
         var validPath: String?
@@ -100,6 +101,7 @@ extension Disk {
             )
         }
     }
+    // swiftlint:enable function_body_length
 
     /// Find an existing file's URL or throw an error if it doesn't exist
     static func getExistingFileURL(for path: String?, in directory: Directory) throws -> URL {

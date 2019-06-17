@@ -2,6 +2,8 @@ included:
   - ../tealium
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
+  - ../tealium/core/AnyCodable/*
+  - ../tealium/diskstorage/Disk/* 
 disabled_rules:
   - trailing_comma
   - unused_optional_binding
@@ -40,12 +42,14 @@ file_header:
                     \/\/
 cyclomatic_complexity:
     ignores_case_statements: true
-
 identifier_name:
   excluded:
     - id
   severity: warning
-line_length: 200
+line_length:
+    warning: 200
+    error: 400
+    ignores_comments: true
 number_separator:
   minimum_length: 5
 

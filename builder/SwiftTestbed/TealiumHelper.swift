@@ -52,7 +52,7 @@ class TealiumHelper: NSObject {
         #else
         // OPTIONALLY disable a particular module by name
         let list = TealiumModulesList(isWhitelist: false,
-                                      moduleNames: ["autotracking", "tagmanagement"])
+                                      moduleNames: ["autotracking", "defaultsstorage", "filestorage"])
         config.setModulesList(list)
         print("*** TealiumHelper: Autotracking disabled.")
         #endif
@@ -75,8 +75,9 @@ class TealiumHelper: NSObject {
         tealium = Tealium(config: config) { response in
                             // Optional processing post init.
                             // Optionally, join a trace. Trace ID must be generated server-side in UDH.
-                            self.tealium?.joinTrace(traceId: self.traceId)
-                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
+//                            self.tealium?.joinTrace(traceId: self.traceId)
+//                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
+//                            self.tealium?.persistentData()?.add(data: ["newPersistentKey": "testPersistentValue"])
                             self.tealium?.volatileData()?.add(data: ["testVolatileKey": "testVolatileValue"])
                             // OPTIONALLY implement Remote Commands
                             self.tealium?.consentManager()?.addConsentDelegate(self)

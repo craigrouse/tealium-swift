@@ -10,6 +10,7 @@
 import WebKit
 import XCTest
 
+@available(iOS 11.0, *)
 class WKWebViewTests: XCTestCase {
 
     let tagManagementWKWebView = TealiumTagManagementWKWebView()
@@ -131,6 +132,7 @@ class MyCookieStorage: TealiumCookieProvider {
     }
 }
 
+@available(iOS 11.0, *)
 extension WKWebViewTests: WKHTTPCookieStoreObserver {
     public func cookiesDidChange(in cookieStore: WKHTTPCookieStore) {
         DispatchQueue.main.async {

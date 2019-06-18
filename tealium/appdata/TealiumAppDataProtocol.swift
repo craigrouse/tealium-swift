@@ -29,6 +29,11 @@ protocol TealiumAppDataProtocol {
     /// - Parameter data: [String: Any] containing existing AppData variables
     func setLoadedAppData(data: [String: Any])
 
+    /// Populates in-memory AppData with existing values from persistent storage, if present
+    ///
+    /// - Parameter data: [String: Any] containing existing AppData variables
+    func setLoadedAppData(data: PersistentAppData)
+
     /// Deletes all app data.
     func deleteAllData()
 }

@@ -10,9 +10,8 @@ import TealiumCore
 
 class TealiumDiskStorageModule: TealiumModule {
 
-    let defaultDirectory = Disk.Directory.caches
-    var subDirectory = ""
-    
+    var diskStorage: TealiumDiskStorage?
+
     override class func moduleConfig() -> TealiumModuleConfig {
         return  TealiumModuleConfig(name: TealiumDiskStorageConstants.moduleName.rawValue,
                                     priority: 350,
@@ -38,32 +37,33 @@ class TealiumDiskStorageModule: TealiumModule {
     }
 
     override func enable(_ request: TealiumEnableRequest) {
-        let config = request.config
-        subDirectory = "/\(config.account).\(config.profile)/"
         isEnabled = true
-//        filenamePrefix = TealiumFileStorageModule.filenamePrefix(config: request.config)
+        self.diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumDiskStorageConstants.moduleName.rawValue)
         didFinish(request)
     }
 
     func load(_ request: TealiumLoadRequest) {
 
-        let requestingModule = request.name
+//        let requestingModule = request.name
+//
+////        Disk.retrieve("posts.json", from: .documents, as: [Post].self)
+//        guard let storedData = try? Disk.retrieve("\(subDirectory)\(requestingModule)", from: defaultDirectory, as: [String: AnyCodable].self) else {
+//            request.completion?(true, nil, nil)
+//            didFinishWithNoResponse(request)
+//            return
+//        }
+//
+//        request.completion?(true, storedData as [String: Any], nil)
 
-//        Disk.retrieve("posts.json", from: .documents, as: [Post].self)
-        guard let storedData = try? Disk.retrieve("\(subDirectory)\(requestingModule)", from: defaultDirectory, as: [String: AnyCodable].self) else {
-            request.completion?(true, nil, nil)
-            didFinishWithNoResponse(request)
-            return
-        }
+//        self.diskStorage.ret
 
-        request.completion?(true, storedData as [String: Any], nil)
     }
 
     func save(_ request: TealiumSaveRequest) {
-        let requestingModule = request.name
-
-//        try? Disk.save(request.data.codable, to: defaultDirectory, as: requestingModule)
-        try? Disk.append(request.data.codable, to: "\(subDirectory)\(requestingModule)", in: defaultDirectory)
+//        let requestingModule = request.name
+//
+////        try? Disk.save(request.data.codable, to: defaultDirectory, as: requestingModule)
+//        try? Disk.append(request.data.codable, to: "\(subDirectory)\(requestingModule)", in: defaultDirectory)
 
     }
 

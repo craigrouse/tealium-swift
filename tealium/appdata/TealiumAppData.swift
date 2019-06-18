@@ -11,12 +11,22 @@ import Foundation
 import TealiumCore
 #endif
 
+public struct PersistentAppData: Codable {
+    public let visitorId: String
+    public let uuid: String
+    public func toDictionary() -> [String: Any] {
+        return [TealiumAppDataKey.uuid: uuid,
+                TealiumAppDataKey.visitorId: visitorId]
+    }
+}
+
 public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
 
     private(set) var uuid: String?
     weak var delegate: TealiumSaveDelegate?
     private let bundle = Bundle.main
     private var appData = [String: Any]()
+    private var persistentAppData: PersistentAppData?
 
     init(delegate: TealiumSaveDelegate) {
         self.delegate = delegate
@@ -74,20 +84,32 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
         return uuid.replacingOccurrences(of: "-", with: "")
     }
 
+//    /// Prepares new Tealium default App related data. Legacy Visitor Id data
+//    /// is set here as it based off app_uuid.
+//    ///
+//    /// - Parameter uuid: The uuid string to use for new persistent data.
+//    /// - Returns: A [String:Any] dictionary.
+//    func newPersistentData(for uuid: String) -> [String: Any] {
+//        let vid = visitorId(from: uuid)
+//
+//        let data = [
+//            TealiumAppDataKey.uuid: uuid,
+//            TealiumAppDataKey.visitorId: vid,
+//        ]
+//
+//        return data as [String: Any]
+//    }
+
     /// Prepares new Tealium default App related data. Legacy Visitor Id data
     /// is set here as it based off app_uuid.
     ///
     /// - Parameter uuid: The uuid string to use for new persistent data.
     /// - Returns: A [String:Any] dictionary.
-    func newPersistentData(for uuid: String) -> [String: Any] {
+    func newPersistentData(for uuid: String) -> PersistentAppData {
         let vid = visitorId(from: uuid)
-
-        let data = [
-            TealiumAppDataKey.uuid: uuid,
-            TealiumAppDataKey.visitorId: vid,
-        ]
-
-        return data as [String: Any]
+        let persistentData = PersistentAppData(visitorId: vid, uuid: uuid)
+        delegate?.savePersistentData(data: persistentData)
+        return persistentData
     }
 
     /// Retrieves a new set of Volatile Data (usually once per app launch)
@@ -118,9 +140,9 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     /// Stores current AppData in memory
     func setNewAppData() {
         let newUuid = UUID().uuidString
-        appData = newPersistentData(for: newUuid)
+        appData = newPersistentData(for: newUuid).toDictionary()
+//        delegate?.savePersistentData(data: appData)
         appData += newVolatileData()
-        delegate?.savePersistentData(data: appData)
         uuid = newUuid
     }
 
@@ -129,6 +151,12 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     /// - Parameter data: [String: Any] containing existing AppData variables
     func setLoadedAppData(data: [String: Any]) {
         appData = data
+        appData += newVolatileData()
+    }
+
+    func setLoadedAppData(data: PersistentAppData) {
+        self.persistentAppData = data
+        appData += data.toDictionary()
         appData += newVolatileData()
     }
 }

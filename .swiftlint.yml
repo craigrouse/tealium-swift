@@ -3,7 +3,7 @@ included:
 excluded:
   - Tests/SwiftLintFrameworkTests/Resources
   - ../tealium/core/AnyCodable/*
-  - ../tealium/diskstorage/Disk/* 
+  - ../tealium/core/Disk/* 
 disabled_rules:
   - trailing_comma
   - unused_optional_binding

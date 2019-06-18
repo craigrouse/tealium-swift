@@ -14,4 +14,6 @@ public protocol TealiumSaveDelegate: class {
     ///
     /// - Parameter data: [String: Any] of data to be stored
     func savePersistentData(data: [String: Any])
+
+    func savePersistentData(data: Any)
 }

@@ -15,6 +15,7 @@ import TealiumCore
 class TealiumAppDataModule: TealiumModule {
 
     var appData: TealiumAppDataProtocol!
+    var diskStorage: TealiumDiskStorage!
 
     required public init(delegate: TealiumModuleDelegate?) {
         super.init(delegate: delegate)
@@ -37,25 +38,35 @@ class TealiumAppDataModule: TealiumModule {
     ///
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
-        let loadRequest = TealiumLoadRequest(name: TealiumAppDataModule.moduleConfig().name) { [weak self] _, data, _ in
-
-            // No prior saved data
-            guard let loadedData = data else {
-                self?.appData.setNewAppData()
+        diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName)
+        diskStorage.retrieve("PersistentAppData", as: PersistentAppData.self) { _, data, _ in
+            guard let data = data else {
+                self.appData.setNewAppData()
                 return
             }
+//            self.appData.setLoadedAppData(data: data)
+            self.appData.setLoadedAppData(data: data)
 
-            // Loaded data does not contain expected keys
-            if TealiumAppData.isMissingPersistentKeys(data: loadedData) == true {
-                self?.appData.setNewAppData()
-                return
-            }
-
-            self?.appData.setLoadedAppData(data: loadedData)
         }
+//        let loadRequest = TealiumLoadRequest(name: TealiumAppDataModule.moduleConfig().name) { [weak self] _, data, _ in
+//
+//            // No prior saved data
+//            guard let loadedData = data else {
+//                self?.appData.setNewAppData()
+//                return
+//            }
+//
+//            // Loaded data does not contain expected keys
+//            if TealiumAppData.isMissingPersistentKeys(data: loadedData) == true {
+//                self?.appData.setNewAppData()
+//                return
+//            }
+//
+//            self?.appData.setLoadedAppData(data: loadedData)
+//        }
 
-        delegate?.tealiumModuleRequests(module: self,
-                                        process: loadRequest)
+//        delegate?.tealiumModuleRequests(module: self,
+//                                        process: loadRequest)
 
         isEnabled = true
 

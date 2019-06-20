@@ -75,7 +75,9 @@ class TealiumHelper: NSObject {
         tealium = Tealium(config: config) { response in
                             // Optional processing post init.
                             // Optionally, join a trace. Trace ID must be generated server-side in UDH.
-//                            self.tealium?.joinTrace(traceId: self.traceId)
+            self.tealium?.joinTrace(traceId: "01234")
+            self.tealium?.leaveTrace()
+        self.tealium?.leaveTrace(killVisitorSession: true)
 //                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
 //                            self.tealium?.persistentData()?.add(data: ["newPersistentKey": "testPersistentValue"])
                             self.tealium?.volatileData()?.add(data: ["testVolatileKey": "testVolatileValue"])

@@ -46,6 +46,13 @@ public class TealiumDiskStorage {
     /// Saves new data to disk, overwriting existing data.
     /// Used when a module keeps an in-memory copy of data and needs to occasionally persist the whole object to disk
     public func save(_ data: AnyCodable,
+                     completion: TealiumCompletion?) {
+        self.save(data, fileName: self.module, completion: completion)
+    }
+
+    /// Saves new data to disk, overwriting existing data.
+    /// Used when a module keeps an in-memory copy of data and needs to occasionally persist the whole object to disk
+    public func save(_ data: AnyCodable,
                      fileName: String,
                      completion: TealiumCompletion?) {
         TealiumDiskStorage.readWriteQueue.write {
@@ -55,6 +62,11 @@ public class TealiumDiskStorage {
                 completion?(false, nil, error)
             }
         }
+    }
+
+    public func save<T: Encodable>(_ data: T,
+                                   completion: TealiumCompletion?) {
+        self.save(data, fileName: module, completion: completion)
     }
 
     public func save<T: Encodable>(_ data: T,
@@ -74,12 +86,17 @@ public class TealiumDiskStorage {
         }
     }
 
-    public func retrieve<T: Decodable>(_ path: String,
+    public func retrieve<T: Decodable>(as type: T.Type,
+                                       completion: @escaping (Bool, T?, Error?) -> Void) {
+        retrieve(module, as: type, completion: completion)
+    }
+
+    public func retrieve<T: Decodable>(_ fileName: String,
                                        as type: T.Type,
                                        completion: @escaping (Bool, T?, Error?) -> Void) {
         TealiumDiskStorage.readWriteQueue.read {
             do {
-                let data = try Disk.retrieve(self.fileName(path), from: self.defaultDirectory, as: type)
+                let data = try Disk.retrieve(self.fileName(fileName), from: self.defaultDirectory, as: type)
                 completion(true, data, nil)
             } catch let error {
                 completion(false, nil, error)
@@ -100,6 +117,15 @@ public class TealiumDiskStorage {
             } catch let error {
                 completion(false, nil, error)
             }
+        }
+    }
+
+    public func delete(completion: TealiumCompletion?) {
+        do {
+            try Disk.remove(fileName(module), from: defaultDirectory)
+            completion?(true, nil, nil)
+        } catch let error {
+            completion?(false, nil, error)
         }
     }
 

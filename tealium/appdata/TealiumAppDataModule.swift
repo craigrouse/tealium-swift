@@ -19,7 +19,6 @@ class TealiumAppDataModule: TealiumModule {
 
     required public init(delegate: TealiumModuleDelegate?) {
         super.init(delegate: delegate)
-        appData = TealiumAppData(delegate: self)
     }
 
     init(delegate: TealiumModuleDelegate?, appData: TealiumAppDataProtocol) {
@@ -39,39 +38,10 @@ class TealiumAppDataModule: TealiumModule {
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName)
-        diskStorage.retrieve("PersistentAppData", as: PersistentAppData.self) { _, data, _ in
-            guard let data = data else {
-                self.appData.setNewAppData()
-                return
-            }
-//            self.appData.setLoadedAppData(data: data)
-            self.appData.setLoadedAppData(data: data)
 
-        }
-//        let loadRequest = TealiumLoadRequest(name: TealiumAppDataModule.moduleConfig().name) { [weak self] _, data, _ in
-//
-//            // No prior saved data
-//            guard let loadedData = data else {
-//                self?.appData.setNewAppData()
-//                return
-//            }
-//
-//            // Loaded data does not contain expected keys
-//            if TealiumAppData.isMissingPersistentKeys(data: loadedData) == true {
-//                self?.appData.setNewAppData()
-//                return
-//            }
-//
-//            self?.appData.setLoadedAppData(data: loadedData)
-//        }
-
-//        delegate?.tealiumModuleRequests(module: self,
-//                                        process: loadRequest)
-
+        appData = TealiumAppData(diskStorage: diskStorage)
         isEnabled = true
 
-        // We're not going to wait for the loadrequest to return because it may never
-        // if there are no persistence modules enabled.
         didFinish(request)
     }
 
@@ -83,11 +53,6 @@ class TealiumAppDataModule: TealiumModule {
             // Ignore this module
             didFinishWithNoResponse(track)
             return
-        }
-
-        // If no persistence modules enabled.
-        if TealiumAppData.isMissingPersistentKeys(data: appData.getData()) {
-            appData.setNewAppData()
         }
 
         // Populate data stream

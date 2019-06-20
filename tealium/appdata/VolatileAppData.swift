@@ -49,7 +49,6 @@ struct VolatileAppData: Codable {
     }
 
     var count: Int {
-        let mirror = Mirror(reflecting: self)
-        return mirror.children.count
+        return self.toDictionary().count
     }
 }

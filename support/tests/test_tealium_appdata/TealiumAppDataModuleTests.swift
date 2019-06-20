@@ -171,11 +171,11 @@ extension TealiumAppDataModuleTests: TealiumModuleDelegate {
     }
 }
 
-extension TealiumAppDataModuleTests: TealiumSaveDelegate {
-    func savePersistentData(data: [String: Any]) {
-
-    }
-}
+//extension TealiumAppDataModuleTests: TealiumSaveDelegate {
+//    func savePersistentData(data: [String: Any]) {
+//
+//    }
+//}
 
 class MockTealiumAppData: TealiumAppDataProtocol {
 

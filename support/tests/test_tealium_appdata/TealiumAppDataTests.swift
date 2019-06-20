@@ -192,8 +192,8 @@ extension TealiumAppDataTests: TealiumModuleDelegate {
     }
 }
 
-extension TealiumAppDataTests: TealiumSaveDelegate {
-    func savePersistentData(data: [String: Any]) {
-        saveDelegateCalled += 1
-    }
-}
+//extension TealiumAppDataTests: TealiumSaveDelegate {
+//    func savePersistentData(data: [String: Any]) {
+//        saveDelegateCalled += 1
+//    }
+//}

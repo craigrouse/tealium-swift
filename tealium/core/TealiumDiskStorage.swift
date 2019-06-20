@@ -5,8 +5,7 @@
 
 import Foundation
 
-// implement readwrite queue
-
+// TODO: Convert to protocol for easier testing
 public class TealiumDiskStorage {
 
     static let readWriteQueue = ReadWrite("TealiumDiskStorage.label")

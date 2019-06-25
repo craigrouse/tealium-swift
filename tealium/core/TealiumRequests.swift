@@ -204,7 +204,7 @@ public struct TealiumTrackRequest: TealiumRequest, Codable {
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
 
-    public let data: AnyEncodable
+    public var data: AnyEncodable
 
     public var trackDictionary: [String: Any] {
         if let data = data.value as? [String: Any] {
@@ -241,26 +241,100 @@ public struct TealiumTrackRequest: TealiumRequest, Codable {
         data = AnyEncodable(decoded.value as? [String: Any])
         typeId = try values.decode(String.self, forKey: .typeId)
     }
+
+    public mutating func deleteKey(_ key: String) {
+        var dictionary = self.trackDictionary
+        dictionary.removeValue(forKey: key)
+        self.data = dictionary.encodable
+    }
+
 }
 
 public struct TealiumBatchTrackRequest: TealiumRequest {
     public var typeId = TealiumTrackRequest.instanceTypeId()
-    
+
     public var trackRequests: [TealiumTrackRequest]
-    
+
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
-    
+
     public static func instanceTypeId() -> String {
         return "batchtrack"
     }
-    
+
     public init(trackRequests: [TealiumTrackRequest],
                 completion: TealiumCompletion?) {
         self.trackRequests = trackRequests
         self.completion = completion
     }
-    
+
+    public func compressed() -> [String: Any]? {
+        var shared = [String: Any]()
+        var events = [[String: Any]]()
+        var trackRequests = self.trackRequests
+        guard let requestToCompare = trackRequests.first else {
+                return nil
+        }
+        let otherRequests = trackRequests[1...]
+
+        var sharedKeys = [String]()
+        for (key, value) in requestToCompare.trackDictionary {
+            var isShared = true
+            for request in otherRequests {
+                let data = request.trackDictionary,
+                    item = data[key]
+
+                guard item != nil else {
+                    isShared = false
+                    break
+                }
+                
+                // TODO: Support nested Dictionary values here 
+                if !equal(value, rhs: item!) {
+                    isShared = false
+                    break
+                }
+
+            }
+            if isShared {
+                shared[key] = value
+                sharedKeys.append(key)
+            }
+        }
+
+        for request in trackRequests {
+            var newRequest = [String: Any]()
+            for (key, value) in request.trackDictionary {
+                if !sharedKeys.contains(key) {
+                    newRequest[key] = value
+                }
+            }
+            events.append(newRequest)
+        }
+
+        return ["shared": shared,
+                "events": events]
+    }
+
+}
+
+func isCompressible(_ value: Any) -> Bool {
+    return value is String || value is Int || value is [String] || value is [Int]
+}
+
+func equal(_ lhs: Any, rhs: Any) -> Bool {
+    switch (lhs, rhs) {
+    case (let lhsValue as Int, let rhsValue as Int):
+        return lhsValue == rhsValue
+    case (let lhsValue as [Int], let rhsValue as [Int]):
+        return lhsValue == rhsValue
+    case (let lhsValue as String, let rhsValue as String):
+        return lhsValue == rhsValue
+    case (let lhsValue as [String], let rhsValue as [String]):
+        return lhsValue == rhsValue
+    default:
+        return false
+    }
 }
 
 public struct TealiumDeviceDataRequest: TealiumRequest {

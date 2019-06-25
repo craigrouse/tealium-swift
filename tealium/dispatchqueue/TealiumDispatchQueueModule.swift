@@ -16,6 +16,7 @@ class TealiumDispatchQueueModule: TealiumModule {
     var persistentQueue: TealiumPersistentDispatchQueue?
     var maxQueueSize = TealiumDispatchQueueConstants.defaultMaxQueueSize
     var diskStorage: TealiumDiskStorageProtocol!
+    let maxDispatchSize = 10
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumDispatchQueueConstants.moduleName,
@@ -70,11 +71,17 @@ class TealiumDispatchQueueModule: TealiumModule {
 
     func releaseQueue(_ request: TealiumRequest) {
         if let queuedDispatches = persistentQueue?.dequeueDispatches() {
-            let batchRequest = TealiumBatchTrackRequest(trackRequests: queuedDispatches, completion: nil)
-            delegate?.tealiumModuleRequests(module: self,
-                                            process: batchRequest)
+            let batches: [[TealiumTrackRequest]] = queuedDispatches.chunks(maxDispatchSize)
+
+            batches.forEach { batch in
+                let batchRequest = TealiumBatchTrackRequest(trackRequests: batch, completion: nil)
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
+                    self.delegate?.tealiumModuleRequests(module: self,
+                                                    process: batchRequest)
+                }
+            }
         }
-        
+
     }
 
     func clearQueue(_ request: TealiumRequest) {

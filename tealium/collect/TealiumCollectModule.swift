@@ -23,6 +23,19 @@ class TealiumCollectModule: TealiumModule {
                                    enabled: true)
     }
 
+    override func handle(_ request: TealiumRequest) {
+        switch request {
+        case let request as TealiumEnableRequest:
+            enable(request)
+        case let request as TealiumTrackRequest:
+            track(request)
+        case let request as TealiumBatchTrackRequest:
+            batchTrack(request)
+        default:
+            didFinish(request)
+        }
+    }
+
     /// Enables the module and loads sets up a dispatcher
     ///
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
@@ -76,8 +89,20 @@ class TealiumCollectModule: TealiumModule {
         let trackRequest = TealiumTrackRequest(data: newTrack, completion: track.completion)
 
         // Send the current track call
-        dispatch(trackRequest,
-                 collect: collect)
+//        dispatch(trackRequest,
+//                 collect: collect)
+
+    }
+
+    // take account of known shared keys
+
+    func batchTrack(_ request: TealiumBatchTrackRequest) {
+//        print(request.compressed()!)
+        guard collect is TealiumCollectPostDispatcher else {
+            return
+        }
+
+        collect?.dispatch(data: request.compressed()!, completion: nil)
 
     }
 

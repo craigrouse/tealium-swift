@@ -16,7 +16,7 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
     var urlSession: URLSession?
     var urlSessionConfiguration: URLSessionConfiguration?
     var dispatchURL: String
-    static var defaultDispatchURL = "https://collect.tealiumiq.com/event/"
+    static var defaultDispatchURL = "https://collect.tealiumiq.com/bulk-event/"
 
     /// Initializes dispatcher
     ///

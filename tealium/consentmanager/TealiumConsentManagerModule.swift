@@ -48,7 +48,7 @@ class TealiumConsentManagerModule: TealiumModule {
         }
 
         // allow tracking calls to continue if they are for auditing purposes
-        if let event = track.data[TealiumKey.event] as? String, (event == TealiumConsentConstants.consentPartialEventName
+        if let event = track.trackDictionary[TealiumKey.event] as? String, (event == TealiumConsentConstants.consentPartialEventName
                 || event == TealiumConsentConstants.consentGrantedEventName || event == TealiumConsentConstants.consentDeclinedEventName || event == TealiumKey.updateConsentCookieEventName) {
             didFinishWithNoResponse(track)
             return
@@ -87,7 +87,7 @@ class TealiumConsentManagerModule: TealiumModule {
     ///
     /// - Parameter track: TealiumTrackRequest to be modified.
     func addConsentDataToTrack(_ track: TealiumTrackRequest) -> TealiumTrackRequest {
-        var newTrack = track.data
+        var newTrack = track.trackDictionary
         if let consentDictionary = consentManager.getUserConsentPreferences()?.toDictionary() {
             newTrack.merge(consentDictionary) { _, new -> Any in
                 new
@@ -101,7 +101,7 @@ class TealiumConsentManagerModule: TealiumModule {
     ///
     /// - Parameter track: TealiumTrackRequest to be queued.
     func queue(_ track: TealiumTrackRequest) {
-        var newData = track.data
+        var newData = track.trackDictionary
         newData[TealiumKey.queueReason] = TealiumConsentConstants.moduleName
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)

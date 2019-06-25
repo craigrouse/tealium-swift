@@ -79,7 +79,7 @@ class TealiumDatasourceModule: TealiumModule {
         }
 
         var newData: [String: Any] = [TealiumDatasourceKey.variable: datasource]
-        newData += track.data
+        newData += track.trackDictionary
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)
 

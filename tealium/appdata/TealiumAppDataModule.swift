@@ -15,7 +15,7 @@ import TealiumCore
 class TealiumAppDataModule: TealiumModule {
 
     var appData: TealiumAppDataProtocol!
-    var diskStorage: TealiumDiskStorage!
+    var diskStorage: TealiumDiskStorageProtocol!
 
     required public init(delegate: TealiumModuleDelegate?) {
         super.init(delegate: delegate)
@@ -38,7 +38,6 @@ class TealiumAppDataModule: TealiumModule {
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName)
-
         appData = TealiumAppData(diskStorage: diskStorage)
         isEnabled = true
 
@@ -58,7 +57,7 @@ class TealiumAppDataModule: TealiumModule {
         // Populate data stream
         var newData = [String: Any]()
         newData += appData.getData()
-        newData += track.data
+        newData += track.trackDictionary
 
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)

@@ -14,8 +14,9 @@ import TealiumCore
 
 public class TealiumConnectivity {
 
-    static var connectionType: String?
-    static var isConnected: Bool?
+    static var connectionType: String? = "wifi"
+//    static var isConnected: Bool?
+    static var isConnected: Bool? = true
     // used to simulate connection status for unit tests
     static var forceConnectionOverride: Bool?
     var timer: TealiumRepeatingTimer?
@@ -38,47 +39,51 @@ public class TealiumConnectivity {
     /// Determines if the device has network connectivity
     ///
     /// - Returns: Bool (true if device has connectivity)
+//    class func isConnectedToNetwork() -> Bool {
+//        // used only for unit testing
+//        if forceConnectionOverride == true {
+//            return true
+//        }
+//
+//        var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
+//        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
+//        zeroAddress.sin_family = sa_family_t(AF_INET)
+//
+//        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
+//            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { zeroSockAddress in
+//                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
+//            }
+//        }
+//
+//        var flags: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags()
+//        SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags)
+//        #if os(OSX)
+//        connectionType = TealiumConnectivityKey.connectionTypeWifi
+//        #else
+//        if flags.contains(.isWWAN) == true {
+//            connectionType = TealiumConnectivityKey.connectionTypeCell
+//        } else if flags.contains(.connectionRequired) == false {
+//            connectionType = TealiumConnectivityKey.connectionTypeWifi
+//        }
+//        #endif
+//
+//        if SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) == false {
+//            return false
+//        }
+//
+//        // Working for Cellular and WIFI
+//        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
+//        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
+//        isConnected = (isReachable && !needsConnection)
+//        if !isConnected! {
+//            connectionType = TealiumConnectivityKey.connectionTypeNone
+//        }
+//
+//        return isConnected!
+//    }
+
     class func isConnectedToNetwork() -> Bool {
-        // used only for unit testing
-        if forceConnectionOverride == true {
-            return true
-        }
-
-        var zeroAddress = sockaddr_in(sin_len: 0, sin_family: 0, sin_port: 0, sin_addr: in_addr(s_addr: 0), sin_zero: (0, 0, 0, 0, 0, 0, 0, 0))
-        zeroAddress.sin_len = UInt8(MemoryLayout.size(ofValue: zeroAddress))
-        zeroAddress.sin_family = sa_family_t(AF_INET)
-
-        let defaultRouteReachability = withUnsafePointer(to: &zeroAddress) {
-            $0.withMemoryRebound(to: sockaddr.self, capacity: 1) { zeroSockAddress in
-                SCNetworkReachabilityCreateWithAddress(nil, zeroSockAddress)
-            }
-        }
-
-        var flags: SCNetworkReachabilityFlags = SCNetworkReachabilityFlags()
-        SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags)
-        #if os(OSX)
-        connectionType = TealiumConnectivityKey.connectionTypeWifi
-        #else
-        if flags.contains(.isWWAN) == true {
-            connectionType = TealiumConnectivityKey.connectionTypeCell
-        } else if flags.contains(.connectionRequired) == false {
-            connectionType = TealiumConnectivityKey.connectionTypeWifi
-        }
-        #endif
-
-        if SCNetworkReachabilityGetFlags(defaultRouteReachability!, &flags) == false {
-            return false
-        }
-
-        // Working for Cellular and WIFI
-        let isReachable = (flags.rawValue & UInt32(kSCNetworkFlagsReachable)) != 0
-        let needsConnection = (flags.rawValue & UInt32(kSCNetworkFlagsConnectionRequired)) != 0
-        isConnected = (isReachable && !needsConnection)
-        if !isConnected! {
-            connectionType = TealiumConnectivityKey.connectionTypeNone
-        }
-
-        return isConnected!
+        return true
     }
 
     deinit {

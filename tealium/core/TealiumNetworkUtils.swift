@@ -27,6 +27,26 @@ public func jsonStringWithDictionary(_ dictionary: [String: Any]) -> String? {
     }
 }
 
+public func jsonStringWithArray(_ array: [[String: Any]]) -> String? {
+    var writingOptions: JSONEncoder.OutputFormatting
+
+    if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, OSX 10.13, *) {
+        writingOptions = [.prettyPrinted, .sortedKeys]
+    } else {
+        writingOptions = [.prettyPrinted]
+    }
+
+    let encoder = JSONEncoder()
+    encoder.outputFormatting = writingOptions
+//    let coded = dictionary.encodable
+    let coded = AnyEncodable(array)
+    if let jsonData = try? encoder.encode(coded) {
+        return String(data: jsonData, encoding: .utf8)
+    } else {
+        return nil
+    }
+}
+
 public func urlPOSTRequestWithJSONString(_ jsonString: String, dispatchURL: String) -> URLRequest? {
     if let dispatchURL = URL(string: dispatchURL) {
         var request = URLRequest(url: dispatchURL)

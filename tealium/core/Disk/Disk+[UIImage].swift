@@ -38,7 +38,7 @@ public extension Disk {
         do {
             let folderUrl = try createURL(for: path, in: directory)
             try createSubfoldersBeforeCreatingFile(at: folderUrl)
-            try FileManager.default.createDirectory(at: folderUrl, withIntermediateDirectories: false, attributes: nil)
+            try FileManager.default.createDirectory(at: folderUrl, withIntermediateDirectories: false, attributes:nil)
             for i in 0..<value.count {
                 let image = value[i]
                 var imageData: Data

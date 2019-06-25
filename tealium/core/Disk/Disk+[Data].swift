@@ -34,7 +34,7 @@ public extension Disk {
         do {
             let folderUrl = try createURL(for: path, in: directory)
             try createSubfoldersBeforeCreatingFile(at: folderUrl)
-            try FileManager.default.createDirectory(at: folderUrl, withIntermediateDirectories: false, attributes: nil)
+            try FileManager.default.createDirectory(at: folderUrl, withIntermediateDirectories: false, attributes:nil)
             // swiftlint:disable identifier_name
             for i in 0..<value.count {
                 let data = value[i]

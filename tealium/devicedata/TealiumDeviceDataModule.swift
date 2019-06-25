@@ -79,7 +79,7 @@ class TealiumDeviceDataModule: TealiumModule {
 
     override func track(_ request: TealiumTrackRequest) {
         // Add device data to the data stream.
-        var newData = request.data
+        var newData = request.trackDictionary
         newData += data
         newData += trackTimeData()
         let newTrack = TealiumTrackRequest(data: newData,

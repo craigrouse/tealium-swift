@@ -92,7 +92,7 @@ class TealiumDatasourceModuleTests: XCTestCase {
             return
         }
 
-        let data = track.data
+        let data = track.trackDictionary
 
         guard let datasource = data["tealium_datasource"] as? String else {
             XCTFail("Datasource string from config was not passed to track call.")

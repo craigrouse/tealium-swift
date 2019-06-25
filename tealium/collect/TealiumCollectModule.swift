@@ -54,9 +54,9 @@ class TealiumCollectModule: TealiumModule {
             didFinishWithNoResponse(track)
             return
         }
-        var newTrack = track.data
+        var newTrack = track.trackDictionary
 
-        if track.data[TealiumKey.event] as? String == TealiumKey.updateConsentCookieEventName {
+        if track.trackDictionary[TealiumKey.event] as? String == TealiumKey.updateConsentCookieEventName {
             didFinishWithNoResponse(track)
             return
         }
@@ -72,7 +72,7 @@ class TealiumCollectModule: TealiumModule {
                 newTrack[TealiumKey.account] = config?.account
                 newTrack[TealiumKey.profile] = config?.profile
         }
-        newTrack += track.data
+        newTrack += track.trackDictionary
         let trackRequest = TealiumTrackRequest(data: newTrack, completion: track.completion)
 
         // Send the current track call
@@ -126,7 +126,7 @@ class TealiumCollectModule: TealiumModule {
     func dispatch(_ track: TealiumTrackRequest,
                   collect: TealiumCollectProtocol) {
 
-        var newData = track.data
+        var newData = track.trackDictionary
         newData[TealiumKey.dispatchService] = TealiumCollectKey.moduleName
 
         if let profileOverride = config?.optionalData[TealiumCollectKey.overrideCollectProfile] as? String {
@@ -149,7 +149,7 @@ class TealiumCollectModule: TealiumModule {
 
             var trackInfo = info ?? [String: Any]()
             trackInfo[TealiumKey.dispatchService] = TealiumCollectKey.moduleName
-            trackInfo += [TealiumCollectKey.payload: track.data]
+            trackInfo += [TealiumCollectKey.payload: track.trackDictionary]
 
             // Another message to moduleManager of completed track, this time of
             //  modified track data.

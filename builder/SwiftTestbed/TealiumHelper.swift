@@ -52,7 +52,7 @@ class TealiumHelper: NSObject {
         #else
         // OPTIONALLY disable a particular module by name
         let list = TealiumModulesList(isWhitelist: false,
-                                      moduleNames: ["autotracking", "defaultsstorage", "filestorage"])
+                                      moduleNames: ["autotracking", "defaultsstorage", "filestorage", "tagmanagement"])
         config.setModulesList(list)
         print("*** TealiumHelper: Autotracking disabled.")
         #endif

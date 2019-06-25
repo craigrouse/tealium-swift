@@ -101,7 +101,7 @@ class TealiumVolatileDataModule: TealiumModule {
     override func track(_ track: TealiumTrackRequest) {
         var newData = [String: Any]()
 
-        newData += track.data
+        newData += track.trackDictionary
 
         if volatileData.shouldRefreshSessionIdentifier() {
             volatileData.setSessionId(sessionId: TealiumVolatileData.newSessionId())

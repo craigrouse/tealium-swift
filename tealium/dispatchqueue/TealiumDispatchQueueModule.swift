@@ -15,6 +15,7 @@ class TealiumDispatchQueueModule: TealiumModule {
 
     var persistentQueue: TealiumPersistentDispatchQueue?
     var maxQueueSize = TealiumDispatchQueueConstants.defaultMaxQueueSize
+    var diskStorage: TealiumDiskStorageProtocol!
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumDispatchQueueConstants.moduleName,
@@ -24,7 +25,8 @@ class TealiumDispatchQueueModule: TealiumModule {
     }
 
     override func enable(_ request: TealiumEnableRequest) {
-        persistentQueue = TealiumPersistentDispatchQueue(request.config)
+        diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumDispatchQueueConstants.moduleName)
+        persistentQueue = TealiumPersistentDispatchQueue(diskStorage: diskStorage)
         // release any previously-queued track requests
         if let maxSize = request.config.getMaxQueueSize() {
             maxQueueSize = maxSize
@@ -55,7 +57,7 @@ class TealiumDispatchQueueModule: TealiumModule {
     func queue(_ request: TealiumEnqueueRequest) {
         removeOldDispatches()
         let track = request.data
-        var newData = track.data
+        var newData = track.trackDictionary
         newData[TealiumKey.wasQueued] = "true"
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)
@@ -67,11 +69,12 @@ class TealiumDispatchQueueModule: TealiumModule {
     }
 
     func releaseQueue(_ request: TealiumRequest) {
-        persistentQueue?.dequeueDispatches()?.forEach({ data in
-            let track = TealiumTrackRequest(data: data, completion: request.completion)
+        if let queuedDispatches = persistentQueue?.dequeueDispatches() {
+            let batchRequest = TealiumBatchTrackRequest(trackRequests: queuedDispatches, completion: nil)
             delegate?.tealiumModuleRequests(module: self,
-                                            process: track)
-        })
+                                            process: batchRequest)
+        }
+        
     }
 
     func clearQueue(_ request: TealiumRequest) {

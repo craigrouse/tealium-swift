@@ -97,7 +97,7 @@ public class TealiumTagManagementModule: TealiumModule {
             didFinishWithNoResponse(track)
             return
         }
-        var newTrackData = track.data
+        var newTrackData = track.trackDictionary
         newTrackData[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
         let newTrack = TealiumTrackRequest(data: newTrackData, completion: track.completion)
         dispatchTrack(newTrack)
@@ -157,7 +157,7 @@ public class TealiumTagManagementModule: TealiumModule {
 
             #if TEST
             #else
-            self.tagManagement?.track(track.data) { success, info, error in
+            self.tagManagement?.track(track.trackDictionary) { success, info, error in
                                         DispatchQueue.main.async {
                                             track.completion?(success, info, error)
 

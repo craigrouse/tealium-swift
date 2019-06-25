@@ -124,7 +124,7 @@ public class TealiumLifecycleModule: TealiumModule {
         }
 
         var newData = lifecycle.newTrack(atDate: Date())
-        newData += track.data
+        newData += track.trackDictionary
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)
         didFinish(newTrack)

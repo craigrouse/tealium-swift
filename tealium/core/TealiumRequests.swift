@@ -199,22 +199,68 @@ public struct TealiumSaveRequest: TealiumRequest {
 }
 
 /// Request to deliver data.
-public struct TealiumTrackRequest: TealiumRequest {
+public struct TealiumTrackRequest: TealiumRequest, Codable {
     public var typeId = TealiumTrackRequest.instanceTypeId()
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
 
-    public let data: [String: Any]
+    public let data: AnyEncodable
+
+    public var trackDictionary: [String: Any] {
+        if let data = data.value as? [String: Any] {
+            return data
+        }
+        return ["": ""]
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case typeId
+        case data
+    }
 
     public init(data: [String: Any],
                 completion: TealiumCompletion?) {
-        self.data = data
+        self.data = data.encodable
         self.completion = completion
     }
 
     public static func instanceTypeId() -> String {
         return "track"
     }
+
+    public func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(typeId, forKey: .typeId)
+        try container.encode(data, forKey: .data)
+    }
+
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+        let decoded = try values.decode(AnyDecodable.self, forKey: .data)
+
+        data = AnyEncodable(decoded.value as? [String: Any])
+        typeId = try values.decode(String.self, forKey: .typeId)
+    }
+}
+
+public struct TealiumBatchTrackRequest: TealiumRequest {
+    public var typeId = TealiumTrackRequest.instanceTypeId()
+    
+    public var trackRequests: [TealiumTrackRequest]
+    
+    public var moduleResponses = [TealiumModuleResponse]()
+    public var completion: TealiumCompletion?
+    
+    public static func instanceTypeId() -> String {
+        return "batchtrack"
+    }
+    
+    public init(trackRequests: [TealiumTrackRequest],
+                completion: TealiumCompletion?) {
+        self.trackRequests = trackRequests
+        self.completion = completion
+    }
+    
 }
 
 public struct TealiumDeviceDataRequest: TealiumRequest {

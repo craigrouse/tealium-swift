@@ -13,74 +13,76 @@ import TealiumCore
 
 class TealiumPersistentDispatchQueue {
 
-    static var queueStorage = UserDefaults.standard
+    private var diskStorage: TealiumDiskStorageProtocol!
+//    var queuedDispatches = [
 
-    let readWriteQueue = ReadWrite("\(TealiumDispatchQueueConstants.moduleName).label")
-
-    let config: TealiumConfig
-
-    lazy var storageKey: String = TealiumPersistentDispatchQueue.generateStorageKey(self.config)
-
-    public init(_ config: TealiumConfig) {
-        self.config = config
-        initializeQueue()
+    public init(diskStorage: TealiumDiskStorageProtocol) {
+        self.diskStorage = diskStorage
+//        initializeQueue()
     }
 
-    // used only for unit tests
-    convenience init(_ config: TealiumConfig, userDefaultsMock: UserDefaults) {
-        TealiumPersistentDispatchQueue.queueStorage = userDefaultsMock
-        self.init(config)
-    }
-
-    class func generateStorageKey(_ config: TealiumConfig) -> String {
-        return "\(config.account).\(config.profile).\(config.environment).\(TealiumDispatchQueueConstants.moduleName)"
-    }
-
-    func initializeQueue() {
-        // queue already initialized
-        if let _ = TealiumPersistentDispatchQueue.queueStorage.object(forKey: storageKey) as? [[String: Any]] {
-            return
-        }
-        // init with blank data
-        let blankData = [[String: Any]]()
-        TealiumPersistentDispatchQueue.queueStorage.set(blankData, forKey: storageKey)
-    }
+//    func initializeQueue() {
+//        diskStorage.retrieve(as: [TealiumTrackRequest].self) { _, data, _ in
+//            guard let data = data else {
+//
+//                return
+//            }
+////            self.setLoadedAppData(data: data)
+//        }
+////        // queue already initialized
+////        if let _ = TealiumPersistentDispatchQueue.queueStorage.object(forKey: storageKey) as? [[String: Any]] {
+////            return
+////        }
+////        // init with blank data
+////        let blankData = [[String: Any]]()
+////        TealiumPersistentDispatchQueue.queueStorage.set(blankData, forKey: storageKey)
+//    }
 
     func saveDispatch(_ dispatch: TealiumTrackRequest) {
-        // save dispatch can only happen once queue is initialized
-        guard let currentData = dequeueDispatches() else {
-            return
-        }
-
-        // note: any completion blocks will be ignored for now, since we can only persist Dictionaries in UserDefaults
-        var newData = currentData
-        newData.append(dispatch.data)
-        readWriteQueue.write {
-            TealiumPersistentDispatchQueue.queueStorage.set(newData, forKey: self.storageKey)
-        }
+        diskStorage.append(dispatch, completion: nil)
     }
 
-    func peek() -> [[String: Any]]? {
-        return dequeueDispatches(clear: false)
-    }
-
-    func dequeueDispatches(clear clearQueue: Bool? = true) -> [[String: Any]]? {
-        var queuedDispatches: [[String: Any]]?
-        readWriteQueue.read {
-            if let dispatches = TealiumPersistentDispatchQueue.queueStorage.array(forKey: self.storageKey) as? [[String: Any]] {
-                // clear persistent queue
-                if clearQueue == true {
-                    self.clearQueue()
-                }
-                queuedDispatches = dispatches
+    func peek() -> [TealiumTrackRequest]? {
+//        return dequeueDispatches(clear: false)
+        var trackRequests: [TealiumTrackRequest]?
+        diskStorage.retrieve(as: [TealiumTrackRequest].self) { _, data, error in
+            guard error == nil else {
+                trackRequests = nil
+                return
             }
+            trackRequests = data
         }
+        return trackRequests
+    }
+
+    func dequeueDispatches(clear clearQueue: Bool? = true) -> [TealiumTrackRequest]? {
+        var queuedDispatches: [TealiumTrackRequest]?
+//        readWriteQueue.read {
+//            if let dispatches = TealiumPersistentDispatchQueue.queueStorage.array(forKey: self.storageKey) as? [[String: Any]] {
+//                // clear persistent queue
+//                if clearQueue == true {
+//                    self.clearQueue()
+//                }
+//                queuedDispatches = dispatches
+//            }
+//        }
+//        return queuedDispatches
+        diskStorage.retrieve(as: [TealiumTrackRequest].self) { _, data, error in
+            guard error == nil else {
+                queuedDispatches = nil
+                return
+            }
+            queuedDispatches = data
+        }
+
+        diskStorage.delete(completion: nil)
+
         return queuedDispatches
     }
 
     func removeOldDispatches(_ maxQueueSize: Int) {
         // save dispatch can only happen once queue is initialized
-        guard let currentData = self.peek() else {
+        guard let currentData = peek() else {
             return
         }
 
@@ -93,17 +95,17 @@ class TealiumPersistentDispatchQueue {
             // left with 19 elements => 20 - (20-1) = 19
             let slice = newData.suffix(from: totalDispatches - (maxQueueSize - 1))
             newData = Array(slice)
-            readWriteQueue.write {
-                TealiumPersistentDispatchQueue.queueStorage.set(newData, forKey: self.storageKey)
-            }
+//            readWriteQueue.write {
+//                TealiumPersistentDispatchQueue.queueStorage.set(newData, forKey: self.storageKey)
+//            }
         }
     }
 
     func clearQueue() {
-        readWriteQueue.write {
-            let blankData = [[String: Any]]()
-            TealiumPersistentDispatchQueue.queueStorage.set(blankData, forKey: self.storageKey)
-        }
+//        readWriteQueue.write {
+//            let blankData = [[String: Any]]()
+//            TealiumPersistentDispatchQueue.queueStorage.set(blankData, forKey: self.storageKey)
+//        }
     }
 
 }

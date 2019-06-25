@@ -86,7 +86,7 @@ class TealiumAttributionModule: TealiumModule {
         }
 
         // Module enabled - add attribution info to data
-        var newData = track.data
+        var newData = track.trackDictionary
         newData += attributionData.allAttributionData
 
         let newTrack = TealiumTrackRequest(data: newData,

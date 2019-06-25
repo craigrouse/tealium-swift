@@ -70,7 +70,7 @@ class TealiumConnectivityModule: TealiumModule {
             return
         }
 
-        var newData = request.data
+        var newData = request.trackDictionary
         newData += [TealiumConnectivityKey.connectionType: TealiumConnectivity.currentConnectionType(),
                     TealiumConnectivityKey.connectionTypeLegacy: TealiumConnectivity.currentConnectionType(),
         ]
@@ -105,7 +105,7 @@ class TealiumConnectivityModule: TealiumModule {
     ///
     /// - Parameter track: TealiumTrackRequest to be queued
     func queue(_ track: TealiumTrackRequest) {
-        var newData = track.data
+        var newData = track.trackDictionary
         newData[TealiumKey.queueReason] = TealiumConnectivityKey.moduleName
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)

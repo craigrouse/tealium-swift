@@ -94,20 +94,20 @@ class TealiumDeviceDataModule: TealiumModule {
     func enableTimeData() -> [String: Any] {
         var result = [String: Any]()
 
-        result[TealiumDeviceDataKey.architectureLegacy] = deviceDataCollection.architecture()
-        result[TealiumDeviceDataKey.architecture] = result[TealiumDeviceDataKey.architectureLegacy] ?? ""
+        result[TealiumKey.architectureLegacy] = deviceDataCollection.architecture()
+        result[TealiumKey.architecture] = result[TealiumKey.architectureLegacy] ?? ""
         result[TealiumDeviceDataKey.osBuildLegacy] = TealiumDeviceData.oSBuild()
         result[TealiumDeviceDataKey.osBuild] = TealiumDeviceData.oSBuild()
-        result[TealiumDeviceDataKey.cpuTypeLegacy] = deviceDataCollection.cpuType()
-        result[TealiumDeviceDataKey.cpuType] = result[TealiumDeviceDataKey.cpuTypeLegacy] ?? ""
+        result[TealiumKey.cpuTypeLegacy] = deviceDataCollection.cpuType()
+        result[TealiumKey.cpuType] = result[TealiumKey.cpuTypeLegacy] ?? ""
         result.merge(deviceDataCollection.model()) { _, new -> Any in
             new
         }
         result[TealiumDeviceDataKey.osVersionLegacy] = TealiumDeviceData.oSVersion()
         result[TealiumDeviceDataKey.osVersion] = result[TealiumDeviceDataKey.osVersionLegacy] ?? ""
-        result[TealiumDeviceDataKey.osName] = TealiumDeviceData.oSName()
-        result[TealiumDeviceDataKey.platform] = result[TealiumDeviceDataKey.osName] ?? ""
-        result[TealiumDeviceDataKey.resolution] = TealiumDeviceData.resolution()
+        result[TealiumKey.osName] = TealiumDeviceData.oSName()
+        result[TealiumKey.platform] = result[TealiumKey.osName] ?? ""
+        result[TealiumKey.resolution] = TealiumDeviceData.resolution()
         return result
     }
 
@@ -121,8 +121,8 @@ class TealiumDeviceDataModule: TealiumModule {
         result[TealiumDeviceDataKey.batteryPercent] = result[TealiumDeviceDataKey.batteryPercentLegacy] ?? ""
         result[TealiumDeviceDataKey.isChargingLegacy] = TealiumDeviceData.isCharging()
         result[TealiumDeviceDataKey.isCharging] = result[TealiumDeviceDataKey.isChargingLegacy] ?? ""
-        result[TealiumDeviceDataKey.languageLegacy] = TealiumDeviceData.iso639Language()
-        result[TealiumDeviceDataKey.language] = result[TealiumDeviceDataKey.languageLegacy] ?? ""
+        result[TealiumKey.languageLegacy] = TealiumDeviceData.iso639Language()
+        result[TealiumKey.language] = result[TealiumKey.languageLegacy] ?? ""
         if isMemoryEnabled == true {
             result.merge(deviceDataCollection.getMemoryUsage()) { _, new -> Any in
                 new
@@ -139,19 +139,11 @@ class TealiumDeviceDataModule: TealiumModule {
 }
 
 public enum TealiumDeviceDataKey {
-    public static let simpleModel = "model_name" // e.g. iPhone 5s // OLD: device
-    public static let device = "device" // == model_name
-    public static let fullModel = "model_variant" // e.g. CDMA, GSM
-    public static let architectureLegacy = "cpu_architecture"
-    public static let architecture = "device_architecture"
+
     public static let batteryPercentLegacy = "battery_percent"
     public static let batteryPercent = "device_battery_percent"
-    public static let cpuTypeLegacy = "cpu_type"
-    public static let cpuType = "device_cputype"
     public static let isChargingLegacy = "device_is_charging"
     public static let isCharging = "device_ischarging"
-    public static let languageLegacy = "user_locale"
-    public static let language = "device_language"
     public static let appMemoryUsage = "app_memory_usage"
     public static let memoryFree = "memory_free"
     public static let memoryActive = "memory_active"
@@ -165,9 +157,6 @@ public enum TealiumDeviceDataKey {
     public static let osBuild = "device_os_build"
     public static let osVersionLegacy = "os_version"
     public static let osVersion = "device_os_version"
-    public static let osName = "os_name"
-    public static let platform = "platform"
-    public static let resolution = "device_resolution"
     public static let carrierLegacy = "network_name"
     public static let carrier = "carrier"
     public static let carrierMNCLegacy = "network_mnc"

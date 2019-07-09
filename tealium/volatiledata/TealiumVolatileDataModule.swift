@@ -16,7 +16,6 @@ import TealiumCore
 public enum TealiumVolatileDataKey {
     static let moduleName = "volatiledata"
     static let random = "tealium_random"
-    static let sessionId = "tealium_session_id"
     public static let timestampEpoch = "tealium_timestamp_epoch"
     static let timestampLegacy = "event_timestamp_iso"
     static let timestamp = "timestamp"
@@ -84,7 +83,7 @@ class TealiumVolatileDataModule: TealiumModule {
                                                 TealiumKey.environment: config.environment,
                                                 TealiumKey.libraryName: TealiumValue.libraryName,
                                                 TealiumKey.libraryVersion: TealiumValue.libraryVersion,
-                                                TealiumVolatileDataKey.sessionId: TealiumVolatileData.newSessionId(),
+                                                TealiumKey.sessionId: TealiumVolatileData.newSessionId(),
         ]
 
         volatileData.add(data: currentStaticData)

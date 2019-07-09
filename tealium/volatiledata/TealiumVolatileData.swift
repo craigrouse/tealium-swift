@@ -94,14 +94,14 @@ public class TealiumVolatileData: NSObject, TealiumVolatileDataCollection {
 
     /// Auto reset the session id now.
     public func resetSessionId() {
-        add(data: [TealiumVolatileDataKey.sessionId: TealiumVolatileData.newSessionId() ])
+        add(data: [TealiumKey.sessionId: TealiumVolatileData.newSessionId() ])
     }
 
     /// Manually set session id to a specified string
     ///
     /// - Parameter sessionId: String id to set session id to.
     public func setSessionId(sessionId: String) {
-        add(data: [TealiumVolatileDataKey.sessionId: sessionId])
+        add(data: [TealiumKey.sessionId: sessionId])
     }
 
     // MARK: INTERNAL

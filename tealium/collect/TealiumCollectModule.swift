@@ -18,7 +18,7 @@ class TealiumCollectModule: TealiumModule {
     var config: TealiumConfig?
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumCollectKey.moduleName,
-                                   priority: 1000,
+                                   priority: 2000,
                                    build: 4,
                                    enabled: true)
     }
@@ -51,7 +51,7 @@ class TealiumCollectModule: TealiumModule {
                 self.collect = TealiumCollect(baseURL: urlString)
                 didFinish(request)
             } else {
-                let urlString = urlString ?? TealiumCollectPostDispatcher.defaultDispatchURL
+                let urlString = urlString ?? TealiumCollectPostDispatcher.defaultDispatchBaseURL
                 self.collect = TealiumCollectPostDispatcher(dispatchURL: urlString) { _ in
                     self.didFinish(request)
                 }
@@ -89,8 +89,8 @@ class TealiumCollectModule: TealiumModule {
         let trackRequest = TealiumTrackRequest(data: newTrack, completion: track.completion)
 
         // Send the current track call
-//        dispatch(trackRequest,
-//                 collect: collect)
+        dispatch(trackRequest,
+                 collect: collect)
 
     }
 
@@ -102,7 +102,8 @@ class TealiumCollectModule: TealiumModule {
             return
         }
 
-        collect?.dispatch(data: request.compressed()!, completion: nil)
+//        collect?.dispatch(data: request.compressed()!, completion: nil)
+                collect?.dispatchBulk(data: request.uncompressed()!, completion: nil)
 
     }
 

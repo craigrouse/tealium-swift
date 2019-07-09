@@ -44,21 +44,22 @@ class TealiumAttributionModule: TealiumModule {
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         if request.config.isSearchAdsEnabled() {
-            let loadRequest = TealiumLoadRequest(name: TealiumAttributionModule.moduleConfig().name) { [weak self] _, data, _ in
-                guard let weakSelf = self else {
-                    return
-                }
+            // TODO: Look into this: weak self was causing retain cycle (memory leak)
+            let loadRequest = TealiumLoadRequest(name: TealiumAttributionModule.moduleConfig().name) { _, data, _ in
+//                guard let `self` = self else {
+//                    return
+//                }
 
                 // No prior saved data
                 guard let loadedData = data else {
-                    weakSelf.attributionData?.appleSearchAdsData { data in
-                        weakSelf.savePersistentData(data)
-                        weakSelf.setLoadedAttributionData(data)
+                    self.attributionData?.appleSearchAdsData { data in
+                        self.savePersistentData(data)
+                        self.setLoadedAttributionData(data)
                     }
                     return
                 }
 
-                weakSelf.setLoadedAttributionData(loadedData)
+                self.setLoadedAttributionData(loadedData)
             }
             delegate?.tealiumModuleRequests(module: self,
                                             process: loadRequest)

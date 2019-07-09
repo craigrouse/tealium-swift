@@ -252,7 +252,26 @@ public struct TealiumTrackRequest: TealiumRequest, Codable {
 
 public struct TealiumBatchTrackRequest: TealiumRequest {
     public var typeId = TealiumTrackRequest.instanceTypeId()
-
+    let sharedKeys = [TealiumKey.account,
+                      TealiumKey.profile,
+                      TealiumKey.dataSource,
+                      TealiumKey.libraryName,
+                      TealiumKey.libraryVersion,
+                      TealiumKey.uuid,
+                      TealiumKey.device,
+                      TealiumKey.simpleModel,
+                      TealiumKey.architectureLegacy,
+                      TealiumKey.architecture,
+                      TealiumKey.cpuType,
+                      TealiumKey.cpuTypeLegacy,
+                      TealiumKey.language,
+                      TealiumKey.languageLegacy,
+                      TealiumKey.resolution,
+                      TealiumKey.platform,
+                      TealiumKey.osName,
+                      TealiumKey.fullModel,
+                      TealiumKey.visitorId
+    ]
     public var trackRequests: [TealiumTrackRequest]
 
     public var moduleResponses = [TealiumModuleResponse]()
@@ -266,6 +285,34 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
                 completion: TealiumCompletion?) {
         self.trackRequests = trackRequests
         self.completion = completion
+    }
+
+    public func uncompressed() -> [String: Any]? {
+        var events = [[String: Any]]()
+        guard let firstRequest = trackRequests.first else {
+            return nil
+        }
+
+        let shared = extractSharedKeys(from: firstRequest.trackDictionary)
+
+        for request in trackRequests {
+            let newRequest = request.trackDictionary.filter { !sharedKeys.contains($0.key) }
+            events.append(newRequest)
+        }
+
+        return ["events": events, "shared": shared]
+    }
+
+    public func extractSharedKeys(from dictionary: [String: Any]) -> [String: Any] {
+        var newSharedDictionary = [String: Any]()
+
+        sharedKeys.forEach { key in
+            if dictionary[key] != nil {
+                newSharedDictionary[key] = dictionary[key]
+            }
+        }
+
+        return newSharedDictionary
     }
 
     public func compressed() -> [String: Any]? {
@@ -288,8 +335,8 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
                     isShared = false
                     break
                 }
-                
-                // TODO: Support nested Dictionary values here 
+
+                // TODO: Support nested Dictionary values here (recursive)
                 if !equal(value, rhs: item!) {
                     isShared = false
                     break
@@ -318,20 +365,39 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
 
 }
 
-func isCompressible(_ value: Any) -> Bool {
-    return value is String || value is Int || value is [String] || value is [Int]
-}
-
 func equal(_ lhs: Any, rhs: Any) -> Bool {
     switch (lhs, rhs) {
-    case (let lhsValue as Int, let rhsValue as Int):
+
+    case let (lhsValue as Int, rhsValue as Int):
         return lhsValue == rhsValue
-    case (let lhsValue as [Int], let rhsValue as [Int]):
+    case let (lhsValue as [Int], rhsValue as [Int]):
         return lhsValue == rhsValue
-    case (let lhsValue as String, let rhsValue as String):
+    case let (lhsValue as Double, rhsValue as Double):
         return lhsValue == rhsValue
-    case (let lhsValue as [String], let rhsValue as [String]):
+    case let (lhsValue as [Double], rhsValue as [Double]):
         return lhsValue == rhsValue
+    case let (lhsValue as Float, rhsValue as Float):
+        return lhsValue == rhsValue
+    case let (lhsValue as [Float], rhsValue as [Float]):
+        return lhsValue == rhsValue
+    case let (lhsValue as Bool, rhsValue as Bool):
+        return lhsValue == rhsValue
+    case let (lhsValue as [Bool], rhsValue as [Bool]):
+        return lhsValue == rhsValue
+    case let (lhsValue as String, rhsValue as String):
+        return lhsValue == rhsValue
+    case let (lhsValue as [String], rhsValue as [String]):
+        return lhsValue == rhsValue
+    case let (lhsValue as [String: Any], rhsValue as [String: Any]):
+        for (key, value) in lhsValue {
+            guard rhsValue[key] != nil else {
+                return false
+            }
+            guard equal(value, rhs: rhsValue[key]!) == true else {
+                return false
+            }
+        }
+        return true
     default:
         return false
     }

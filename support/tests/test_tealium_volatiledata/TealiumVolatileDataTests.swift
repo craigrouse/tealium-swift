@@ -60,7 +60,7 @@ class TealiumVolatileDataTests: XCTestCase {
         XCTAssertNotNil(result[TealiumKey.environment] as? String)
         XCTAssertNotNil(result[TealiumKey.libraryName] as? String)
         XCTAssertNotNil(result[TealiumKey.libraryVersion] as? String)
-        XCTAssertNotNil(result[TealiumVolatileDataKey.sessionId] as? String)
+        XCTAssertNotNil(result[TealiumKey.sessionId] as? String)
 
         // getData() method
         XCTAssertNotNil(result[TealiumVolatileDataKey.random] as? String)
@@ -107,11 +107,11 @@ class TealiumVolatileDataTests: XCTestCase {
             return
         }
         let initialData = volatileData.getData(currentData: [String: Any]())
-        volatileData.deleteData(forKeys: [TealiumVolatileDataKey.sessionId, TealiumKey.libraryVersion])
+        volatileData.deleteData(forKeys: [TealiumKey.sessionId, TealiumKey.libraryVersion])
         let result = volatileData.getData(currentData: [String: Any]())
 
         XCTAssertEqual(initialData.count - 2, result.count, "Counts did not match")
-        XCTAssertNil(result[TealiumVolatileDataKey.sessionId], "sessionId should be nil")
+        XCTAssertNil(result[TealiumKey.sessionId], "sessionId should be nil")
         XCTAssertNil(result[TealiumKey.libraryVersion], "libraryVersion should be nil")
     }
 
@@ -121,10 +121,10 @@ class TealiumVolatileDataTests: XCTestCase {
             return
         }
 
-        let sessionId = volatileData.getData(currentData: [String: Any]())[TealiumVolatileDataKey.sessionId] as? String
+        let sessionId = volatileData.getData(currentData: [String: Any]())[TealiumKey.sessionId] as? String
         sleep(1)
         volatileData.resetSessionId()
-        let resultSessionId = volatileData.getData(currentData: [String: Any]())[TealiumVolatileDataKey.sessionId] as? String
+        let resultSessionId = volatileData.getData(currentData: [String: Any]())[TealiumKey.sessionId] as? String
 
         XCTAssertNotEqual(sessionId, resultSessionId, "sessionIds should be different")
     }

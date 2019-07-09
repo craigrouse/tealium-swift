@@ -27,10 +27,29 @@ public class TealiumTagManagementModule: TealiumModule {
     #if TEST
     #else
 
+    // TODO: Finish implementation!!!!
+    override public func handle(_ request: TealiumRequest) {
+        switch request {
+        case let request as TealiumEnableRequest:
+            enable(request)
+        case let request as TealiumDisableRequest:
+            disable(request)
+        case let request as TealiumTrackRequest:
+            track(request)
+        case let request as TealiumBatchTrackRequest:
+            batchTrack(request)
+        default:
+            didFinish(request)
+        }
+    }
+
     /// Enables the module and sets up the webview instance
     ///
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override public func enable(_ request: TealiumEnableRequest) {
+
+//        let cache = TealiumAssetCache()
+
         if request.config.getShouldUseLegacyWebview() == true {
             self.tagManagement = TealiumTagManagementUIWebView()
         } else if #available(iOS 11.0, *) {
@@ -101,6 +120,21 @@ public class TealiumTagManagementModule: TealiumModule {
         newTrackData[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
         let newTrack = TealiumTrackRequest(data: newTrackData, completion: track.completion)
         dispatchTrack(newTrack)
+    }
+
+    /// Handles the batch track request and forwards to the webview for processing
+    ///
+    /// - Parameter track: TealiumTrackRequest to be evaluated
+    public func batchTrack(_ track: TealiumBatchTrackRequest) {
+        if isEnabled == false {
+            // Ignore while disabled
+            didFinishWithNoResponse(track)
+            return
+        }
+
+        track.trackRequests.forEach { [unowned self] track in
+            self.track(track)
+        }
     }
 
     /// Called when the module has finished processing the request

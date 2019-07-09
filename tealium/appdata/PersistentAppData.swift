@@ -12,7 +12,7 @@ public struct PersistentAppData: Codable {
     public let visitorId: String
     public let uuid: String
     public func toDictionary() -> [String: Any] {
-        return [TealiumAppDataKey.uuid: uuid,
-                TealiumAppDataKey.visitorId: visitorId]
+        return [TealiumKey.uuid: uuid,
+                TealiumKey.visitorId: visitorId]
     }
 }

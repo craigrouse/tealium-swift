@@ -36,23 +36,43 @@ class TealiumHelper: NSObject {
                                    optionalData: nil)
 
         // OPTIONALLY set log level
-        config.setMaxQueueSize(20)
         config.setLegacyDispatchMethod(false)
         config.setConnectivityRefreshInterval(interval: 5)
         config.setLogLevel(logLevel: .verbose)
         config.setConsentLoggingEnabled(true)
         config.setSearchAdsEnabled(true)
         config.setInitialUserConsentStatus(.consented)
-
+        
+        config.setBatchSize(5)
+        config.setMaxQueueSize(10)
+        config.setDispatchAfter(numberOfEvents: 5)
+        
+        config.setIsEventBatchingEnabled(false)
         // OPTIONALLY add an external delegate
         config.addDelegate(self)
+        config.setMemoryReportingEnabled(true)
 
         #if AUTOTRACKING
         print("*** TealiumHelper: Autotracking enabled.")
         #else
         // OPTIONALLY disable a particular module by name
+        
+        // TODO: Remove modules to check for leaks
         let list = TealiumModulesList(isWhitelist: false,
-                                      moduleNames: ["autotracking", "defaultsstorage", "filestorage", "tagmanagement"])
+                                      moduleNames: ["autotracking",
+                                                    "defaultsstorage",
+                                                    "filestorage",
+                                                    "tagmanagement",
+//                                                    "appdata",
+//                                                    "devicedata",
+//                                                    "lifecycle",
+//                                                    "connectivity",
+//                                                    "consentmanager",
+//                                                    "dispatchqueue",
+//                                                    "remotecommands",
+//                                                    "attribution",
+//                                                    "collect"
+            ])
         config.setModulesList(list)
         print("*** TealiumHelper: Autotracking disabled.")
         #endif

@@ -28,7 +28,11 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     }
 
     func setExistingAppData() {
-        diskStorage.retrieve(as: PersistentAppData.self) { _, data, _ in
+        diskStorage.retrieve(as: PersistentAppData.self) {_, data, _ in
+//            guard let `self` = self else {
+//                return
+//            }
+
             guard let data = data else {
                 self.setNewAppData()
                 return
@@ -59,13 +63,13 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     /// Checks if persistent keys are missing from the `data` dictionary
     /// - Parameter data: The dictionary to check
     ///
-    /// - TealiumAppDataKey.uuid
-    /// - TealiumAppDataKey.visitorId
+    /// - TealiumKey.uuid
+    /// - TealiumKey.visitorId
     ///
     /// - Returns: Bool
     class func isMissingPersistentKeys(data: [String: Any]) -> Bool {
-        if data[TealiumAppDataKey.uuid] == nil { return true }
-        if data[TealiumAppDataKey.visitorId] == nil { return true }
+        if data[TealiumKey.uuid] == nil { return true }
+        if data[TealiumKey.visitorId] == nil { return true }
         return false
     }
 

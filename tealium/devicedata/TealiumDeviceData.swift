@@ -259,16 +259,16 @@ public class TealiumDeviceData: TealiumDeviceDataCollection {
         let model = basicModel()
         if let deviceInfo = self.getJSONData() {
             if let currentModel = deviceInfo[model] as? [String: String],
-                let simpleModel = currentModel[TealiumDeviceDataKey.simpleModel],
-                let fullModel = currentModel[TealiumDeviceDataKey.fullModel] {
-                return [TealiumDeviceDataKey.simpleModel: simpleModel,
-                        TealiumDeviceDataKey.device: simpleModel,
-                        TealiumDeviceDataKey.fullModel: fullModel,
+                let simpleModel = currentModel[TealiumKey.simpleModel],
+                let fullModel = currentModel[TealiumKey.fullModel] {
+                return [TealiumKey.simpleModel: simpleModel,
+                        TealiumKey.device: simpleModel,
+                        TealiumKey.fullModel: fullModel,
                 ]
             }
         }
-        return [TealiumDeviceDataKey.simpleModel: model,
-                TealiumDeviceDataKey.fullModel: "",
+        return [TealiumKey.simpleModel: model,
+                TealiumKey.fullModel: "",
         ]
     }
 
@@ -286,7 +286,7 @@ public class TealiumDeviceData: TealiumDeviceDataCollection {
         // only available on iOS
         var carrierInfo = [String: String]()
         #if os(iOS)
-        // beginning in iOS 12, Xcode generates lots errors
+        // beginning in iOS 12, Xcode generates lots of errors
         // when calling CTTelephonyNetworkInfo from the simulator
         // this is a workaround
         #if targetEnvironment(simulator)
@@ -326,7 +326,8 @@ public class TealiumDeviceData: TealiumDeviceDataCollection {
         ]
         #endif
         #endif
-        return carrierInfo
+//        return carrierInfo
+        return [String: String]()
     }
 
     class func resolution() -> String {

@@ -29,8 +29,10 @@ public class Tealium {
         self.config = config
         self.enableCompletion = enableCompletion
         modulesManager = TealiumModulesManager()
-        self.enable()
-        TealiumInstanceManager.shared.addInstance(self, config: config)
+        TealiumQueues.backgroundConcurrentQueue.write {
+            self.enable()
+            TealiumInstanceManager.shared.addInstance(self, config: config)
+        }
     }
 
     public convenience init(config: TealiumConfig) {
@@ -40,29 +42,37 @@ public class Tealium {
     /// Enablement call used after disable() to re-enable library activites. Unnecessary to call after
     /// initial init. Does NOT override individual module enabled flags.
     public func enable() {
-        self.modulesManager.enable(config: self.config, enableCompletion: enableCompletion)
+        TealiumQueues.backgroundConcurrentQueue.write {
+            self.modulesManager.enable(config: self.config, enableCompletion: self.enableCompletion)
+        }
     }
 
     /// Update an actively running library with new configuration object.
     ///
     /// - Parameter config: TealiumConfiguration to update library with.
     public func update(config: TealiumConfig) {
-        self.config = config
-        self.modulesManager.update(config: self.config)
+        TealiumQueues.backgroundConcurrentQueue.write {
+            self.config = config
+            self.modulesManager.update(config: self.config)
+        }
     }
 
     /// Suspends all library activity, may release internal objects.
     public func disable() {
-        self.modulesManager.disable()
+        TealiumQueues.backgroundConcurrentQueue.write {
+            self.modulesManager.disable()
+        }
     }
 
     /// Convenience track method with only a title argument.
     ///
     /// - Parameter title: String name of the event. This converts to 'tealium_event'
     public func track(title: String) {
-        self.track(title: title,
-                   data: nil,
-                   completion: nil)
+        TealiumQueues.backgroundConcurrentQueue.write {
+            self.track(title: title,
+                       data: nil,
+                       completion: nil)
+        }
     }
 
     /// Primary track method - equivalent to utag.track('link',{}) call.
@@ -77,12 +87,14 @@ public class Tealium {
     public func track(title: String,
                       data: [String: Any]?,
                       completion: ((_ successful: Bool, _ info: [String: Any]?, _ error: Error?) -> Void)?) {
-        let trackData = Tealium.trackDataFor(title: title,
-                                             optionalData: data)
-        let track = TealiumTrackRequest(data: trackData,
-                                        completion: completion)
+        TealiumQueues.backgroundConcurrentQueue.write {
+            let trackData = Tealium.trackDataFor(title: title,
+                                                 optionalData: data)
+            let track = TealiumTrackRequest(data: trackData,
+                                            completion: completion)
 
-        self.modulesManager.track(track)
+            self.modulesManager.track(track)
+        }
     }
 
     /// Track method for specifying view appearances - equivalent to a utag.track('view',{}) call.
@@ -97,18 +109,20 @@ public class Tealium {
     public func trackView(title: String,
                           data: [String: Any]?,
                           completion: ((_ successful: Bool, _ info: [String: Any]?, _ error: Error?) -> Void)?) {
-        var newData = [String: Any]()
+        TealiumQueues.backgroundConcurrentQueue.write {
+            var newData = [String: Any]()
 
-        if let data = data {
-            newData += data
+            if let data = data {
+                newData += data
+            }
+
+    //        newData[TealiumKey.callType] = TealiumTrackType.view.description()
+    //        newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
+
+            self.track(title: title,
+                       data: newData,
+                       completion: completion)
         }
-
-//        newData[TealiumKey.callType] = TealiumTrackType.view.description()
-//        newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
-
-        self.track(title: title,
-                   data: newData,
-                   completion: completion)
     }
 
     /// Packages a track title and any custom client data for Tealium track requests.

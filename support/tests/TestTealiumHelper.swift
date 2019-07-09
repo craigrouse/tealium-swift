@@ -60,8 +60,8 @@ let testDataDictionary: [String: Any]  =
         TealiumKey.event: TealiumTestValue.title,
         TealiumKey.libraryName: TealiumValue.libraryName,
         TealiumKey.libraryVersion: TealiumValue.libraryVersion,
-        TealiumVolatileDataKey.sessionId: TealiumTestValue.sessionId,
-        TealiumAppDataKey.visitorId: TealiumTestValue.visitorID,
+        TealiumKey.sessionId: TealiumTestValue.sessionId,
+        TealiumKey.visitorId: TealiumTestValue.visitorID,
         TealiumVolatileDataKey.random: TealiumTestValue.random
     ]
 

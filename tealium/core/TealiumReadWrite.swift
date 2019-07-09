@@ -21,7 +21,9 @@ public class ReadWrite {
 
     public init(_ label: String) {
         queueLabel = label
-        queue = DispatchQueue(label: queueLabel, attributes: .concurrent)
+//        queue = DispatchQueue(label: queueLabel, attributes: .concurrent)
+        //TODO: Test this
+        queue = DispatchQueue(label: queueLabel, qos: .background, attributes: .concurrent, autoreleaseFrequency: .inherit, target: .global())
         queue.setSpecific(key: queueSpecificKey, value: queueLabel)
     }
 
@@ -42,6 +44,24 @@ public class ReadWrite {
             work()
         } else {
             queue.async(flags: .barrier, execute: work)
+        }
+    }
+
+    // ...
+
+    // solving readers-writers problem: any amount of readers can access data at a time, but only one writer is allowed at a time
+    // - reads are executed concurrently on executing queue, but are executed synchronously on a calling queue
+    // - write blocks executing queue, but is executed asynchronously on a calling queue so it doesn't have to wait
+    // note:
+    //  it's fine to have async write, and sync reads, because write blocks queue and reads are executed synchronously;
+    //  so if we want ro read after writing, we'll still be waiting (reads are sync) for write to finish and allow reads to execute;
+    public func write(after delay: DispatchTime, _ work: @escaping () -> Void) {
+        queue.asyncAfter(deadline: delay) {
+            if self.isAlreadyInQueue {
+                work()
+            } else {
+                self.queue.async(flags: .barrier, execute: work)
+            }
         }
     }
 

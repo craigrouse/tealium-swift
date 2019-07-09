@@ -123,8 +123,8 @@ class TealiumAppDataTests: XCTestCase {
         appData.setNewAppData()
         let result = appData.getData()
 
-        XCTAssertNotNil(result[TealiumAppDataKey.uuid] as? String)
-        XCTAssertNotNil(result[TealiumAppDataKey.visitorId] as? String)
+        XCTAssertNotNil(result[TealiumKey.uuid] as? String)
+        XCTAssertNotNil(result[TealiumKey.visitorId] as? String)
     }
 
     func testSetNewAppDataHasUniqueUuids() {
@@ -137,7 +137,7 @@ class TealiumAppDataTests: XCTestCase {
 
         appData.setNewAppData()
         let result2 = appData.getData()
-        XCTAssertNotEqual(result1[TealiumAppDataKey.uuid] as? String, result2[TealiumAppDataKey.uuid] as? String)
+        XCTAssertNotEqual(result1[TealiumKey.uuid] as? String, result2[TealiumKey.uuid] as? String)
     }
 
     func testSetNewAppDataAddsVolatileData() {

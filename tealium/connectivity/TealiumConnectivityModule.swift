@@ -96,7 +96,7 @@ class TealiumConnectivityModule: TealiumModule {
         let report = TealiumReportRequest(message: "Connectivity: Sending queued track. Internet connection available.")
         delegate?.tealiumModuleRequests(module: self, process: report)
 
-        release()
+//        release()
 
         didFinishWithNoResponse(newTrack)
     }

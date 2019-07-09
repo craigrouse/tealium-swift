@@ -54,6 +54,14 @@ public class TealiumRemoteCommandsModule: TealiumModule {
                                                selector: #selector(trigger),
                                                name: NSNotification.Name(rawValue: TealiumKey.tagmanagementNotification),
                                                object: nil)
+
+//        NotificationCenter.default.addObserver(forName: NSNotification.Name(rawValue: TealiumKey.tagmanagementNotification), object: nil, queue: nil) { [unowned self] notification in
+//            guard let request = notification.userInfo?[TealiumKey.tagmanagementNotification] as? URLRequest else {
+//                return
+//            }
+//
+//            _ = self.remoteCommands?.triggerCommandFrom(request: request)
+//        }
     }
 
     /// Triggers a remote command from a URLRequest (usually from WebView)

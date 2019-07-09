@@ -29,8 +29,8 @@ class TealiumCollectTests: XCTestCase {
             TealiumKey.event: "test" ,
             TealiumKey.libraryName: TealiumValue.libraryName ,
             TealiumKey.libraryVersion: TealiumValue.libraryVersion ,
-            TealiumVolatileDataKey.sessionId: "someSessionId" ,
-            TealiumAppDataKey.visitorId: "someVisitorId" ,
+            TealiumKey.sessionId: "someSessionId" ,
+            TealiumKey.visitorId: "someVisitorId" ,
             TealiumVolatileDataKey.random: "someRandomNumber",
         ]
     }

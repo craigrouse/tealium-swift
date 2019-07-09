@@ -13,7 +13,6 @@ import TealiumCore
 enum TealiumDatasourceKey {
     static let moduleName = "datasource"
     static let config = "com.tealium.datasource"
-    static let variable = "tealium_datasource"
 }
 
 public extension TealiumConfig {
@@ -78,7 +77,7 @@ class TealiumDatasourceModule: TealiumModule {
             return
         }
 
-        var newData: [String: Any] = [TealiumDatasourceKey.variable: datasource]
+        var newData: [String: Any] = [TealiumKey.dataSource: datasource]
         newData += track.trackDictionary
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)

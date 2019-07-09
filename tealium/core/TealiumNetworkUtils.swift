@@ -52,7 +52,13 @@ public func urlPOSTRequestWithJSONString(_ jsonString: String, dispatchURL: Stri
         var request = URLRequest(url: dispatchURL)
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpMethod = "POST"
-        request.httpBody = jsonString.data(using: .utf8)
+        if let data = try? jsonString.data(using: .utf8)?.gzipped(level: .bestCompression) {
+            request.setValue("gzip", forHTTPHeaderField: "Content-Encoding")
+            request.httpBody = data
+        } else {
+            request.httpBody = jsonString.data(using: .utf8)
+        }
+//        request.httpBody = jsonString.data(using: .utf8)
         return request
     }
     return nil

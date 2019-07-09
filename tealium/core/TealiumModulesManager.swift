@@ -11,7 +11,7 @@ import Foundation
 /// Coordinates optional modules with primary Tealium class.
 open class TealiumModulesManager: NSObject {
 
-    weak var queue: DispatchQueue?
+    weak var queue: ReadWrite?
     public var modules = [TealiumModule]()
     public var isEnabled = true
     public var modulesRequestingReport = [Weak<TealiumModule>]()
@@ -39,7 +39,8 @@ open class TealiumModulesManager: NSObject {
 
     public func enable(config: TealiumConfig, enableCompletion: TealiumEnableCompletion?) {
         self.setupModulesFrom(config: config)
-        self.queue = config.dispatchQueue()
+//        self.queue = config.dispatchQueue()
+        self.queue = TealiumQueues.backgroundConcurrentQueue
         let request = TealiumEnableRequest(config: config,
                                            enableCompletion: enableCompletion)
         self.modules.first?.handle(request)
@@ -92,10 +93,10 @@ open class TealiumModulesManager: NSObject {
                 return
             }
             let delay = DispatchTime.now() + .milliseconds(timeoutMillisecondCurrent)
-            queue?.asyncAfter(deadline: delay, execute: {
+            queue?.write(after: delay) {
                 // Put call into end of queue until all modules ready.
                 self.track(track)
-            })
+            }
             return
         }
 

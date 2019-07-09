@@ -11,6 +11,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     let defaultDirectory = Disk.Directory.caches
     let filePrefix: String
     let module: String
+    let minimumDiskSpace: Int
 
     lazy var filePath: String = {
         return "\(filePrefix)\(module)/"
@@ -21,6 +22,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
                 forModule module: String) {
         // The subdirectory to use for this data
         filePrefix = "\(config.account).\(config.profile)/"
+        minimumDiskSpace = config.getMinimumFreeDiskSpace()
         self.module = module
     }
 
@@ -29,7 +31,12 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     }
 
     func size<T: Encodable>(of data: T) -> Int? {
-        return try? JSONEncoder().encode(data).count
+        do {
+            return try JSONEncoder().encode(data).count
+        } catch {
+            return nil
+        }
+
     }
 
     func canWrite<T: Encodable>(data: T) -> Bool {
@@ -38,7 +45,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
             return false
         }
         // make sure we have sufficient disk capacity (20MB)
-        return available > 20000000 && fileSize < available
+        return available > minimumDiskSpace && fileSize < available
     }
 
     // TODO: Convert this to number, factor into CanWrite calculation.
@@ -71,7 +78,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     public func save(_ data: AnyCodable,
                      fileName: String,
                      completion: TealiumCompletion?) {
-        TealiumDiskStorage.readWriteQueue.write {
+        TealiumDiskStorage.readWriteQueue.write { [unowned self] in
             do {
                 try Disk.save(data, to: self.defaultDirectory, as: self.fileName(fileName))
             } catch let error {
@@ -88,7 +95,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     public func save<T: Encodable>(_ data: T,
                                    fileName: String,
                                    completion: TealiumCompletion?) {
-        TealiumDiskStorage.readWriteQueue.write {
+        TealiumDiskStorage.readWriteQueue.write { [unowned self] in
             do {
                 guard self.canWrite(data: data) == true else {
                         // TODO: Return useful error
@@ -110,7 +117,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     public func append<T: Codable>(_ data: T,
                                    fileName: String,
                                    completion: TealiumCompletion?) {
-        TealiumDiskStorage.readWriteQueue.write {
+        TealiumDiskStorage.readWriteQueue.write { [unowned self] in
             do {
                 guard self.canWrite(data: data) == true else {
                     // TODO: Return useful error
@@ -132,7 +139,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     public func retrieve<T: Decodable>(_ fileName: String,
                                        as type: T.Type,
                                        completion: @escaping (Bool, T?, Error?) -> Void) {
-        TealiumDiskStorage.readWriteQueue.read {
+        TealiumDiskStorage.readWriteQueue.read { [unowned self] in
             do {
                 let data = try Disk.retrieve(self.fileName(fileName), from: self.defaultDirectory, as: type)
                 completion(true, data, nil)
@@ -144,7 +151,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
 
     public func retrieve(fileName: String,
                          completion: TealiumCompletion) {
-        TealiumDiskStorage.readWriteQueue.read {
+        TealiumDiskStorage.readWriteQueue.read { [unowned self] in
             do {
                 guard let data = try Disk.retrieve(self.fileName(fileName), from: self.defaultDirectory, as: AnyCodable.self).value as? [String: Any] else {
                     // TODO: Return a useful error here
@@ -159,7 +166,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
     }
 
     public func delete(completion: TealiumCompletion?) {
-        TealiumDiskStorage.readWriteQueue.write {
+        TealiumDiskStorage.readWriteQueue.write { [unowned self] in
             do {
                 try Disk.remove(self.fileName(self.module), from: self.defaultDirectory)
                 completion?(true, nil, nil)
@@ -179,7 +186,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
                        forKey: String,
                        fileName: String,
                        completion: TealiumCompletion?) {
-        TealiumDiskStorage.readWriteQueue.read {
+        TealiumDiskStorage.readWriteQueue.read { [unowned self] in
             do {
                 let data = AnyCodable(data)
                 try Disk.append(data, to: self.fileName(fileName), in: self.defaultDirectory)

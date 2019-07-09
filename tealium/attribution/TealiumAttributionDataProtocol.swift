@@ -14,7 +14,7 @@ public protocol TealiumAttributionDataProtocol {
     var allAttributionData: [String: Any] { get }
 
     /// - Returns: [String: Any]? of all Apple Search Ads info, if available
-    var appleAttributionDetails: [String: Any]? { get set }
+//    var appleAttributionDetails: [String: Any]? { get set }
 
     /// - Returns: String representation of IDFA
     var idfa: String { get }
@@ -30,5 +30,5 @@ public protocol TealiumAttributionDataProtocol {
 
     /// Requests Apple Search Ads data from AdClient API
     /// - Parameter completion: Completion block to be executed asynchronously when Search Ads data is returned
-    func appleSearchAdsData(_ completion: @escaping ([String: Any]) -> Void)
+    func appleSearchAdsData(_ completion: @escaping (PersistentAttributionData) -> Void)
 }

@@ -16,7 +16,7 @@ import TealiumCore
 class TealiumAttributionModule: TealiumModule {
 
     var attributionData: TealiumAttributionDataProtocol!
-    var appleAttributionDetails = [String: Any]()
+    var diskStorage: TealiumDiskStorageProtocol!
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumAttributionKey.moduleName,
@@ -35,7 +35,6 @@ class TealiumAttributionModule: TealiumModule {
     /// Module init
     /// - Parameter delegate: TealiumModuleDelegate?
     required public init(delegate: TealiumModuleDelegate?) {
-        self.attributionData = TealiumAttributionData()
         super.init(delegate: delegate)
     }
 
@@ -43,31 +42,9 @@ class TealiumAttributionModule: TealiumModule {
     ///
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
-        if request.config.isSearchAdsEnabled() {
-            // TODO: Look into this: weak self was causing retain cycle (memory leak)
-            let loadRequest = TealiumLoadRequest(name: TealiumAttributionModule.moduleConfig().name) { _, data, _ in
-//                guard let `self` = self else {
-//                    return
-//                }
-
-                // No prior saved data
-                guard let loadedData = data else {
-                    self.attributionData?.appleSearchAdsData { data in
-                        self.savePersistentData(data)
-                        self.setLoadedAttributionData(data)
-                    }
-                    return
-                }
-
-                self.setLoadedAttributionData(loadedData)
-            }
-            delegate?.tealiumModuleRequests(module: self,
-                                            process: loadRequest)
-        } else {
-            // set volatile data only
-            self.setLoadedAttributionData(nil)
-        }
-
+        diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAttributionKey.moduleName)
+        self.attributionData = TealiumAttributionData(diskStorage: diskStorage,
+                                                      isSearchAdsEnabled: request.config.isSearchAdsEnabled())
         isEnabled = true
         didFinish(request)
     }
@@ -96,38 +73,12 @@ class TealiumAttributionModule: TealiumModule {
         didFinish(newTrack)
     }
 
-    /// Passes persistent attribution data to the TealiumAttributionData instance
-    func setLoadedAttributionData(_ data: [String: Any]?) {
-        if let data = data {
-            attributionData.appleAttributionDetails = data
-        }
-    }
-
     /// Disables the module and deletes all associated data
     ///
     /// - Parameter request: TealiumDisableRequest
     override func disable(_ request: TealiumDisableRequest) {
         self.isEnabled = false
-        self.clearPersistentData()
-        self.appleAttributionDetails.removeAll()
+        self.diskStorage.delete(completion: nil)
         didFinish(request)
-    }
-}
-
-// MARK: Persistent Data Handling
-extension TealiumAttributionModule {
-
-    func savePersistentData(_ data: [String: Any]) {
-
-        let saveRequest = TealiumSaveRequest(name: TealiumAttributionModule.moduleConfig().name,
-                                             data: data)
-
-        delegate?.tealiumModuleRequests(module: self,
-                                        process: saveRequest)
-    }
-
-    func clearPersistentData() {
-        let deleteRequest = TealiumDeleteRequest(name: TealiumAttributionModule.moduleConfig().name)
-        delegate?.tealiumModuleRequests(module: self, process: deleteRequest)
     }
 }

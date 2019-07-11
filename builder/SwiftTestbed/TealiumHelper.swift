@@ -74,6 +74,7 @@ class TealiumHelper: NSObject {
 //                                                    "collect"
             ])
         config.setModulesList(list)
+        config.setDiskStorageEnabled(isEnabled: true)
         print("*** TealiumHelper: Autotracking disabled.")
         #endif
         #if os(iOS)
@@ -99,6 +100,9 @@ class TealiumHelper: NSObject {
             self.tealium?.leaveTrace()
         self.tealium?.leaveTrace(killVisitorSession: true)
 //                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
+            
+    self.tealium?.persistentData()?.deleteData(forKeys: ["user_name", "testPersistentKey"])
+            
 //                            self.tealium?.persistentData()?.add(data: ["newPersistentKey": "testPersistentValue"])
                             self.tealium?.volatileData()?.add(data: ["testVolatileKey": "testVolatileValue"])
                             // OPTIONALLY implement Remote Commands

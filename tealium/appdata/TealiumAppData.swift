@@ -89,7 +89,7 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     func newPersistentData(for uuid: String) -> PersistentAppData {
         let vid = visitorId(from: uuid)
         let persistentData = PersistentAppData(visitorId: vid, uuid: uuid)
-//        delegate?.savePersistentData(data: persistentData)
+        diskStorage.saveToDefaults(key: TealiumKey.visitorId, value: vid)
         diskStorage?.save(persistentData, completion: nil)
         return persistentData
     }

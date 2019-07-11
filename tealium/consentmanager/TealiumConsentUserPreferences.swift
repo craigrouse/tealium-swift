@@ -8,7 +8,7 @@
 
 import Foundation
 
-public struct TealiumConsentUserPreferences {
+public struct TealiumConsentUserPreferences: Codable {
 
     var consentCategories: [TealiumConsentCategories]?
     var consentStatus: TealiumConsentStatus?

@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension TealiumConfig {
+public extension TealiumConfig {
     func setMinimumFreeDiskSpace(spaceInMb: Int) {
         optionalData[TealiumKey.minimumFreeDiskSpace] = spaceInMb * 1000000
     }
@@ -16,4 +16,19 @@ extension TealiumConfig {
     func getMinimumFreeDiskSpace() -> Int {
         return optionalData[TealiumKey.minimumFreeDiskSpace] as? Int ?? TealiumValue.defaultMinimumDiskSpace
     }
+
+    /// Enables (default) or disables disk storage
+    /// If disabled, only critical data will be saved, and UserDefaults will be used in place of disk storage
+    /// - Parameter isEnabled: `Bool` indicating if disk storage should be enabled (default) or disabled
+    func setDiskStorageEnabled(isEnabled: Bool = true) {
+        self.optionalData[TealiumKey.diskStorageEnabled] = isEnabled
+    }
+
+    /// Set a net modules list to this config object.
+    ///
+    /// - Parameter list: The TealiumModulesList to assign.
+    func isDiskStorageEnabled() -> Bool {
+        return self.optionalData[TealiumKey.diskStorageEnabled] as? Bool ?? true
+    }
+
 }

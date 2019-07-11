@@ -37,7 +37,7 @@ class TealiumAppDataModule: TealiumModule {
     ///
     /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
-        diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName)
+        diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName, isCritical: true)
         appData = TealiumAppData(diskStorage: diskStorage)
         isEnabled = true
 

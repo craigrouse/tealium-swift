@@ -21,7 +21,7 @@ public enum TealiumConsentConstants {
     static let defaultPolicy = "gdpr"
 }
 
-public enum TealiumConsentCategories: String {
+public enum TealiumConsentCategories: String, Codable {
     case analytics = "analytics"
     case affiliates = "affiliates"
     case displayAds = "display_ads"
@@ -75,7 +75,7 @@ public enum TealiumConsentCategories: String {
     }
 }
 
-public enum TealiumConsentStatus: String {
+public enum TealiumConsentStatus: String, Codable {
     case unknown
     case consented
     case notConsented

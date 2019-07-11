@@ -56,6 +56,7 @@ public enum TealiumKey {
     public static let platform = "platform"
     public static let resolution = "device_resolution"
     public static let minimumFreeDiskSpace = "min_free_disk_space"
+    public static let diskStorageEnabled = "disk_storage"
 }
 
 public enum TealiumModulesManagerError: Error {

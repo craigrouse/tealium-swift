@@ -26,7 +26,7 @@ public protocol TealiumDiskStorageProtocol {
                             completion: TealiumCompletion?)
 
     func append<T: Codable>(_ data: T,
-                                   completion: TealiumCompletion?)
+                            completion: TealiumCompletion?)
 
     func append<T: Codable>(_ data: T,
                             fileName: String,
@@ -50,5 +50,17 @@ public protocol TealiumDiskStorageProtocol {
     func delete(completion: TealiumCompletion?)
 
     func totalSizeSavedData() -> String?
+
+    func saveStringToDefaults(key: String,
+                              value: String)
+
+    func getStringFromDefaults(key: String) -> String?
+
+    func saveToDefaults(key: String,
+                        value: Any)
+
+    func getFromDefaults(key: String) -> Any?
+
+    func removeFromDefaults(key: String)
 
 }

@@ -14,6 +14,7 @@ open class TealiumConfig {
     public let account: String
     public let profile: String
     public let environment: String
+    public let datasource: String?
     public lazy var optionalData = [String: Any]()
 
     /// Convenience constructor.
@@ -28,6 +29,24 @@ open class TealiumConfig {
         self.init(account: account,
                   profile: profile,
                   environment: environment,
+                  datasource: nil,
+                  optionalData: nil)
+    }
+
+    /// Convenience constructor.
+    ///
+    /// - Parameters:
+    /// - account: Tealium Account.
+    /// - profile: Tealium Profile.
+    /// - environment: Tealium Environment. 'prod' recommended for release.
+    public convenience init(account: String,
+                            profile: String,
+                            environment: String,
+                            datasource: String?) {
+        self.init(account: account,
+                  profile: profile,
+                  environment: environment,
+                  datasource: datasource,
                   optionalData: nil)
     }
 
@@ -41,11 +60,12 @@ open class TealiumConfig {
     public init(account: String,
                 profile: String,
                 environment: String,
+                datasource: String?,
                 optionalData: [String: Any]?) {
         self.account = account
         self.environment = environment
         self.profile = profile
-
+        self.datasource = datasource
         if let optionalData = optionalData {
             self.optionalData = optionalData
         }

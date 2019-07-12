@@ -81,21 +81,3 @@ class TealiumPersistentDataModule: TealiumModule {
     }
 
 }
-
-//extension TealiumPersistentDataModule: TealiumPersistentDataDelegate {
-//
-//    func requestLoad(completion: @escaping TealiumCompletion) {
-//        let request = TealiumLoadRequest(name: TealiumPersistentKey.moduleName,
-//                                         completion: completion)
-//        delegate?.tealiumModuleRequests(module: self,
-//                                        process: request)
-//    }
-//
-//    func requestSave(data: [String: Any]) {
-//        let request = TealiumSaveRequest(name: TealiumPersistentKey.moduleName,
-//                                         data: data)
-//        delegate?.tealiumModuleRequests(module: self,
-//                                        process: request)
-//    }
-//
-//}

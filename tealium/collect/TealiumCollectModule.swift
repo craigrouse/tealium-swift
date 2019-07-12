@@ -18,7 +18,7 @@ class TealiumCollectModule: TealiumModule {
     var config: TealiumConfig?
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumCollectKey.moduleName,
-                                   priority: 2000,
+                                   priority: 1050,
                                    build: 4,
                                    enabled: true)
     }

@@ -31,6 +31,7 @@ class TealiumQueues {
 
 }
 
+// TODO: probably don't need this
 public extension DispatchQueue {
     static var currentLabel: String? {
         let name = __dispatch_queue_get_label(nil)

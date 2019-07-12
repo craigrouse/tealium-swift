@@ -84,10 +84,6 @@ class TealiumModules {
             "TealiumConnectivity.TealiumConnectivityModule",
             "TealiumCrashModule",               // for Cocoapods
             "TealiumCrash.TealiumCrashModule",  // note: need to duplicate for Carthage
-            "TealiumDatasourceModule",
-            "TealiumDataSource.TealiumDatasourceModule",
-            "TealiumDefaultsStorageModule",
-            "TealiumDefaultsStorage.TealiumDefaultsStorageModule",
             "TealiumDelegateModule",
             "TealiumDelegate.TealiumDelegateModule",
             "TealiumDeviceDataModule",
@@ -103,7 +99,6 @@ class TealiumModules {
             "TealiumPersistentDataModule",
             // bundled with file storage/defaults storage
             "TealiumFileStorage.TealiumPersistentDataModule",
-            "TealiumDefaultsStorage.TealiumPersistentDataModule",
             "TealiumRemoteCommandsModule",
             "TealiumRemoteCommands.TealiumRemoteCommandsModule",
             "TealiumTagManagementModule",
@@ -125,10 +120,6 @@ class TealiumModules {
             "TealiumCollect.TealiumCollectModule",
             "TealiumConnectivityModule",
             "TealiumConnectivity.TealiumConnectivityModule",
-            "TealiumDatasourceModule",
-            "TealiumDataSource.TealiumDatasourceModule",
-            "TealiumDefaultsStorageModule",
-            "TealiumDefaultsStorage.TealiumDefaultsStorageModule",
             "TealiumDelegateModule",
             "TealiumDelegate.TealiumDelegateModule",
             "TealiumDeviceDataModule",
@@ -144,7 +135,6 @@ class TealiumModules {
             "TealiumPersistentDataModule",
             // bundled with file storage/defaults storage
             "TealiumFileStorage.TealiumPersistentDataModule",
-            "TealiumDefaultsStorage.TealiumPersistentDataModule",
             "TealiumVolatileDataModule",
             "TealiumVolatileData.TealiumVolatileDataModule",
             "TealiumConsentManagerModule",

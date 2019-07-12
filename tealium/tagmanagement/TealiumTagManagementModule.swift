@@ -15,6 +15,8 @@ import TealiumCore
 public class TealiumTagManagementModule: TealiumModule {
     var tagManagement: TealiumTagManagementProtocol?
     var remoteCommandResponseObserver: NSObjectProtocol?
+    var errorState = AtomicInteger()
+    var pendingTrackRequests = [TealiumTrackRequest]()
 
     override public class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumTagManagementKey.moduleName,
@@ -70,17 +72,18 @@ public class TealiumTagManagementModule: TealiumModule {
         }
 
         DispatchQueue.main.async {
-            let config = request.config
             self.tagManagement?.enable(webviewURL: config.webviewURL(), shouldMigrateCookies: true, delegates: config.getWebViewDelegates(), view: config.getRootView()) { _, error in
-                                          DispatchQueue.main.async {
-                                             if let err = error {
-                                                 self.didFailToFinish(request,
-                                                                      error: err)
-                                                 return
-                                             }
-                                             self.isEnabled = true
-                                             self.didFinish(request)
-                                          }
+                TealiumQueues.backgroundConcurrentQueue.write {
+                    if let err = error {
+//                        self.didFailToFinish(request,
+//                                             error: err)
+                        let logger = TealiumLogger(loggerId: TealiumTagManagementModule.moduleConfig().name, logLevel: request.config.getLogLevel())
+                        _ = logger.log(message: (error?.localizedDescription ?? "Tag Management Error"), logLevel: .warnings)
+                        _ = self.errorState.incrementAndGet()
+                    }
+                    self.isEnabled = true
+                    self.didFinish(request)
+                }
             }
         }
     }
@@ -116,9 +119,33 @@ public class TealiumTagManagementModule: TealiumModule {
             didFinishWithNoResponse(track)
             return
         }
+
+        if self.errorState.value > 0 {
+            self.tagManagement?.reload { success, _, _ in
+                if success {
+                    self.errorState.value = 0
+                    self.track(track)
+                } else {
+                    // TODO: Proper error logging
+                    _ = self.errorState.incrementAndGet()
+                    self.pendingTrackRequests.append(track)
+                }
+            }
+            return
+        }
+
+        TealiumQueues.backgroundConcurrentQueue.write {
+            let pending = self.pendingTrackRequests
+            pending.forEach {
+                self.track($0)
+            }
+            self.pendingTrackRequests = [TealiumTrackRequest]()
+        }
+
         var newTrackData = track.trackDictionary
         newTrackData[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
-        let newTrack = TealiumTrackRequest(data: newTrackData, completion: track.completion)
+        var newTrack = TealiumTrackRequest(data: newTrackData, completion: track.completion)
+        newTrack.moduleResponses = track.moduleResponses
         dispatchTrack(newTrack)
     }
 
@@ -183,30 +210,32 @@ public class TealiumTagManagementModule: TealiumModule {
         DispatchQueue.main.async {
             // Webview has failed for some reason
             if self.tagManagement?.isWebViewReady() == false {
-                self.didFailToFinish(track,
-                                     info: nil,
-                                     error: TealiumTagManagementError.webViewNotYetReady)
+                TealiumQueues.backgroundConcurrentQueue.write {
+                    self.didFailToFinish(track,
+                                         info: nil,
+                                         error: TealiumTagManagementError.webViewNotYetReady)
+                }
                 return
             }
 
             #if TEST
             #else
             self.tagManagement?.track(track.trackDictionary) { success, info, error in
-                                        DispatchQueue.main.async {
-                                            track.completion?(success, info, error)
-
-                                            if error != nil {
-                                                self.didFailToFinish(track,
-                                                                     info: info,
-                                                                     error: error!)
-                                                return
-                                            }
-                                            self.didFinish(track,
-                                                           info: info)
-                                        }
+                TealiumQueues.backgroundConcurrentQueue.write {
+                    track.completion?(success, info, error)
+                    if error != nil {
+                        self.didFailToFinish(track,
+                                             info: info,
+                                             error: error!)
+                        return
+                    }
+                    self.didFinish(track,
+                                   info: info)
+                }
             }
             #endif
         }
+
     }
     #endif
 }

@@ -14,9 +14,9 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "D736D6DF2195D85400B3BDEE"
-               BuildableName = "TealiumDataSource.framework"
-               BlueprintName = "TealiumDataSource"
+               BlueprintIdentifier = "D7881EDD21998A44002CDCC1"
+               BuildableName = "TealiumPersistentData.framework"
+               BlueprintName = "TealiumPersistentData"
                ReferencedContainer = "container:tealium-swift.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
@@ -29,8 +29,6 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <Testables>
       </Testables>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -45,14 +43,12 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D736D6DF2195D85400B3BDEE"
-            BuildableName = "TealiumDataSource.framework"
-            BlueprintName = "TealiumDataSource"
+            BlueprintIdentifier = "D7881EDD21998A44002CDCC1"
+            BuildableName = "TealiumPersistentData.framework"
+            BlueprintName = "TealiumPersistentData"
             ReferencedContainer = "container:tealium-swift.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
-      <AdditionalOptions>
-      </AdditionalOptions>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
@@ -63,9 +59,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "D736D6DF2195D85400B3BDEE"
-            BuildableName = "TealiumDataSource.framework"
-            BlueprintName = "TealiumDataSource"
+            BlueprintIdentifier = "D7881EDD21998A44002CDCC1"
+            BuildableName = "TealiumPersistentData.framework"
+            BlueprintName = "TealiumPersistentData"
             ReferencedContainer = "container:tealium-swift.xcodeproj">
          </BuildableReference>
       </MacroExpansion>

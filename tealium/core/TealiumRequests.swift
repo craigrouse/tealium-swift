@@ -318,7 +318,7 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
     public func compressed() -> [String: Any]? {
         var shared = [String: Any]()
         var events = [[String: Any]]()
-        var trackRequests = self.trackRequests
+        let trackRequests = self.trackRequests
         guard let requestToCompare = trackRequests.first else {
                 return nil
         }

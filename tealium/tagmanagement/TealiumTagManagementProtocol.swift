@@ -32,6 +32,12 @@ public protocol TealiumTagManagementProtocol {
     /// - Returns: Bool indicating whether or not the internal webview is ready for dispatching.
     func isWebViewReady() -> Bool
 
+    /// Reloads the webview contents in error situations
+    ///
+    ///
+
+    func reload(_ completion: @escaping TealiumCompletion)
+
     /// Process event data for UTAG delivery.
     ///
     /// - Parameters:

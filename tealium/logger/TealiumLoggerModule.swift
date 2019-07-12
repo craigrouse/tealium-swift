@@ -21,71 +21,6 @@ enum TealiumLoggerKey {
     static let shouldEnable = "com.tealium.logger.enable"
 }
 
-public enum TealiumLogLevelValue {
-    static let errors = "errors"
-    static let none = "none"
-    static let verbose = "verbose"
-    static let warnings = "warnings"
-}
-
-public enum TealiumLoggerModuleError: Error {
-    case moduleDisabled
-    case noAccount
-    case noProfile
-    case noEnvironment
-}
-
-let defaultTealiumLogLevel: TealiumLogLevel = .errors
-
-public enum TealiumLogLevel: Int, Comparable {
-    case none = 0
-    case errors = 1
-    case warnings = 2
-    case verbose = 3
-
-    var description: String {
-        switch self {
-        case .errors:
-            return TealiumLogLevelValue.errors
-        case .warnings:
-            return TealiumLogLevelValue.warnings
-        case .verbose:
-            return TealiumLogLevelValue.verbose
-        default:
-            return TealiumLogLevelValue.none
-        }
-    }
-
-    static func fromString(_ string: String) -> TealiumLogLevel {
-        switch string.lowercased() {
-        case TealiumLogLevelValue.errors:
-            return .errors
-        case TealiumLogLevelValue.warnings:
-            return .warnings
-        case TealiumLogLevelValue.verbose:
-            return .verbose
-        default:
-            return .none
-        }
-    }
-
-    public static func < (lhs: TealiumLogLevel, rhs: TealiumLogLevel) -> Bool {
-        return lhs.rawValue < rhs.rawValue
-    }
-
-    public static func > (lhs: TealiumLogLevel, rhs: TealiumLogLevel) -> Bool {
-        return lhs.rawValue > rhs.rawValue
-    }
-
-    public static func <= (lhs: TealiumLogLevel, rhs: TealiumLogLevel) -> Bool {
-        return lhs.rawValue <= rhs.rawValue
-    }
-
-    public static func >= (lhs: TealiumLogLevel, rhs: TealiumLogLevel) -> Bool {
-        return lhs.rawValue >= rhs.rawValue
-    }
-}
-
 // MARK: 
 // MARK: EXTENSIONS
 
@@ -172,13 +107,14 @@ class TealiumLoggerModule: TealiumModule {
             moduleResponses.forEach({ _ in
                 logReport(request)
             })
-        case is TealiumTrackRequest:
-            moduleResponses.forEach({ response in
-                if response.info == nil {
-                    return
-                }
-                logTrack(response)
-            })
+        case let request as TealiumTrackRequest:
+//            moduleResponses.forEach({ response in
+//                if response.info == nil {
+//                    return
+//                }
+//                logTrack(response)
+//            })
+            logTrack(request: request, responses: moduleResponses)
         default:
             // Only print errors if detected in module responses.
             moduleResponses.forEach({ response in
@@ -266,6 +202,36 @@ class TealiumLoggerModule: TealiumModule {
     func logTrack(_ response: TealiumModuleResponse) {
         let successMessage = response.success == true ? "SUCCESSFUL TRACK" : "FAILED TO TRACK"
         let message = "\(response.moduleName): \(successMessage)\nINFO:\n\(response.info as AnyObject)"
+        _ = logger?.log(message: message,
+                        logLevel: .verbose)
+    }
+
+    func logTrack(request: TealiumTrackRequest,
+                  responses: [TealiumModuleResponse]) {
+        let trackNumber = Tealium.numberOfTrackRequests.incrementAndGet()
+        var message = """
+            \n▶️[Track # \(trackNumber)]
+        =====================================\n
+        """
+        if responses.count > 0 {
+            message += "Module Responses:\n"
+        }
+
+        responses.enumerated().forEach {
+            let index = $0.offset + 1
+            let response = $0.element
+            let successMessage = response.success == true ? "SUCCESSFUL TRACK ✅" : "FAILED TO TRACK ⚠️"
+            var trackMessage = "\(index). \(response.moduleName): \(successMessage)"
+            if !response.success, let error = response.error {
+             trackMessage += "\n🔺 \(error.localizedDescription)"
+            }
+            message = "\(message)\(trackMessage)\n"
+        }
+
+        message = "\(message)\nTRACK REQUEST PAYLOAD:\n\(request.trackDictionary as AnyObject)"
+
+        message = "\(message)[Track # \(trackNumber)] ⏹\n"
+
         _ = logger?.log(message: message,
                         logLevel: .verbose)
     }

@@ -29,11 +29,12 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
     /// - Parameters:
     /// - dispatchURL: String representation of the dispatch URL
     /// - completion: Completion handler to run when the dispatcher has finished initializing
+    // TODO: Test
     init(dispatchURL: String,
          _ completion: @escaping ((_ dispatcher: TealiumCollectPostDispatcher?) -> Void)) {
             if let baseURL = TealiumCollectPostDispatcher.getDomainFromURLString(url: dispatchURL) {
-                self.bulkEventDispatchURL = "\(baseURL)\(TealiumCollectPostDispatcher.bulkEventPath)"
-                self.singleEventDispatchURL = "\(baseURL)\(TealiumCollectPostDispatcher.singleEventPath)"
+                self.bulkEventDispatchURL = "https://\(baseURL)\(TealiumCollectPostDispatcher.bulkEventPath)"
+                self.singleEventDispatchURL = "https://\(baseURL)\(TealiumCollectPostDispatcher.singleEventPath)"
             } else {
                 self.bulkEventDispatchURL = "\(TealiumCollectPostDispatcher.defaultDispatchBaseURL)\(TealiumCollectPostDispatcher.bulkEventPath)"
                 self.singleEventDispatchURL = "\(TealiumCollectPostDispatcher.defaultDispatchBaseURL)\(TealiumCollectPostDispatcher.singleEventPath)"
@@ -49,7 +50,7 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
             return nil
         }
 
-        return url.baseURL?.absoluteString
+        return url.host
     }
 
     /// Sets up the URL session object for later use
@@ -78,7 +79,7 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
     }
 
     func dispatchBulk(data: [String: Any],
-                  completion: TealiumCompletion?) {
+                      completion: TealiumCompletion?) {
         if let jsonString = jsonStringWithDictionary(data), let url = bulkEventDispatchURL, let urlRequest = urlPOSTRequestWithJSONString(jsonString, dispatchURL: url) {
             sendURLRequest(urlRequest, completion)
         } else {
@@ -94,18 +95,16 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
     func sendURLRequest(_ request: URLRequest, _ completion: TealiumCompletion?) {
         if let urlSession = self.urlSession {
             let task = urlSession.dataTask(with: request) { _, response, error in
-                if let status = response as? HTTPURLResponse {
+                if let error = error {
+                    completion?(false, nil, error)
+                } else if let status = response as? HTTPURLResponse {
                     // error only indicates "no response from server. 400 responses are considered successful
-                    if let error = error {
-                        completion?(false, nil, error)
+                    if let errorHeader = status.allHeaderFields[TealiumCollectKey.errorHeaderKey] as? String {
+                        completion?(false, ["error": errorHeader], TealiumCollectError.xErrorDetected)
+                    } else if status.statusCode != 200 {
+                        completion?(false, nil, TealiumCollectError.non200Response)
                     } else {
-                        if let errorHeader = status.allHeaderFields[TealiumCollectKey.errorHeaderKey] as? String {
-                            completion?(false, ["error": errorHeader], TealiumCollectError.xErrorDetected)
-                        } else if status.statusCode != 200 {
-                            completion?(false, nil, TealiumCollectError.non200Response)
-                        } else {
-                            completion?(true, nil, nil)
-                        }
+                        completion?(true, nil, nil)
                     }
                 }
             }

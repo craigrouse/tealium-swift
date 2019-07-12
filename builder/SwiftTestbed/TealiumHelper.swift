@@ -42,6 +42,7 @@ class TealiumHelper: NSObject {
         config.setConsentLoggingEnabled(true)
         config.setSearchAdsEnabled(true)
         config.setInitialUserConsentStatus(.consented)
+//        config.setCollectOverrideURL(string: "https://colect.tealiumiq.com/event")
         
         config.setBatchSize(5)
         config.setMaxQueueSize(10)
@@ -53,20 +54,19 @@ class TealiumHelper: NSObject {
         config.setMemoryReportingEnabled(true)
 
         #if AUTOTRACKING
-        print("*** TealiumHelper: Autotracking enabled.")
+//        print("*** TealiumHelper: Autotracking enabled.")
         #else
         // OPTIONALLY disable a particular module by name
         
         // TODO: Remove modules to check for leaks
         let list = TealiumModulesList(isWhitelist: false,
                                       moduleNames: ["autotracking",
-                                                    "defaultsstorage",
                                                     "filestorage",
-                                                    "tagmanagement",
+//                                                    "tagmanagement",
 //                                                    "appdata",
 //                                                    "devicedata",
 //                                                    "lifecycle",
-//                                                    "connectivity",
+                                                    "connectivity",
 //                                                    "consentmanager",
 //                                                    "dispatchqueue",
 //                                                    "remotecommands",
@@ -75,14 +75,14 @@ class TealiumHelper: NSObject {
             ])
         config.setModulesList(list)
         config.setDiskStorageEnabled(isEnabled: true)
-        print("*** TealiumHelper: Autotracking disabled.")
+//        print("*** TealiumHelper: Autotracking disabled.")
         #endif
         #if os(iOS)
 
         let remoteCommand = TealiumRemoteCommand(commandId: "hello",
                                                  description: "test") { response in
                                                     if TealiumHelper.shared.enableHelperLogs {
-                                                        print("*** TealiumHelper: Remote Command Executed: response:\(response)")
+//                                                        print("*** TealiumHelper: Remote Command Executed: response:\(response)")
                                                     }
                                                     let dict = ["hello":"from helper"]
                                                     // set some JSON response data to be passed back to the webview
@@ -99,9 +99,9 @@ class TealiumHelper: NSObject {
             self.tealium?.joinTrace(traceId: "01234")
             self.tealium?.leaveTrace()
         self.tealium?.leaveTrace(killVisitorSession: true)
-//                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
+                            self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
             
-    self.tealium?.persistentData()?.deleteData(forKeys: ["user_name", "testPersistentKey"])
+    self.tealium?.persistentData()?.deleteData(forKeys: ["user_name", "testPersistentKey", "newPersistentKey"])
             
 //                            self.tealium?.persistentData()?.add(data: ["newPersistentKey": "testPersistentValue"])
                             self.tealium?.volatileData()?.add(data: ["testVolatileKey": "testVolatileValue"])
@@ -119,7 +119,7 @@ class TealiumHelper: NSObject {
                         if self.enableHelperLogs == false {
                             return
                         }
-                        print("*** TealiumHelper: track completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
+//                        print("*** TealiumHelper: track completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
         })
     }
 
@@ -132,7 +132,7 @@ class TealiumHelper: NSObject {
                             return
                         }
                         // Alternatively, monitoring track completions can be done here vs. using the delegate module's callbacks.
-                        print("*** TealiumHelper: view completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
+//                        print("*** TealiumHelper: view completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
         })
 
     }
@@ -152,7 +152,7 @@ extension TealiumHelper: TealiumDelegate {
         if enableHelperLogs == false {
             return
         }
-        print("\n*** Tealium Helper: Tealium Delegate : tealiumTrackCompleted *** Track finished. Was successful:\(success)\nInfo:\(info as AnyObject)\((error != nil) ? "\nError:\(String(describing: error))":"")")
+//        print("\n*** Tealium Helper: Tealium Delegate : tealiumTrackCompleted *** Track finished. Was successful:\(success)\nInfo:\(info as AnyObject)\((error != nil) ? "\nError:\(String(describing: error))":"")")
     }
 }
 
@@ -160,33 +160,33 @@ extension TealiumHelper: TealiumDelegate {
 extension TealiumHelper: TealiumConsentManagerDelegate {
 
     func willDropTrackingCall(_ request: TealiumTrackRequest) {
-        print("**** Tracking call DROPPED ******")
-        print(request.data)
+//        print("**** Tracking call DROPPED ******")
+//        print(request.data)
     }
     
     func willQueueTrackingCall(_ request: TealiumTrackRequest) {
-        print("**** Tracking call Queued ******")
-        print(request.data)
+//        print("**** Tracking call Queued ******")
+//        print(request.data)
     }
     
     func willSendTrackingCall(_ request: TealiumTrackRequest) {
-        print("**** Tracking call Sent - 1st Helper ******")
-        print(request.data)
+//        print("**** Tracking call Sent - 1st Helper ******")
+//        print(request.data)
     }
 
     func consentStatusChanged(_ status: TealiumConsentStatus) {
-        print("Consent Status Changed to: \(status)")
+//        print("Consent Status Changed to: \(status)")
     }
     
     func userConsentedToTracking() {
-        print("User consented to tracking")
+//        print("User consented to tracking")
     }
     
     func userOptedOutOfTracking() {
-        print("User opted out of tracking")
+//        print("User opted out of tracking")
     }
     
     func userChangedConsentCategories(categories: [TealiumConsentCategories]) {
-        print("User changed consent categories: \(categories)")
+//        print("User changed consent categories: \(categories)")
     }
 }

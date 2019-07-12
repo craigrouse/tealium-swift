@@ -105,4 +105,11 @@ extension TealiumTagManagementWKWebView: WKNavigationDelegate {
             $0.webView?(webView, didCommit: navigation)
         }
     }
+
+    public func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) {
+        self.webviewStateDidChange(.loadFailure, withError: error)
+        delegates.invoke {
+            $0.webView?(webView, didFail: navigation, withError: error)
+        }
+    }
 }

@@ -7,22 +7,21 @@
 //
 
 import Foundation
-#if logger
-import TealiumCore
-#endif
 
 /// Internal console logger for library debugging.
-public class TealiumLogger {
+public struct TealiumLogger {
 
     let idString: String
     var logThreshold: TealiumLogLevel
 
-    init(loggerId: String, logLevel: TealiumLogLevel) {
+    init(loggerId: String,
+         logLevel: TealiumLogLevel) {
         self.idString = loggerId
         self.logThreshold = logLevel
     }
 
-    public func log(message: String, logLevel: TealiumLogLevel) -> String? {
+    public func log(message: String,
+                    logLevel: TealiumLogLevel) -> String? {
         if logThreshold >= logLevel {
             var verbosity = ""
             if logLevel == .errors { verbosity = "ERROR: " }

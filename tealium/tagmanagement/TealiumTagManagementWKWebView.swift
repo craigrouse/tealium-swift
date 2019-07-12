@@ -23,6 +23,9 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
     var enableCompletion: ((_ success: Bool, _ error: Error?) -> Void)?
     // current view being used for WKWebView
     weak var view: UIView?
+    var url: URL?
+    var reloading = false
+    var reloadHandler: TealiumCompletion?
 
     public var delegates = TealiumMulticastDelegate<WKNavigationDelegate>()
 
@@ -45,6 +48,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
             setWebViewDelegates(delegates)
         }
         enableCompletion = completion
+        self.url = webviewURL
         setupWebview(forURL: webviewURL, withSpecificView: view)
     }
 
@@ -111,6 +115,18 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
         }
     }
 
+    public func reload(_ completion: @escaping (Bool, [String: Any]?, Error?) -> Void) {
+        guard let url = url else {
+            return
+        }
+        self.reloading = true
+        self.reloadHandler = completion
+        let request = URLRequest(url: url)
+        DispatchQueue.main.async {
+            self.webview?.load(request)
+        }
+    }
+
     /// Internal webview status check.
 
     /// - Returns: Bool indicating whether or not the internal webview is ready for dispatching.
@@ -155,12 +171,12 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
     /// - completion: Optional completion block to be called after the JavaScript call completes
     public func evaluateJavascript (_ jsString: String, _ completion: (([String: Any]) -> Void)?) {
         // webview js evaluation must be on main thread
+        var info = [String: Any]()
         DispatchQueue.main.async {
             if self.webview?.superview == nil {
                 self.attachToUIView(specificView: nil) { _ in }
             }
             self.webview?.evaluateJavaScript(jsString) { result, error in
-                var info = [String: Any]()
                 if let result = result {
                     info += [TealiumTagManagementKey.jsResult: result]
                 }
@@ -168,9 +184,9 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
                 if let error = error {
                     info += [TealiumTagManagementKey.jsError: error]
                 }
-                completion?(info)
             }
         }
+        completion?(info)
     }
 
     /// Called by the WKWebView delegate when the page finishes loading
@@ -179,13 +195,28 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
     public func webviewStateDidChange(_ state: TealiumWebViewState, withError error: Error?) {
         switch state {
         case .loadSuccess:
-            guard webviewDidFinishLoading == false else {
-                return
+            if let reloadHandler = self.reloadHandler {
+                self.webviewDidFinishLoading = true
+                self.reloading = false
+                reloadHandler(true, nil, nil)
+                self.reloadHandler = nil
+            } else {
+                guard webviewDidFinishLoading == false else {
+                    return
+                }
+                webviewDidFinishLoading = true
+
+                self.enableCompletion?(true, nil)
             }
-            webviewDidFinishLoading = true
-            self.enableCompletion?(true, nil)
         case .loadFailure:
-            self.enableCompletion?(false, error)
+            if let reloadHandler = self.reloadHandler {
+                self.webviewDidFinishLoading = true
+                self.reloading = false
+                reloadHandler(false, nil, error)
+                self.reloadHandler = nil
+            } else {
+                self.enableCompletion?(false, error)
+            }
         }
     }
 

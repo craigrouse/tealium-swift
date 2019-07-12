@@ -56,6 +56,10 @@ public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtoc
 
     }
 
+    public func reload(_ completion: (Bool, [String: Any]?, Error?) -> Void) {
+
+    }
+
     /// Adds optional delegates to the WebView instance
     ///
     /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView

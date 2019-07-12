@@ -41,10 +41,19 @@ public extension TealiumConfig {
     }
 
     func setIsEventBatchingEnabled(_ enabled: Bool) {
+        // batching requires disk storage
+        guard isDiskStorageEnabled() == true else {
+            optionalData[TealiumDispatchQueueConstants.batchingEnabled] = false
+            return
+        }
         optionalData[TealiumDispatchQueueConstants.batchingEnabled] = enabled
     }
 
     func getIsEventBatchingEnabled() -> Bool {
+        // batching requires disk storage
+        guard isDiskStorageEnabled() == true else {
+            return false
+        }
         return optionalData[TealiumDispatchQueueConstants.batchingEnabled] as? Bool ?? true
     }
 
@@ -126,6 +135,7 @@ class TealiumDispatchQueueModule: TealiumModule {
 
             batches.forEach { batch in
                 let batchRequest = TealiumBatchTrackRequest(trackRequests: batch, completion: nil)
+                // TODO: Figure out why this wasn't working originally - need to remove delay
                 DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
                     self.delegate?.tealiumModuleRequests(module: self,
                                                          process: batchRequest)

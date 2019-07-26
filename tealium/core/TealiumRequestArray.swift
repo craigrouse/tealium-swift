@@ -13,7 +13,7 @@ extension Array where Element: TealiumRequest {
     /// Have the array loop through each element, executing the given code block
     ///     for each loop.
     ///
-    /// - Parameter executing: Closure to run for each iteration.
+    /// - parameter executing: Closure to run for each iteration.
     mutating func emptyFIFO(executing: (_ request: TealiumRequest) -> Void) {
 
         for request in self {

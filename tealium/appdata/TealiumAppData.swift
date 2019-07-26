@@ -43,7 +43,7 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
 
     /// Retrieve a copy of app data used with dispatches.
     ///
-    /// - Returns: `[String: Any]`
+    /// - returns: `[String: Any]`
     func getData() -> [String: Any] {
         return appData.toDictionary()
     }
@@ -61,12 +61,8 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
 
     // MARK: INTERNAL
     /// Checks if persistent keys are missing from the `data` dictionary
-    /// - Parameter data: The dictionary to check
-    ///
-    /// - TealiumKey.uuid
-    /// - TealiumKey.visitorId
-    ///
-    /// - Returns: Bool
+    /// - parameter data: The dictionary to check
+    /// - returns: `Bool`
     class func isMissingPersistentKeys(data: [String: Any]) -> Bool {
         if data[TealiumKey.uuid] == nil { return true }
         if data[TealiumKey.visitorId] == nil { return true }
@@ -75,8 +71,8 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
 
     /// Converts UUID to Tealium Visitor ID format
     ///
-    /// - Parameter from: String containing a UUID
-    /// - Returns: String containing Tealium Visitor ID
+    /// - parameter from: `String` containing a UUID
+    /// - returns: `String` containing Tealium Visitor ID
     func visitorId(from uuid: String) -> String {
         return uuid.replacingOccurrences(of: "-", with: "")
     }
@@ -84,8 +80,8 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     /// Prepares new Tealium default App related data. Legacy Visitor Id data
     /// is set here as it based off app_uuid.
     ///
-    /// - Parameter uuid: The uuid string to use for new persistent data.
-    /// - Returns: A [String:Any] dictionary.
+    /// - parameter uuid: The uuid string to use for new persistent data.
+    /// - returns: `[String:Any]`
     func newPersistentData(for uuid: String) -> PersistentAppData {
         let vid = visitorId(from: uuid)
         let persistentData = PersistentAppData(visitorId: vid, uuid: uuid)
@@ -94,7 +90,7 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
         return persistentData
     }
 
-    /// Retrieves a new set of Volatile Data (usually once per app launch)
+    /// Generates a new set of Volatile Data (usually once per app launch)
     ///
     func newVolatileData() {
 
@@ -125,7 +121,7 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
 
     /// Populates in-memory AppData with existing values from persistent storage, if present
     ///
-    /// - Parameter data: [String: Any] containing existing AppData variables
+    /// - parameter data: `[String: Any]` containing existing AppData variables
     func setLoadedAppData(data: PersistentAppData) {
         guard !TealiumAppData.isMissingPersistentKeys(data: data.toDictionary()) else {
             setNewAppData()

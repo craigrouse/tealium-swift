@@ -18,4 +18,16 @@ enum TealiumDispatchQueueConstants {
     // dispatchEventLimit
     static let eventLimit = "event_limit"
     static let batchingEnabled = "batching_enabled"
+    static let batchingBypassKeys = "batching_bypass_keys"
+}
+
+// These events will not be subject to batching
+enum BypassDispatchQueueKeys: String, CaseIterable {
+    case lifecycleLaunch = "launch"
+    case lifecycleWake = "wake"
+    case lifecycleSleep = "sleep"
+    case fullConsentGranted = "grant_full_consent"
+    case partialConsentGranted = "grant_partial_consent"
+    case consentDenied = "decline_consent"
+    case updateConsentCookie = "update_consent_cookie"
 }

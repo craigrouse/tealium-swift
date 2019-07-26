@@ -20,7 +20,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
         return "\(filePrefix)\(module)/"
     }()
 
-    /// - Parameter config: TealiumConfig
+    /// - parameter config: TealiumConfig
     public init(config: TealiumConfig,
                 forModule module: String,
                 isCritical: Bool = false) {
@@ -30,7 +30,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
         self.module = module
         self.isCritical = isCritical
         self.isDiskStorageEnabled = config.isDiskStorageEnabled()
-        // provides userdefaults backing for critical data (e.g. appdata, consentmanager)
+        // Provides userdefaults backing for critical data (e.g. appdata, consentmanager)
         if isCritical {
             self.defaultsStorage = UserDefaults(suiteName: filePath)
         }
@@ -49,13 +49,21 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
 
     }
 
-    func canWrite<T: Encodable>(data: T) -> Bool {
+    public func canWrite<T: Encodable>(data: T) -> Bool {
         guard let available = Disk.availableCapacity,
             let fileSize = size(of: data) else {
             return false
         }
         // make sure we have sufficient disk capacity (20MB)
         return available > minimumDiskSpace && fileSize < available
+    }
+
+    public func canWrite() -> Bool {
+        guard let available = Disk.availableCapacity else {
+                return false
+        }
+        // make sure we have sufficient disk capacity (20MB)
+        return available > minimumDiskSpace
     }
 
     // TODO: Convert this to number, factor into CanWrite calculation.

@@ -12,7 +12,7 @@ public extension Tealium {
 
     /// Sends a request to modules to initiate a trace with a specific Trace ID
     ///
-    /// - Parameter traceId: String representing the Trace ID (usually 5-digit integer)
+    /// - parameter traceId: String representing the Trace ID (usually 5-digit integer)
     func joinTrace(traceId: String) {
         self.config.optionalData[TealiumKey.traceId] = traceId
         let joinTraceRequest = TealiumJoinTraceRequest(traceId: traceId)
@@ -21,7 +21,7 @@ public extension Tealium {
 
     /// Sends a request to modules to leave a trace, and end the trace session
     ///
-    /// - Parameter killVisitorSession: Bool indicating whether the visitor session should be ended when the trace is left (default true).
+    /// - parameter killVisitorSession: Bool indicating whether the visitor session should be ended when the trace is left (default true).
     func leaveTrace(killVisitorSession: Bool = true) {
         let leaveTraceRequest = TealiumLeaveTraceRequest()
         self.modulesManager.tealiumModuleRequests(module: nil, process: leaveTraceRequest)

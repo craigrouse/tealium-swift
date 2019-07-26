@@ -50,7 +50,7 @@ public class Tealium {
 
     /// Update an actively running library with new configuration object.
     ///
-    /// - Parameter config: TealiumConfiguration to update library with.
+    /// - parameter config: TealiumConfiguration to update library with.
     public func update(config: TealiumConfig) {
         TealiumQueues.backgroundConcurrentQueue.write {
             self.config = config
@@ -67,7 +67,7 @@ public class Tealium {
 
     /// Convenience track method with only a title argument.
     ///
-    /// - Parameter title: String name of the event. This converts to 'tealium_event'
+    /// - parameter title: String name of the event. This converts to 'tealium_event'
     public func track(title: String) {
         TealiumQueues.backgroundConcurrentQueue.write {
             self.track(title: title,
@@ -134,7 +134,7 @@ public class Tealium {
     /// - type: TealiumTrackType to use.
     /// - title: String description for track name.
     /// - optionalData: Optional key-values for TIQ variables / UDH attributes
-    /// - Returns: Dictionary of type [String:Any]
+    /// - returns: Dictionary of type [String:Any]
     public class func trackDataFor(title: String,
                                    optionalData: [String: Any]?) -> [String: Any] {
         let newOptionalData = optionalData

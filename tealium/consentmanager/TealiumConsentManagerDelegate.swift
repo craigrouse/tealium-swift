@@ -15,22 +15,22 @@ public protocol TealiumConsentManagerDelegate: class {
 
     /// Called when the consent manager will drop a request (user not consented)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willDropTrackingCall(_ request: TealiumTrackRequest)
 
     /// Called when the consent manager will queue a request (user consent state not determined)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willQueueTrackingCall(_ request: TealiumTrackRequest)
 
     /// Called when the consent manager will send a request (user has consented)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willSendTrackingCall(_ request: TealiumTrackRequest)
 
     /// Called when the user has changed their consent status
     ///
-    /// - Parameter status: TealiumConsentStatus
+    /// - parameter status: TealiumConsentStatus
     func consentStatusChanged(_ status: TealiumConsentStatus)
 
     /// Called when the user consented to tracking
@@ -41,7 +41,7 @@ public protocol TealiumConsentManagerDelegate: class {
 
     /// Called when the user changed their consent category choices
     ///
-    /// - Parameter categories: [TealiumConsentCategories] containing the new list of consent categories selected by the user
+    /// - parameter categories: [TealiumConsentCategories] containing the new list of consent categories selected by the user
     func userChangedConsentCategories(categories: [TealiumConsentCategories])
     // future implementation
     // func consentSettingsReady(settings: [String: String])

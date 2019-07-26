@@ -55,7 +55,7 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
 
     /// Sets up the URL session object for later use
     ///
-    /// - Parameter completion: Optional completion to be called when session setup is complete
+    /// - parameter completion: Optional completion to be called when session setup is complete
     func setupURLSession(_ completion: (() -> Void)?) {
         self.urlSessionConfiguration = URLSessionConfiguration.default
         if let urlSessionConfiguration = self.urlSessionConfiguration {

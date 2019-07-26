@@ -18,6 +18,9 @@ import UIKit
 
 /// TIQ Supported dispatch service Module. Utilizes older but simpler UIWebView vs. newer WKWebView.
 public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtocol {
+    public func trackMultiple(_ data: [[String: Any]], completion: ((Bool, [String: Any], Error?) -> Void)?) {
+        print("Not implemented")
+    }
 
     var delegates = TealiumMulticastDelegate<UIWebViewDelegate>()
     var webviewDidFinishLoading = false
@@ -62,7 +65,7 @@ public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtoc
 
     /// Adds optional delegates to the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
     public func setWebViewDelegates(_ delegates: [AnyObject]) {
         delegates.forEach { delegate in
             if let delegate = delegate as? UIWebViewDelegate {
@@ -73,7 +76,7 @@ public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtoc
 
     /// Removes optional delegates for the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
     public func removeWebViewDelegates(_ delegates: [AnyObject]) {
         delegates.forEach { delegate in
             if let delegate = delegate as? UIWebViewDelegate {
@@ -84,7 +87,7 @@ public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtoc
 
     /// Configures an instance of UIWebView for later use.
     ///
-    /// - Parameter forURL: The URL (typically for mobile.html) to load in the webview
+    /// - parameter forURL: The URL (typically for mobile.html) to load in the webview
     func setupWebview(forURL url: URL?) {
         self.webview = UIWebView()
         self.webview?.delegate = self
@@ -104,7 +107,7 @@ public class TealiumTagManagementUIWebView: NSObject, TealiumTagManagementProtoc
 
     /// Internal webview status check.
     ///
-    /// - Returns: Bool indicating whether or not the internal webview is ready for dispatching.
+    /// - returns: Bool indicating whether or not the internal webview is ready for dispatching.
     public func isWebViewReady() -> Bool {
         guard nil != webview else {
             return false

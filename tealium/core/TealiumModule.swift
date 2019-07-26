@@ -42,7 +42,7 @@ open class TealiumModule: TealiumModuleProtocol {
 
     /// Constructor.
     ///
-    /// - Parameter delegate: Delegate for module, usually the ModulesManager.
+    /// - parameter delegate: Delegate for module, usually the ModulesManager.
     required public init(delegate: TealiumModuleDelegate?) {
         self.delegate = delegate
     }
@@ -63,7 +63,7 @@ open class TealiumModule: TealiumModuleProtocol {
     ///   didFinishWithNoReponse() method. Typically all modules will handle
     ///   at least the minimum enable & disable functions.
     ///
-    /// - Parameter request: TealiumRequest type to be processed.
+    /// - parameter request: TealiumRequest type to be processed.
     open func handle(_ request: TealiumRequest) {
         if let request = request as? TealiumEnableRequest {
             enable(request)
@@ -78,8 +78,8 @@ open class TealiumModule: TealiumModuleProtocol {
 
     /// Handle enable completion by another module (ie logging).
     ///
-    /// - Parameter fromModule: Module originally reporting enable.
-    /// - Parameter process: Related TealiumRequest
+    /// - parameter fromModule: Module originally reporting enable.
+    /// - parameter process: Related TealiumRequest
     open func handleReport(_ request: TealiumRequest) {
 
         // If received - then all modules have finished processing the given request.
@@ -90,7 +90,7 @@ open class TealiumModule: TealiumModuleProtocol {
 
     /// Most modules will want to be able to be enabled.
     ///
-    /// - Parameter request: TealiumEnableRequest.
+    /// - parameter request: `TealiumEnableRequest`.
     open func enable(_ request: TealiumEnableRequest) {
         isEnabled = true
         didFinish(request)
@@ -98,7 +98,7 @@ open class TealiumModule: TealiumModuleProtocol {
 
     /// Most modules will want to be able to be disabled.
     ///
-    /// - Parameter request: TealiumDisableRequest.
+    /// - parameter request: `TealiumDisableRequest`.
     open func disable(_ request: TealiumDisableRequest) {
 
         isEnabled = false
@@ -113,7 +113,7 @@ open class TealiumModule: TealiumModuleProtocol {
     ///     This method auto updates the request's moduleResponse list with
     ///     the subclass's module name & success = true. No need to override.
     ///
-    /// - Parameter request: Any TealiumRequest to pass back to the ModulesManager.
+    /// - parameter request: Any TealiumRequest to pass back to the ModulesManager.
     open func didFinish(_ request: TealiumRequest) {
         var newRequest = request
         let response = TealiumModuleResponse(moduleName: type(of: self).moduleConfig().name,
@@ -130,7 +130,7 @@ open class TealiumModule: TealiumModuleProtocol {
     ///     This method auto updates the request's moduleResponse list with
     ///     the subclass's module name & success = true. No need to override.
     ///
-    /// - Parameter request: Any TealiumRequest to pass back to the ModulesManager.
+    /// - parameter request: Any TealiumRequest to pass back to the ModulesManager.
     open func didFinish(_ request: TealiumRequest, _ error: Error?) {
 
         var newRequest = request
@@ -149,7 +149,7 @@ open class TealiumModule: TealiumModuleProtocol {
     ///     call. Does not amend the request's moduleResponse with the sub classed
     ///     module's info. No need to override.
     ///
-    /// - Parameter request: The original TealiumRequest.
+    /// - parameter request: The original TealiumRequest.
     open func didFinishWithNoResponse(_ request: TealiumRequest) {
 
         self.delegate?.tealiumModuleFinished(module: self,
@@ -179,7 +179,7 @@ open class TealiumModule: TealiumModuleProtocol {
     ///     not all, so default behavior is to disregard. Override in subclasses
     ///     to process.
     ///
-    /// - Parameter request: TealiumTrackRequest to process.
+    /// - parameter request: TealiumTrackRequest to process.
     open func track(_ request: TealiumTrackRequest) {
         didFinishWithNoResponse(request)
     }

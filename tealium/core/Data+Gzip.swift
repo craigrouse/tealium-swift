@@ -146,8 +146,8 @@ extension Data {
     /// Create a new `Data` object by compressing the receiver using zlib.
     /// Throws an error if compression failed.
     ///
-    /// - Parameter level: Compression level.
-    /// - Returns: Gzip-compressed `Data` object.
+    /// - parameter level: Compression level.
+    /// - returns: Gzip-compressed `Data` object.
     /// - Throws: `GzipError`
     public func gzipped(level: CompressionLevel = .defaultCompression) throws -> Data {
 
@@ -208,7 +208,7 @@ extension Data {
     /// Create a new `Data` object by decompressing the receiver using zlib.
     /// Throws an error if decompression failed.
     ///
-    /// - Returns: Gzip-decompressed `Data` object.
+    /// - returns: Gzip-decompressed `Data` object.
     /// - Throws: `GzipError`
     public func gunzipped() throws -> Data {
 

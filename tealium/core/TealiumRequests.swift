@@ -6,8 +6,6 @@
 //  Copyright © 2018 Tealium, Inc. All rights reserved.
 //
 
-import Foundation
-
 // Requests are internal notification types used between the modules and
 //  modules manager to enable, disable, load, save, delete, and process
 //  track data. All request types most conform to the TealiumRequest protocol.
@@ -146,11 +144,17 @@ public struct TealiumEnqueueRequest: TealiumRequest {
     public var typeId = TealiumEnqueueRequest.instanceTypeId()
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
-    public let data: TealiumTrackRequest
+    public let data: [TealiumTrackRequest]
 
     public init(data: TealiumTrackRequest,
                 completion: TealiumCompletion?) {
-        self.data = data
+        self.data = [data]
+        self.completion = completion
+    }
+
+    public init(data: TealiumBatchTrackRequest,
+                completion: TealiumCompletion?) {
+        self.data = data.trackRequests
         self.completion = completion
     }
 
@@ -248,9 +252,13 @@ public struct TealiumTrackRequest: TealiumRequest, Codable {
         self.data = dictionary.encodable
     }
 
+    public func event() -> String? {
+        return self.trackDictionary[TealiumKey.event] as? String
+    }
+
 }
 
-public struct TealiumBatchTrackRequest: TealiumRequest {
+public struct TealiumBatchTrackRequest: TealiumRequest, Codable {
     public var typeId = TealiumTrackRequest.instanceTypeId()
     let sharedKeys = [TealiumKey.account,
                       TealiumKey.profile,
@@ -277,6 +285,11 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
     public var moduleResponses = [TealiumModuleResponse]()
     public var completion: TealiumCompletion?
 
+    enum CodingKeys: String, CodingKey {
+        case typeId
+        case trackRequests
+    }
+
     public static func instanceTypeId() -> String {
         return "batchtrack"
     }
@@ -287,7 +300,16 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
         self.completion = completion
     }
 
-    public func uncompressed() -> [String: Any]? {
+    public init(from decoder: Decoder) throws {
+        let values = try decoder.container(keyedBy: CodingKeys.self)
+
+        trackRequests = try values.decode([TealiumTrackRequest].self, forKey: CodingKeys.trackRequests)
+        typeId = try values.decode(String.self, forKey: .typeId)
+    }
+
+    /// returns: `[String: Any]?` containing the batched payload with shared keys extracted into `shared` object ``
+    /// Eventual JSON structure:`{"events":[{"somekey":"somevalue"}, "shared":{"somesharedkey":"somesharedvalue"}}`
+    public func compressed() -> [String: Any]? {
         var events = [[String: Any]]()
         guard let firstRequest = trackRequests.first else {
             return nil
@@ -303,7 +325,7 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
         return ["events": events, "shared": shared]
     }
 
-    public func extractSharedKeys(from dictionary: [String: Any]) -> [String: Any] {
+    func extractSharedKeys(from dictionary: [String: Any]) -> [String: Any] {
         var newSharedDictionary = [String: Any]()
 
         sharedKeys.forEach { key in
@@ -315,92 +337,6 @@ public struct TealiumBatchTrackRequest: TealiumRequest {
         return newSharedDictionary
     }
 
-    public func compressed() -> [String: Any]? {
-        var shared = [String: Any]()
-        var events = [[String: Any]]()
-        let trackRequests = self.trackRequests
-        guard let requestToCompare = trackRequests.first else {
-                return nil
-        }
-        let otherRequests = trackRequests[1...]
-
-        var sharedKeys = [String]()
-        for (key, value) in requestToCompare.trackDictionary {
-            var isShared = true
-            for request in otherRequests {
-                let data = request.trackDictionary,
-                    item = data[key]
-
-                guard item != nil else {
-                    isShared = false
-                    break
-                }
-
-                // TODO: Support nested Dictionary values here (recursive)
-                if !equal(value, rhs: item!) {
-                    isShared = false
-                    break
-                }
-
-            }
-            if isShared {
-                shared[key] = value
-                sharedKeys.append(key)
-            }
-        }
-
-        for request in trackRequests {
-            var newRequest = [String: Any]()
-            for (key, value) in request.trackDictionary {
-                if !sharedKeys.contains(key) {
-                    newRequest[key] = value
-                }
-            }
-            events.append(newRequest)
-        }
-
-        return ["shared": shared,
-                "events": events]
-    }
-
-}
-
-func equal(_ lhs: Any, rhs: Any) -> Bool {
-    switch (lhs, rhs) {
-
-    case let (lhsValue as Int, rhsValue as Int):
-        return lhsValue == rhsValue
-    case let (lhsValue as [Int], rhsValue as [Int]):
-        return lhsValue == rhsValue
-    case let (lhsValue as Double, rhsValue as Double):
-        return lhsValue == rhsValue
-    case let (lhsValue as [Double], rhsValue as [Double]):
-        return lhsValue == rhsValue
-    case let (lhsValue as Float, rhsValue as Float):
-        return lhsValue == rhsValue
-    case let (lhsValue as [Float], rhsValue as [Float]):
-        return lhsValue == rhsValue
-    case let (lhsValue as Bool, rhsValue as Bool):
-        return lhsValue == rhsValue
-    case let (lhsValue as [Bool], rhsValue as [Bool]):
-        return lhsValue == rhsValue
-    case let (lhsValue as String, rhsValue as String):
-        return lhsValue == rhsValue
-    case let (lhsValue as [String], rhsValue as [String]):
-        return lhsValue == rhsValue
-    case let (lhsValue as [String: Any], rhsValue as [String: Any]):
-        for (key, value) in lhsValue {
-            guard rhsValue[key] != nil else {
-                return false
-            }
-            guard equal(value, rhs: rhsValue[key]!) == true else {
-                return false
-            }
-        }
-        return true
-    default:
-        return false
-    }
 }
 
 public struct TealiumDeviceDataRequest: TealiumRequest {

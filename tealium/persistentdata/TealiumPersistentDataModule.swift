@@ -48,8 +48,8 @@ class TealiumPersistentDataModule: TealiumModule {
     }
 
     override func track(_ track: TealiumTrackRequest) {
-        if self.isEnabled == false {
-            didFinish(track)
+        guard isEnabled == true else {
+            didFinishWithNoResponse(track)
             return
         }
 

@@ -41,14 +41,15 @@ class TealiumHelper: NSObject {
         config.setLogLevel(logLevel: .verbose)
         config.setConsentLoggingEnabled(true)
         config.setSearchAdsEnabled(true)
+//        config.setBatchingBypassKeys(["hello"])
         config.setInitialUserConsentStatus(.consented)
 //        config.setCollectOverrideURL(string: "https://colect.tealiumiq.com/event")
         
         config.setBatchSize(5)
-        config.setMaxQueueSize(10)
+        config.setMaxQueueSize(200)
         config.setDispatchAfter(numberOfEvents: 5)
         
-        config.setIsEventBatchingEnabled(false)
+        config.setIsEventBatchingEnabled(true)
         // OPTIONALLY add an external delegate
         config.addDelegate(self)
         config.setMemoryReportingEnabled(true)
@@ -66,7 +67,7 @@ class TealiumHelper: NSObject {
 //                                                    "appdata",
 //                                                    "devicedata",
 //                                                    "lifecycle",
-                                                    "connectivity",
+//                                                    "connectivity",
 //                                                    "consentmanager",
 //                                                    "dispatchqueue",
 //                                                    "remotecommands",
@@ -96,9 +97,9 @@ class TealiumHelper: NSObject {
         tealium = Tealium(config: config) { response in
                             // Optional processing post init.
                             // Optionally, join a trace. Trace ID must be generated server-side in UDH.
-            self.tealium?.joinTrace(traceId: "01234")
-            self.tealium?.leaveTrace()
-        self.tealium?.leaveTrace(killVisitorSession: true)
+//            self.tealium?.joinTrace(traceId: "01234")
+//            self.tealium?.leaveTrace()
+//        self.tealium?.leaveTrace(killVisitorSession: true)
                             self.tealium?.persistentData()?.add(data: ["testPersistentKey": "testPersistentValue"])
             
     self.tealium?.persistentData()?.deleteData(forKeys: ["user_name", "testPersistentKey", "newPersistentKey"])
@@ -107,7 +108,7 @@ class TealiumHelper: NSObject {
                             self.tealium?.volatileData()?.add(data: ["testVolatileKey": "testVolatileValue"])
                             // OPTIONALLY implement Remote Commands
                             self.tealium?.consentManager()?.addConsentDelegate(self)
-                            self.tealium?.consentManager()?.setUserConsentStatus( .consented)
+//                            self.tealium?.consentManager()?.setUserConsentStatus( .consented)
         }
     }
 

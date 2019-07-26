@@ -29,7 +29,7 @@ public extension Disk {
     /// - Parameters:
     ///   - path: path of file relative to directory (set nil for entire directory)
     ///   - directory: directory the file is saved in
-    /// - Returns: URL pointing to file
+    /// - returns: URL pointing to file
     /// - Throws: Error if no file could be found
     @available(*, deprecated, message: "Use Disk.url(for:in:) instead, it does not throw an error if the file does not exist.")
     static func getURL(for path: String?, in directory: Directory) throws -> URL {
@@ -46,7 +46,7 @@ public extension Disk {
     /// - Parameters:
     ///   - path: path of file relative to directory (set nil for entire directory)
     ///   - directory: directory for the specified path
-    /// - Returns: URL for either an existing or non-existing file
+    /// - returns: URL for either an existing or non-existing file
     /// - Throws: Error if URL creation failed
     static func url(for path: String?, in directory: Directory) throws -> URL {
         do {
@@ -59,7 +59,7 @@ public extension Disk {
 
     /// Clear directory by removing all files
     ///
-    /// - Parameter directory: directory to clear
+    /// - parameter directory: directory to clear
     /// - Throws: Error if FileManager cannot access a directory
     static func clear(_ directory: Directory) throws {
         do {
@@ -106,7 +106,7 @@ public extension Disk {
     /// - Parameters:
     ///   - path: path of file relative to directory
     ///   - directory: directory where file is located
-    /// - Returns: Bool indicating whether file exists
+    /// - returns: Bool indicating whether file exists
     static func exists(_ path: String, in directory: Directory) -> Bool {
         if let _ = try? getExistingFileURL(for: path, in: directory) {
             return true
@@ -118,7 +118,7 @@ public extension Disk {
     ///
     /// - Parameters:
     ///   - url: URL of file in filesystem
-    /// - Returns: Bool indicating whether file exists
+    /// - returns: Bool indicating whether file exists
     static func exists(_ url: URL) -> Bool {
         if FileManager.default.fileExists(atPath: url.path) {
             return true

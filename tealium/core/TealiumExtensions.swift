@@ -75,7 +75,7 @@ extension Date {
         return Formatter.MMDDYYYY.string(from: self)
     }
 
-    public var unixTime: String {
+    public var unixTimeMilliseconds: String {
         // must be forced to Int64 to avoid overflow on watchOS (32 bit)
         let time = Int64(self.timeIntervalSince1970 * 1000)
 

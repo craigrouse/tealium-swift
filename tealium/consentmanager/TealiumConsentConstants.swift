@@ -40,8 +40,8 @@ public enum TealiumConsentCategories: String, Codable {
 
     /// Converts a string array of consent categories to an array of TealiumConsentCategories
     ///
-    /// - Parameter categories: [String] of consent categories
-    /// - Returns: [TealiumConsentCategories]
+    /// - parameter categories: [String] of consent categories
+    /// - returns: [TealiumConsentCategories]
     public static func consentCategoriesStringArrayToEnum(_ categories: [String]) -> [TealiumConsentCategories] {
         var converted = [TealiumConsentCategories]()
         categories.forEach { category in
@@ -53,7 +53,7 @@ public enum TealiumConsentCategories: String, Codable {
         return converted
     }
 
-    /// - Returns: An array of all currently-implemented consent categories
+    /// - returns: An array of all currently-implemented consent categories
     public static func all() -> [TealiumConsentCategories] {
         return [
             .analytics,

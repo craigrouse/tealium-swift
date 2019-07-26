@@ -108,7 +108,7 @@ public extension Disk {
     ///   - path: path of folder that's holding the Data objects' files
     ///   - directory: user directory where folder was created for holding Data objects
     ///   - type: here for Swifty generics magic, use [Data].self
-    /// - Returns: [Data] from disk
+    /// - returns: [Data] from disk
     /// - Throws: Error if there were any issues retrieving the specified folder of files
     static func retrieve(_ path: String, from directory: Directory, as type: [Data].Type) throws -> [Data] {
         do {

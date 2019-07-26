@@ -18,14 +18,14 @@ class TealiumConsentManagerModule: TealiumModule {
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return  TealiumModuleConfig(name: TealiumConsentConstants.moduleName,
-                                    priority: 50,
+                                    priority: 975,
                                     build: 2,
                                     enabled: true)
     }
 
     /// Enables the module and starts the Consent Manager instance
     ///
-    /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
+    /// - parameter request: `TealiumEnableRequest` - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         isEnabled = true
         // start consent manager with completion block
@@ -37,13 +37,72 @@ class TealiumConsentManagerModule: TealiumModule {
         consentManager.addConsentDelegate(self)
     }
 
+    override func handle(_ request: TealiumRequest) {
+        switch request {
+        case let request as TealiumEnableRequest:
+            enable(request)
+        case let request as TealiumTrackRequest:
+            track(request)
+        case let request as TealiumBatchTrackRequest:
+            batchTrack(request)
+        case let request as TealiumDisableRequest:
+            disable(request)
+        default:
+            didFinish(request)
+        }
+    }
+
+    func batchTrack(_ request: TealiumBatchTrackRequest) {
+        guard isEnabled == true else {
+            didFinishWithNoResponse(request)
+            return
+        }
+
+        // note: consent events are excluded from batching, so do not need to handle special case, as with the standard track call
+
+        var allRequests = request.trackRequests
+
+        allRequests = allRequests.map {
+            addConsentDataToTrack($0)
+        }
+
+        let newTrack = TealiumBatchTrackRequest(trackRequests: allRequests, completion: request.completion)
+
+        // if not ready yet, queue requests
+        if !ready {
+            queue(newTrack)
+            let report = TealiumReportRequest(message: "Consent Manager: Queued track. Consent Manager not ready.")
+            delegate?.tealiumModuleRequests(module: self,
+                                            process: report)
+            return
+        }
+
+        // check if tracking is allowed
+        switch consentManager.getTrackingStatus() {
+        case .trackingQueued:
+            queue(newTrack)
+//            consentManager.willQueueTrackingCall(newTrack)
+        // yes, user has allowed tracking
+        case .trackingAllowed:
+//            consentManager.willSendTrackingCall(newTrack)
+            didFinishWithNoResponse(newTrack)
+        // user declined tracking. we will discard this request
+        case .trackingForbidden:
+            self.purgeQueue()
+//            consentManager.willDropTrackingCall(newTrack)
+            return
+        }
+
+    }
+
     /// Decides whether a tracking request can be completed based on current consent status.
     ///
-    /// - Parameter track: TealiumTrackRequest to be considered for processing.
+    /// - parameter track: `TealiumTrackRequest` to be considered for processing.
     override func track(_ track: TealiumTrackRequest) {
+
         // do nothing if disabled - return to normal operation
-        if self.isEnabled == false {
-            didFinish(track)
+        guard isEnabled == true else {
+            didFinishWithNoResponse(track)
             return
         }
 
@@ -58,7 +117,7 @@ class TealiumConsentManagerModule: TealiumModule {
         let newTrack = addConsentDataToTrack(track)
 
         // if not ready yet, queue requests
-        if !self.ready {
+        guard ready else {
             queue(newTrack)
             let report = TealiumReportRequest(message: "Consent Manager: Queued track. Consent Manager not ready.")
             delegate?.tealiumModuleRequests(module: self,
@@ -85,7 +144,7 @@ class TealiumConsentManagerModule: TealiumModule {
 
     /// Adds consent categories and status to the tracking request.
     ///
-    /// - Parameter track: TealiumTrackRequest to be modified.
+    /// - parameter track: `TealiumTrackRequest` to be modified.
     func addConsentDataToTrack(_ track: TealiumTrackRequest) -> TealiumTrackRequest {
         var newTrack = track.trackDictionary
         if let consentDictionary = consentManager.getUserConsentPreferences()?.toDictionary() {
@@ -99,7 +158,7 @@ class TealiumConsentManagerModule: TealiumModule {
 
     /// Queues a tracking request until consent status is known.
     ///
-    /// - Parameter track: TealiumTrackRequest to be queued.
+    /// - parameter track: `TealiumTrackRequest` to be queued.
     func queue(_ track: TealiumTrackRequest) {
         var newData = track.trackDictionary
         newData[TealiumKey.queueReason] = TealiumConsentConstants.moduleName
@@ -107,6 +166,12 @@ class TealiumConsentManagerModule: TealiumModule {
                                            completion: track.completion)
         let req = TealiumEnqueueRequest(data: newTrack, completion: nil)
         self.delegate?.tealiumModuleRequests(module: self, process: req)
+    }
+
+    func queue(_ track: TealiumBatchTrackRequest) {
+        track.trackRequests.forEach {
+            queue($0)
+        }
     }
 
     /// Releases all queued tracking calls. Called if tracking consent is granted by the user.
@@ -132,7 +197,7 @@ class TealiumConsentManagerModule: TealiumModule {
 
     /// Disables the Consent Manager module
     ///
-    /// - Parameter request: TealiumDisableRequest
+    /// - parameter request: `TealiumDisableRequest`
     override func disable(_ request: TealiumDisableRequest) {
         isEnabled = false
         didFinish(request)

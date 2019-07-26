@@ -129,8 +129,8 @@ public class TealiumPLCrash: TealiumAppDataCollection {
 
     /// Provides thread state information
     ///
-    /// - Parameter truncate: If enabled, returns just the crashed thread only, otherwise returns all the threads. Default value is false.
-    /// - Returns: an array of [String: Any]
+    /// - parameter truncate: If enabled, returns just the crashed thread only, otherwise returns all the threads. Default value is false.
+    /// - returns: an array of [String: Any]
     func threads(truncate: Bool = false) -> [[String: Any]] {
         var array = [[String: Any]]()
         guard let threadInfos = threadInfos else {
@@ -182,8 +182,8 @@ public class TealiumPLCrash: TealiumAppDataCollection {
 
     /// Gets the images that are loaded with the app
     ///
-    /// - Parameter truncate: If enabled, returns just the first image loaded, otherwise returns all the images. Default value is false.
-    /// - Returns: an array of [String: Any]
+    /// - parameter truncate: If enabled, returns just the first image loaded, otherwise returns all the images. Default value is false.
+    /// - returns: an array of [String: Any]
     func libraries(truncate: Bool = false) -> [[String: Any]] {
         var array = [[String: Any]]()
         var formatted = [String: Any]()
@@ -213,7 +213,7 @@ public class TealiumPLCrash: TealiumAppDataCollection {
     /// - truncateLibraries: Bool indicating whether the libraries component of the report should be truncated
     /// - truncateThreads: Bool indicating whether the threads component of the report should be truncated
     ///
-    /// - Returns: [String: Any] containing all crash-related variables
+    /// - returns: [String: Any] containing all crash-related variables
     public func getData(truncateLibraries: Bool = false, truncateThreads: Bool = false) -> [String: Any] {
         // get last crash report if it exists
         return [TealiumKey.event: TealiumPLCrash.CrashEvent,
@@ -243,7 +243,7 @@ public class TealiumPLCrash: TealiumAppDataCollection {
     /// - Parameters:
     /// - truncate: Bool indicating whether the libraries and threads components of the report should be truncated
     ///
-    /// - Returns: [String: Any] containing all crash-related variables
+    /// - returns: [String: Any] containing all crash-related variables
     public func getData(truncate: Bool) -> [String: Any] {
 
         return getData(truncateLibraries: truncate, truncateThreads: truncate)

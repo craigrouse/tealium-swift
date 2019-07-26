@@ -62,7 +62,8 @@ class TealiumPersistentDispatchQueue {
         return queuedDispatches
     }
 
-    func removeOldDispatches(_ maxQueueSize: Int) {
+    func removeOldDispatches(_ maxQueueSize: Int,
+                             since: Date? = nil) {
         // save dispatch can only happen once queue is initialized
         guard let currentData = peek() else {
             return
@@ -70,6 +71,7 @@ class TealiumPersistentDispatchQueue {
 
         // note: any completion blocks will be ignored for now, since we can only persist Dictionaries
         var newData = currentData
+        var hasModified = false
         let totalDispatches = newData.count
         if totalDispatches == maxQueueSize {
             // take suffix to get most recent events and discard oldest first
@@ -77,7 +79,28 @@ class TealiumPersistentDispatchQueue {
             // left with 19 elements => 20 - (20-1) = 19
             let slice = newData.suffix(from: totalDispatches - (maxQueueSize - 1))
             newData = Array(slice)
-            self.saveAndOverwrite(newData)
+            hasModified = true
+        }
+
+        if let sinceDate = since {
+            newData = newData.filter {
+                guard let timestamp = $0.trackDictionary[TealiumVolatileDataKey.timestampUnix] as? String else {
+                    return true
+                }
+
+                guard let interval = TimeInterval(timestamp) else {
+                        return true
+                }
+
+                hasModified = true
+                let trackDate = Date(timeIntervalSince1970: interval)
+
+                return trackDate > sinceDate
+            }
+        }
+
+        if hasModified {
+            saveAndOverwrite(newData)
         }
     }
 

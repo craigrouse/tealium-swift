@@ -82,7 +82,7 @@ class TealiumDelegateModule: TealiumModule {
         delegate?.tealiumModuleRequests(module: self,
                                         process: TealiumReportNotificationsRequest())
 
-        didFinish(request)
+        didFinishWithNoResponse(request)
     }
 
     override func handleReport(_  request: TealiumRequest) {
@@ -107,7 +107,7 @@ class TealiumDelegateModule: TealiumModule {
                             error: TealiumDelegateError.suppressedByShouldTrackDelegate)
             return
         }
-        didFinish(track)
+        didFinishWithNoResponse(track)
     }
 
     func getTealiumInstanceFromConfig(_ config: TealiumConfig) -> Tealium? {
@@ -138,7 +138,7 @@ public class TealiumDelegates {
 
     /// Add a weak pointer to a class conforming to the TealiumDelegate protocol.
     ///
-    /// - Parameter delegate: Class conforming to the TealiumDelegate protocols.
+    /// - parameter delegate: Class conforming to the TealiumDelegate protocols.
     public func add(delegate: TealiumDelegate) {
         multicastDelegate.add(delegate)
     }
@@ -146,7 +146,7 @@ public class TealiumDelegates {
     /// Remove the weaker pointer reference to a given class from the multicast
     ///   delegates handler.
     ///
-    /// - Parameter delegate: Class conforming to the TealiumDelegate protocols.
+    /// - parameter delegate: Class conforming to the TealiumDelegate protocols.
     public func remove(delegate: TealiumDelegate) {
         multicastDelegate.remove(delegate)
     }
@@ -159,8 +159,8 @@ public class TealiumDelegates {
 
     /// Query all delegates if the data should be tracked or suppressed.
     ///
-    /// - Parameter data: Data payload to inspect
-    /// - Returns: True if all delegates approve
+    /// - parameter data: Data payload to inspect
+    /// - returns: True if all delegates approve
     public func invokeShouldTrack(data: [String: Any]) -> Bool {
         var shouldTrack = true
         multicastDelegate.invoke { if $0.tealiumShouldTrack(data: data) == false {
@@ -173,7 +173,7 @@ public class TealiumDelegates {
 
     /// Inform all delegates that a track call has completed.
     ///
-    /// - Parameter forTrackProcess: TealiumRequest that was completed
+    /// - parameter forTrackProcess: TealiumRequest that was completed
     public func invokeTrackCompleted(forTrackProcess: TealiumTrackRequest) {
 
         for response in forTrackProcess.moduleResponses {

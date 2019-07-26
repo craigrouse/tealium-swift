@@ -21,8 +21,8 @@ public class TealiumRemoteCommands: NSObject {
 
     /// Checks if a URLRequest object contains a valid Remote Command
     ///
-    /// - Parameter request: URLRequest representing the Remote Command
-    /// - Returns: Bool indicating whether the command is valid
+    /// - parameter request: URLRequest representing the Remote Command
+    /// - returns: Bool indicating whether the command is valid
     func isAValidRemoteCommand(request: URLRequest) -> Bool {
         if request.url?.scheme == TealiumKey.tealiumURLScheme {
             return true
@@ -64,8 +64,8 @@ public class TealiumRemoteCommands: NSObject {
     ///     will presume the string is escaped, if not, will attempt to escape string
     ///     with .urlQueryAllowed. NOTE: using .urlHostAllowed for escaping will not work.
     ///
-    /// - Parameter urlString: Url string including host, ie: tealium://commandId?request={}...
-    /// - Returns: Error if unable to trigger a remote command. Can ignore if the url was not
+    /// - parameter urlString: Url string including host, ie: tealium://commandId?request={}...
+    /// - returns: Error if unable to trigger a remote command. Can ignore if the url was not
     ///     intended for a remote command.
     public func triggerCommandFrom(urlString: String) -> TealiumRemoteCommandsError? {
         var urlInitial = URL(string: urlString)
@@ -85,8 +85,8 @@ public class TealiumRemoteCommands: NSObject {
 
     /// Trigger an associated remote command from a url request.
     ///
-    /// - Parameter request: URLRequest to check for a remote command.
-    /// - Returns: Error if unable to trigger a remote command. If nil is returned,
+    /// - parameter request: URLRequest to check for a remote command.
+    /// - returns: Error if unable to trigger a remote command. If nil is returned,
     ///     then call was a successfully triggered remote command.
     public func triggerCommandFrom(request: URLRequest) -> TealiumRemoteCommandsError? {
 

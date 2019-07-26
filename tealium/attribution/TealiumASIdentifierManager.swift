@@ -28,17 +28,17 @@ public class TealiumASIdentifierManager: TealiumASIdentifierManagerProtocol {
 
     }
 
-    /// - Returns: String representation of IDFA
+    /// - returns: `String` representation of IDFA
     public lazy var advertisingIdentifier: String = {
         return idManager.advertisingIdentifier.uuidString
     }()
 
-    /// - Returns: String representation of Limit Ad Tracking setting (true if tracking allowed, false if disabled)
+    /// - returns: `String` representation of Limit Ad Tracking setting (true if tracking allowed, false if disabled)
     public lazy var isAdvertisingTrackingEnabled: String = {
         return idManager.isAdvertisingTrackingEnabled.description
     }()
 
-    /// - Returns: String representation of IDFV
+    /// - returns: `String` representation of IDFV
     public lazy var identifierForVendor: String = {
         return UIDevice.current.identifierForVendor?.uuidString ?? ""
     }()

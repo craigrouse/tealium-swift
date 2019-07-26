@@ -10,7 +10,7 @@
 
 public enum TealiumValue {
     public static let libraryName = "swift"
-    public static let libraryVersion = "1.7.0"
+    public static let libraryVersion = "1.8.0"
     // This is the current limit for performance reasons. May be increased in future
     public static let maxEventBatchSize = 10
     public static let defaultMinimumDiskSpace = 20000000

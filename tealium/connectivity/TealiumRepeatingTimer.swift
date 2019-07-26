@@ -25,7 +25,8 @@ class TealiumRepeatingTimer {
     }
 
     private lazy var timer: DispatchSourceTimer = {
-        let timer = DispatchSource.makeTimerSource(flags: .strict, queue: dispatchQueue)
+        let timer = DispatchSource.makeTimerSource(flags: [], queue: dispatchQueue)
+
         timer.schedule(deadline: .now() + self.timeInterval, repeating: self.timeInterval)
         timer.setEventHandler(handler: { [weak self] in
             self?.eventHandler?()

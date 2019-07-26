@@ -170,7 +170,7 @@ public extension Disk {
     ///   - path: path of folder holding desired images
     ///   - directory: user directory where images' folder was created
     ///   - type: here for Swifty generics magic, use [UIImage].self
-    /// - Returns: [UIImage] from disk
+    /// - returns: [UIImage] from disk
     /// - Throws: Error if there were any issues retrieving the specified folder of images
     static func retrieve(_ path: String, from directory: Directory, as type: [UIImage].Type) throws -> [UIImage] {
         do {

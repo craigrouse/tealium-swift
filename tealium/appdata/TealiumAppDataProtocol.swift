@@ -14,7 +14,7 @@ protocol TealiumAppDataProtocol {
 
     /// Retrieve a copy of app data used with dispatches.
     ///
-    /// - Returns: `[String: Any]`
+    /// - returns: `[String: Any]`
     func getData() -> [String: Any]
 
     /// Stores current AppData in memory
@@ -22,7 +22,7 @@ protocol TealiumAppDataProtocol {
 
     /// Populates in-memory AppData with existing values from persistent storage, if present
     ///
-    /// - Parameter data: [String: Any] containing existing AppData variables
+    /// - parameter data: `[String: Any]` containing existing AppData variables
     func setLoadedAppData(data: PersistentAppData)
 
     /// Deletes all app data.

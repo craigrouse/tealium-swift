@@ -119,8 +119,20 @@ public class TealiumLifecycleModule: TealiumModule {
     }
 
     override public func track(_ track: TealiumTrackRequest) {
+
+        guard isEnabled == true else {
+            didFinishWithNoResponse(track)
+            return
+        }
+
+        // do not add data to queued hits
+        guard track.trackDictionary[TealiumKey.wasQueued] as? String == nil else {
+            didFinishWithNoResponse(track)
+            return
+        }
+
         // Lifecycle ready?
-        guard var lifecycle = self.lifecycle else {
+        guard var lifecycle = lifecycle else {
             didFinish(track)
             return
         }
@@ -229,7 +241,7 @@ public class TealiumLifecycleModule: TealiumModule {
     /// - Parameters:
     ///   - type: Lifecycle event type
     ///   - lastProcess: Last lifecycle event type recorded
-    /// - Returns: Bool is process should be allowed to continue
+    /// - returns: Bool is process should be allowed to continue
     func processAcceptable(type: TealiumLifecycleType) -> Bool {
         switch type {
         case .launch:
@@ -377,7 +389,7 @@ extension Array where Element == TealiumLifecycleSession {
 
     /// Get item before last
     ///
-    /// - Returns: Target item or item at index 0 if only 1 item.
+    /// - returns: Target item or item at index 0 if only 1 item.
     func beforeLast() -> Element? {
         if self.isEmpty {
             return nil

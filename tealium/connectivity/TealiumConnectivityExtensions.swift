@@ -12,7 +12,7 @@ public extension TealiumConnectivity {
 
     /// Method to add new classes implementing the TealiumConnectivityDelegate to subscribe to connectivity updates
     ///
-    /// - Parameter delegate: TealiumConnectivityDelegate
+    /// - parameter delegate: TealiumConnectivityDelegate
     func addConnectivityDelegate(delegate: TealiumConnectivityDelegate) {
         connectivityDelegates.add(delegate)
     }
@@ -24,7 +24,7 @@ public extension TealiumConnectivity {
 
     // MARK: Delegate Methods
     /// Called when network connection type has changed
-    /// - Parameter connectionType: String containing the current connection type (wifi, cellular)
+    /// - parameter connectionType: String containing the current connection type (wifi, cellular)
     func connectionTypeChanged(_ connectionType: String) {
         connectivityDelegates.invoke {
             $0.connectionTypeChanged(connectionType)
@@ -47,7 +47,7 @@ public extension TealiumConnectivity {
 
     /// Sets a timer to check for connectivity status updates
     ///
-    /// - Parameter interval: Int representing the time interval in seconds for new connectivity checks
+    /// - parameter interval: Int representing the time interval in seconds for new connectivity checks
     func refreshConnectivityStatus(_ interval: Int = TealiumConnectivityConstants.defaultInterval) {
         // already an active timer, so don't start a new one
         if timer != nil {

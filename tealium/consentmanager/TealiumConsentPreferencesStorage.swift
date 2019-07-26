@@ -24,14 +24,14 @@ class TealiumConsentPreferencesStorage {
 
     /// Saves the consent preferences to persistent storage
     ///
-    /// - Parameter prefs: [String: Any] containing the current consent preferences
+    /// - parameter prefs: [String: Any] containing the current consent preferences
     func storeConsentPreferences(_ prefs: [String: Any]) {
         persist(prefs)
     }
 
     /// Gets the saved consent preferences from persistent storage
     ///
-    /// - Returns: [String: Any]? containing the saved consent preferences. Nil if empty.
+    /// - returns: [String: Any]? containing the saved consent preferences. Nil if empty.
     func retrieveConsentPreferences() -> [String: Any]? {
         return read()
     }
@@ -45,7 +45,7 @@ class TealiumConsentPreferencesStorage {
 
     /// Saves the consent preferences to persistent storage
     ///
-    /// - Parameter dict: [String: Any] containing the current consent preferences
+    /// - parameter dict: [String: Any] containing the current consent preferences
     private func persist(_ dict: [String: Any]) {
         readWriteQueue.write {
             TealiumConsentPreferencesStorage.consentStorage.set(dict, forKey: TealiumConsentPreferencesStorage.key)
@@ -54,7 +54,7 @@ class TealiumConsentPreferencesStorage {
 
     /// Gets the saved consent preferences from persistent storage
     ///
-    /// - Returns: [String: Any]? containing the saved consent preferences. Nil if empty.
+    /// - returns: [String: Any]? containing the saved consent preferences. Nil if empty.
     private func read() -> [String: Any]? {
         var preferences = [String: Any]()
         readWriteQueue.read {

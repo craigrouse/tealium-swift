@@ -130,7 +130,7 @@ public extension Disk {
     ///   - directory: user directory to retrieve the file from
     ///   - type: struct type (i.e. Message.self or [Message].self)
     ///   - decoder: custom JSONDecoder to decode existing values
-    /// - Returns: decoded structs of data
+    /// - returns: decoded structs of data
     /// - Throws: Error if there were any issues retrieving the data or decoding it to the specified type
     static func retrieve<T: Decodable>(_ path: String, from directory: Directory, as type: T.Type, decoder: JSONDecoder = JSONDecoder()) throws -> T {
         if path.hasSuffix("/") {

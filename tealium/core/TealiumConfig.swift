@@ -123,7 +123,7 @@ extension TealiumConfig {
 public extension TealiumConfig {
     /// Get the existing modules list assigned to this config object.
     ///
-    /// - Returns: TealiumModulesList as an optional.
+    /// - returns: TealiumModulesList as an optional.
     func getModulesList() -> TealiumModulesList? {
         guard let list = self.optionalData[TealiumModulesListKey.config] as? TealiumModulesList else {
             return nil
@@ -134,7 +134,7 @@ public extension TealiumConfig {
 
     /// Set a net modules list to this config object.
     ///
-    /// - Parameter list: The TealiumModulesList to assign.
+    /// - parameter list: The TealiumModulesList to assign.
     func setModulesList(_ list: TealiumModulesList ) {
         self.optionalData[TealiumModulesListKey.config] = list
     }

@@ -20,6 +20,7 @@ public struct PersistentAttributionData: Codable {
         adGroupName: String?,
         adKeyword: String?
 
+    /// returns: `[String: Any]`
     public func toDictionary() -> [String: Any] {
         var appleAttributionDetails = [String: Any]()
         if let clickedWithin30D = clickedWithin30D {

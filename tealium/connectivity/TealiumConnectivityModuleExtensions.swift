@@ -14,7 +14,7 @@ import TealiumCore
 extension TealiumConnectivityModule: TealiumConnectivityDelegate {
 
     /// Called when network connection type has changed
-    /// - Parameter connectionType: String containing the current connection type (wifi, cellular)
+    /// - parameter connectionType: String containing the current connection type (wifi, cellular)
     func connectionTypeChanged(_ connectionType: String) {
         let report = TealiumReportRequest(message: "Connectivity: Connection type changed to \(connectionType)")
         self.delegate?.tealiumModuleRequests(module: self,

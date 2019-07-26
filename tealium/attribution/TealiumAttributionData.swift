@@ -16,13 +16,13 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
     var adClient: TealiumAdClientProtocol
     let diskStorage: TealiumDiskStorageProtocol
     var persistentAttributionData: PersistentAttributionData?
+    public var appleAttributionDetails: PersistentAttributionData?
 
     /// Init with optional injectable dependencies (for unit testing)
-    /// - Parameters:
-    /// - diskStorage: Class conforming to `TealiumDiskStorageProtocol` to manage persistence. Should be provided by the module
-    /// - isSearchAdsEnabled: `Bool` to determine if Apple Search Ads API should be invoked to retrieve attribution data from Apple
-    /// - identifierManager: TealiumASIdentifierManagerProtocol, a test-friendly implementation of Apple's ASIdentifierManager
-    /// - adClient: TealiumAdClientProtocol, a test-friendly implementation of Apple's AdClient
+    /// - parameter diskStorage: Class conforming to `TealiumDiskStorageProtocol` to manage persistence. Should be provided by the module
+    /// - parameter isSearchAdsEnabled: `Bool` to determine if Apple Search Ads API should be invoked to retrieve attribution data from Apple
+    /// - parameter identifierManager: `TealiumASIdentifierManagerProtocol`, a test-friendly implementation of Apple's ASIdentifierManager
+    /// - parameter adClient: `TealiumAdClientProtocol`, a test-friendly implementation of Apple's AdClient
     public init(diskStorage: TealiumDiskStorageProtocol,
                 isSearchAdsEnabled: Bool,
                 identifierManager: TealiumASIdentifierManagerProtocol = TealiumASIdentifierManager.shared,
@@ -35,6 +35,7 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
         }
     }
 
+    /// Loads persistent attribution data into memory, or fetches new data if not found
     func setPersistentAttributionData() {
         diskStorage.retrieve(as: PersistentAttributionData.self) {_, data, _ in
 
@@ -49,22 +50,22 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
         }
     }
 
-    /// - Returns: String representation of IDFA
+    /// - returns: `String` representation of IDFA
     public lazy var idfa: String = {
         return identifierManager.advertisingIdentifier
     }()
 
-    /// - Returns: String representation of IDFV
+    /// - returns: `String` representation of IDFV
     public lazy var idfv: String = {
         return identifierManager.identifierForVendor
     }()
 
-    /// - Returns: String representation of Limit Ad Tracking setting (true if tracking allowed, false if disabled)
+    /// - returns: `String` representation of Limit Ad Tracking setting (true if tracking allowed, false if disabled)
     public lazy var isAdvertisingTrackingEnabled: String = {
         return self.identifierManager.isAdvertisingTrackingEnabled
     }()
 
-    /// - Returns: All volatile data (collected at init time): IDFV, IDFA, isTrackingAllowed
+    /// - returns: `[String: Any]` of all volatile data (collected at init time): IDFV, IDFA, isTrackingAllowed
     public lazy var volatileData: [String: Any] = {
         return [
             TealiumAttributionKey.idfa: idfa,
@@ -73,7 +74,7 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
         ]
     }()
 
-    /// - Returns: [String: Any] containing all attribution data
+    /// - returns:`[String: Any]` containing all attribution data
     public lazy var allAttributionData: [String: Any] = {
         var allData = [String: Any]()
         if let persistentAttributionData = persistentAttributionData {
@@ -84,7 +85,7 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
     }()
 
     /// Requests Apple Search Ads data from AdClient API
-    /// - Parameter completion: Completion block to be executed asynchronously when Search Ads data is returned
+    /// - parameter completion: Completion block to be executed asynchronously when Search Ads data is returned
     public func appleSearchAdsData(_ completion: @escaping (PersistentAttributionData) -> Void) {
         var appleAttributionDetails = PersistentAttributionData()
         let completionHander = { (details: [String: NSObject]?, error: Error?) in
@@ -118,6 +119,7 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
                     appleAttributionDetails.adKeyword = adKeyword
                 }
             }
+            self.appleAttributionDetails = appleAttributionDetails
             completion(appleAttributionDetails)
         }
         adClient.requestAttributionDetails(completionHander)

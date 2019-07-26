@@ -344,7 +344,7 @@ extension Dictionary where Key: ExpressibleByStringLiteral, Value: Any {
     ///
     /// - Paramaters:
     /// - otherDictionary: A [String:AnyObject] dictionary
-    /// - Returns: Boolean answer
+    /// - returns: Boolean answer
     func contains(otherDictionary: [String: Any]) -> Bool {
         // Should use generics here
         for (key, value) in self {

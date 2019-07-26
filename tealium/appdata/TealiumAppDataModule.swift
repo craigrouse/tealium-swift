@@ -35,7 +35,7 @@ class TealiumAppDataModule: TealiumModule {
 
     /// Enables the module and loads AppData into memory
     ///
-    /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
+    /// - parameter request: `TealiumEnableRequest` - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumAppDataKey.moduleName, isCritical: true)
         appData = TealiumAppData(diskStorage: diskStorage)
@@ -46,10 +46,16 @@ class TealiumAppDataModule: TealiumModule {
 
     /// Adds current AppData to the track request
     ///
-    /// - Parameter track: TealiumTrackRequest to be modified
+    /// - parameter track: `TealiumTrackRequest` to be modified
     override func track(_ track: TealiumTrackRequest) {
-        if isEnabled == false {
+        guard isEnabled == true else {
             // Ignore this module
+            didFinishWithNoResponse(track)
+            return
+        }
+
+        // do not add data to queued hits
+        guard track.trackDictionary[TealiumKey.wasQueued] as? String == nil else {
             didFinishWithNoResponse(track)
             return
         }
@@ -67,7 +73,7 @@ class TealiumAppDataModule: TealiumModule {
 
     /// Disables the module and deletes all associated data
     ///
-    /// - Parameter request: TealiumDisableRequest
+    /// - parameter request: `TealiumDisableRequest`
     override func disable(_ request: TealiumDisableRequest) {
         appData.deleteAllData()
         isEnabled = false

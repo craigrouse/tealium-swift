@@ -27,5 +27,5 @@ public protocol TealiumCollectProtocol {
     /// - data: [String:Any] of variables to be dispatched
     /// - completion: Optional completion block to be called when operation complete
     func dispatchBulk(data: [String: Any],
-                  completion: TealiumCompletion?)
+                      completion: TealiumCompletion?)
 }

@@ -14,51 +14,6 @@ import TealiumCore
 // TODO:
 // Lifecycle Listener: Flush queue when app is terminated
 
-public extension TealiumConfig {
-    func setBatchSize(_ size: Int) {
-        let size = size > TealiumValue.maxEventBatchSize ? TealiumValue.maxEventBatchSize: size
-        optionalData[TealiumDispatchQueueConstants.batchSizeKey] = size
-    }
-
-    func getBatchSize() -> Int {
-        return optionalData[TealiumDispatchQueueConstants.batchSizeKey] as? Int ?? TealiumValue.maxEventBatchSize
-    }
-
-    func setDispatchAfter(numberOfEvents events: Int) {
-        optionalData[TealiumDispatchQueueConstants.eventLimit] = events
-    }
-
-    func getDispatchAfterEvents() -> Int? {
-        return optionalData[TealiumDispatchQueueConstants.eventLimit] as? Int
-    }
-
-    func setMaxQueueSize(_ queueSize: Int) {
-        optionalData[TealiumDispatchQueueConstants.queueSizeKey] = queueSize
-    }
-
-    func getMaxQueueSize() -> Int? {
-        return optionalData[TealiumDispatchQueueConstants.queueSizeKey] as? Int
-    }
-
-    func setIsEventBatchingEnabled(_ enabled: Bool) {
-        // batching requires disk storage
-        guard isDiskStorageEnabled() == true else {
-            optionalData[TealiumDispatchQueueConstants.batchingEnabled] = false
-            return
-        }
-        optionalData[TealiumDispatchQueueConstants.batchingEnabled] = enabled
-    }
-
-    func getIsEventBatchingEnabled() -> Bool {
-        // batching requires disk storage
-        guard isDiskStorageEnabled() == true else {
-            return false
-        }
-        return optionalData[TealiumDispatchQueueConstants.batchingEnabled] as? Bool ?? true
-    }
-
-}
-
 class TealiumDispatchQueueModule: TealiumModule {
 
     var persistentQueue: TealiumPersistentDispatchQueue!
@@ -69,6 +24,7 @@ class TealiumDispatchQueueModule: TealiumModule {
     var maxDispatchSize = TealiumValue.maxEventBatchSize
     var eventsBeforeAutoDispatch: Int!
     var isBatchingEnabled = true
+    var batchingBypassKeys: [String]?
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumDispatchQueueConstants.moduleName,
@@ -78,13 +34,14 @@ class TealiumDispatchQueueModule: TealiumModule {
     }
 
     override func enable(_ request: TealiumEnableRequest) {
+        batchingBypassKeys = request.config.getBatchingBypassKeys()
         diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumDispatchQueueConstants.moduleName)
         persistentQueue = TealiumPersistentDispatchQueue(diskStorage: diskStorage)
         // release any previously-queued track requests
         if let maxSize = request.config.getMaxQueueSize() {
             maxQueueSize = maxSize
         }
-
+        removeOldDispatches()
         self.eventsBeforeAutoDispatch = request.config.getDispatchAfterEvents()
         self.maxDispatchSize = request.config.getBatchSize()
         self.isBatchingEnabled = request.config.getIsEventBatchingEnabled()
@@ -115,18 +72,26 @@ class TealiumDispatchQueueModule: TealiumModule {
     }
 
     func queue(_ request: TealiumEnqueueRequest) {
-        // TODO: optimize this into the save
         removeOldDispatches()
-        let track = request.data
-        var newData = track.trackDictionary
-        newData[TealiumKey.wasQueued] = "true"
-        let newTrack = TealiumTrackRequest(data: newData,
-                                           completion: track.completion)
-        persistentQueue?.saveDispatch(newTrack)
+        let allTrackRequests = request.data
+
+        allTrackRequests.forEach {
+            var newData = $0.trackDictionary
+            newData[TealiumKey.wasQueued] = "true"
+            let newTrack = TealiumTrackRequest(data: newData,
+                                               completion: $0.completion)
+            persistentQueue?.saveDispatch(newTrack)
+        }
     }
 
     func removeOldDispatches() {
-        persistentQueue?.removeOldDispatches(maxQueueSize)
+        let currentDate = Date()
+        var components = DateComponents()
+        components.calendar = Calendar.autoupdatingCurrent
+        // TODO: make this configurable
+        components.setValue(-7, for: .day)
+        let sinceDate = Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
+        persistentQueue?.removeOldDispatches(maxQueueSize, since: sinceDate)
     }
 
     func releaseQueue(_ request: TealiumRequest) {
@@ -135,8 +100,8 @@ class TealiumDispatchQueueModule: TealiumModule {
 
             batches.forEach { batch in
                 let batchRequest = TealiumBatchTrackRequest(trackRequests: batch, completion: nil)
-                // TODO: Figure out why this wasn't working originally - need to remove delay
-                DispatchQueue.main.asyncAfter(deadline: DispatchTime.now() + 3) {
+                // TODO: Why doesn't this work without a delay?
+                TealiumQueues.backgroundSerialQueue.asyncAfter(deadline: DispatchTime.now() + 1) {
                     self.delegate?.tealiumModuleRequests(module: self,
                                                          process: batchRequest)
                 }
@@ -163,13 +128,53 @@ class TealiumDispatchQueueModule: TealiumModule {
             self.releaseQueue()
         }
 
+        let canWrite = diskStorage.canWrite()
         // make sure batching is enabled and configured to send > 1 event, otherwise dispatch immediately
-        if isBatchingEnabled, eventsBeforeAutoDispatch > 1, maxDispatchSize > 1, maxQueueSize > 1 {
-            persistentQueue.saveDispatch(request)
+        if isBatchingEnabled, eventsBeforeAutoDispatch > 1, maxDispatchSize > 1, maxQueueSize > 1,
+            canWrite, canQueueRequest(request) {
+            var requestData = request.trackDictionary
+            requestData[TealiumKey.queueReason] = TealiumDispatchQueueConstants.batchingEnabled
+            requestData[TealiumKey.wasQueued] = "true"
+            let newRequest = TealiumTrackRequest(data: requestData, completion: request.completion)
+            persistentQueue.saveDispatch(newRequest)
+            logQueue(request: newRequest)
         } else {
+            if !canWrite {
+                let report = TealiumReportRequest(message: "Insufficient disk storage available. Event Batching has been disabled.")
+                delegate?.tealiumModuleRequests(module: self, process: report)
+            }
             self.didFinishWithNoResponse(request)
         }
+    }
 
+    func logQueue(request: TealiumTrackRequest) {
+        let message = """
+        \n=====================================
+        ⏳ Event: \(request.trackDictionary[TealiumKey.event] as? String ?? "") queued for batch dispatch
+        =====================================\n
+        """
+        let report = TealiumReportRequest(message: message)
+        delegate?.tealiumModuleRequests(module: self, process: report)
+    }
+
+    func canQueueRequest(_ request: TealiumTrackRequest) -> Bool {
+        guard let event = request.event() else {
+            return false
+        }
+        var shouldQueue = true
+        for key in BypassDispatchQueueKeys.allCases where key.rawValue == event {
+                shouldQueue = false
+                break
+        }
+
+        if let batchingBypassKeys = batchingBypassKeys {
+            for key in batchingBypassKeys where key == event {
+                shouldQueue = false
+                break
+            }
+        }
+
+        return shouldQueue
     }
 
 }

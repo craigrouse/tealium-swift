@@ -92,7 +92,7 @@ class TealiumVolatileDataModule: TealiumModule {
 
         volatileData.add(data: currentStaticData)
 
-        didFinish(request)
+        didFinishWithNoResponse(request)
     }
 
     override func disable(_ request: TealiumDisableRequest) {
@@ -114,13 +114,13 @@ class TealiumVolatileDataModule: TealiumModule {
 
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: track.completion)
-        didFinish(newTrack)
+        didFinishWithNoResponse(newTrack)
         volatileData.lastTrackEvent = Date()
     }
 
     /// Adds Trace ID to all outgoing track requests
     ///
-    /// - Parameter request: TealiumJoinTraceRequest
+    /// - parameter request: TealiumJoinTraceRequest
     func joinTrace(request: TealiumJoinTraceRequest) {
         self.volatileData.add(data: [TealiumKey.traceId: request.traceId])
         didFinish(request)
@@ -128,7 +128,7 @@ class TealiumVolatileDataModule: TealiumModule {
 
     /// Removes trace ID from outgoing track requests
     ///
-    /// - Parameter request: TealiumLeaveTraceRequest
+    /// - parameter request: TealiumLeaveTraceRequest
     func leaveTrace(request: TealiumLeaveTraceRequest) {
         self.volatileData.deleteData(forKeys: [TealiumKey.traceId])
         didFinish(request)

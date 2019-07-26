@@ -38,7 +38,7 @@ class TealiumConnectivityModule: TealiumModule {
 
     /// Custom handler for incoming module requests
     ///
-    /// - Parameter request: TealiumRequest to be handled by the module
+    /// - parameter request: TealiumRequest to be handled by the module
     override func handle(_ request: TealiumRequest) {
         if let request = request as? TealiumEnableRequest {
             enable(request)
@@ -53,7 +53,7 @@ class TealiumConnectivityModule: TealiumModule {
 
     /// Enables the module and starts connectivity monitoring
     ///
-    /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
+    /// - parameter request: `TealiumEnableRequest` - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         super.enable(request)
         connectivity.addConnectivityDelegate(delegate: self)
@@ -63,17 +63,22 @@ class TealiumConnectivityModule: TealiumModule {
 
     /// Handles the track request and queues if no connection available (requires DispatchQueue module)
     ///
-    /// - Parameter track: TealiumTrackRequest to be processed
+    /// - parameter track: `TealiumTrackRequest` to be processed
     override func track(_ request: TealiumTrackRequest) {
-        if isEnabled == false {
+        guard isEnabled == true else {
             didFinishWithNoResponse(request)
             return
         }
 
         var newData = request.trackDictionary
-        newData += [TealiumConnectivityKey.connectionType: TealiumConnectivity.currentConnectionType(),
-                    TealiumConnectivityKey.connectionTypeLegacy: TealiumConnectivity.currentConnectionType(),
-        ]
+
+        // do not add data to queued hits
+        if newData[TealiumKey.wasQueued] as? String == nil {
+            newData += [TealiumConnectivityKey.connectionType: TealiumConnectivity.currentConnectionType(),
+                        TealiumConnectivityKey.connectionTypeLegacy: TealiumConnectivity.currentConnectionType(),
+            ]
+        }
+
         let newTrack = TealiumTrackRequest(data: newData,
                                            completion: request.completion)
 
@@ -103,7 +108,7 @@ class TealiumConnectivityModule: TealiumModule {
 
     /// Enqueues the track request for later transmission
     ///
-    /// - Parameter track: TealiumTrackRequest to be queued
+    /// - parameter track: `TealiumTrackRequest` to be queued
     func queue(_ track: TealiumTrackRequest) {
         var newData = track.trackDictionary
         newData[TealiumKey.queueReason] = TealiumConnectivityKey.moduleName

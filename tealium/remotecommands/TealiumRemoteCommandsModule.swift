@@ -25,7 +25,7 @@ public class TealiumRemoteCommandsModule: TealiumModule {
 
     /// Enables the module
     ///
-    /// - Parameter request: TealiumEnableRequest from which to enable the module
+    /// - parameter request: `TealiumEnableRequest` from which to enable the module
     override public func enable(_ request: TealiumEnableRequest) {
         isEnabled = true
         let config = request.config
@@ -39,7 +39,7 @@ public class TealiumRemoteCommandsModule: TealiumModule {
 
     /// Allows Remote Commands to be added from the TealiumConfig object
     ///
-    /// - Parameter config: TealiumConfig object containing Remote Commands
+    /// - parameter config: TealiumConfig object containing Remote Commands
     private func addCommandsFromConfig(_ config: TealiumConfig) {
         if let commands = config.getRemoteCommands() {
             for command in commands {
@@ -66,7 +66,7 @@ public class TealiumRemoteCommandsModule: TealiumModule {
 
     /// Triggers a remote command from a URLRequest (usually from WebView)
     ///
-    /// - Parameter sender: Notification containing the URLRequest to trigger the Remote Command
+    /// - parameter sender: Notification containing the URLRequest to trigger the Remote Command
     @objc
     func trigger(sender: Notification) {
         guard let request = sender.userInfo?[TealiumKey.tagmanagementNotification] as? URLRequest else {
@@ -78,7 +78,7 @@ public class TealiumRemoteCommandsModule: TealiumModule {
 
     /// Identifies if any built-in Remote Commands should be disabled.
     ///
-    /// - Parameter config: TealiumConfig object containing flags indicating which built-in commands should be disabled.
+    /// - parameter config: TealiumConfig object containing flags indicating which built-in commands should be disabled.
     func updateReservedCommands(config: TealiumConfig) {
         // Default option
         var shouldDisable = false
@@ -99,7 +99,7 @@ public class TealiumRemoteCommandsModule: TealiumModule {
 
     /// Disables the Remote Commands module
     ///
-    /// - Parameter request: TealiumDisableRequest indicating that the module should be disabled
+    /// - parameter request: `TealiumDisableRequest` indicating that the module should be disabled
     override public func disable(_ request: TealiumDisableRequest) {
         isEnabled = false
         remoteCommands?.disable()

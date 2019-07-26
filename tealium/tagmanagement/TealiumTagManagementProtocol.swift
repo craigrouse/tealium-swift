@@ -29,7 +29,7 @@ public protocol TealiumTagManagementProtocol {
 
     /// Internal webview status check.
     ///
-    /// - Returns: Bool indicating whether or not the internal webview is ready for dispatching.
+    /// - returns: Bool indicating whether or not the internal webview is ready for dispatching.
     func isWebViewReady() -> Bool
 
     /// Reloads the webview contents in error situations
@@ -55,12 +55,12 @@ public protocol TealiumTagManagementProtocol {
 
     /// Adds optional delegates to the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView. Expected to be one of UIWebViewDelegate or WKNavigationDelegate
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView. Expected to be one of UIWebViewDelegate or WKNavigationDelegate
     func setWebViewDelegates(_ delegates: [AnyObject])
 
     /// Removes optional delegates for the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView. Expected to be one of UIWebViewDelegate or WKNavigationDelegate
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView. Expected to be one of UIWebViewDelegate or WKNavigationDelegate
     func removeWebViewDelegates(_ delegates: [AnyObject])
 
     /// Sets a root view for WKWebView to be attached to. Only required for complex view hierarchies (e.g. Push Notifications loading a view).
@@ -70,4 +70,7 @@ public protocol TealiumTagManagementProtocol {
     /// - completion: Optional completion to be called when webview was attached to the view
     func setRootView(_ view: UIView,
                      completion: ((_ success: Bool) -> Void)?)
+
+    func trackMultiple(_ data: [[String: Any]],
+                              completion: ((Bool, [String: Any], Error?) -> Void)?)
 }

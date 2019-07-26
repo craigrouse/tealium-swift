@@ -78,6 +78,16 @@ class TealiumDeviceDataModule: TealiumModule {
     }
 
     override func track(_ request: TealiumTrackRequest) {
+        guard isEnabled == true else {
+            return
+        }
+
+        // do not add data to queued hits
+        guard request.trackDictionary[TealiumKey.wasQueued] as? String == nil else {
+            didFinishWithNoResponse(request)
+            return
+        }
+
         // Add device data to the data stream.
         var newData = request.trackDictionary
         newData += data
@@ -90,7 +100,7 @@ class TealiumDeviceDataModule: TealiumModule {
 
     /// Data that only needs to be retrieved once for the lifetime of the host app.
     ///
-    /// - Returns: Dictionary of device data.
+    /// - returns: Dictionary of device data.
     func enableTimeData() -> [String: Any] {
         var result = [String: Any]()
 
@@ -113,7 +123,7 @@ class TealiumDeviceDataModule: TealiumModule {
 
     /// Data that needs to be polled at time of interest, these may change during the lifetime of the host app.
     ///
-    /// - Returns: Dictionary of device data.
+    /// - returns: Dictionary of device data.
     func trackTimeData() -> [String: Any] {
         var result = [String: Any]()
 

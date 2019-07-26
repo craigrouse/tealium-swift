@@ -126,20 +126,22 @@ extension TealiumModulesManager: TealiumModuleDelegate {
 
     public func tealiumModuleFinished(module: TealiumModule,
                                       process: TealiumRequest) {
-        guard let nextModule = modules.next(after: module) else {
+        TealiumQueues.backgroundConcurrentQueue.write {
+            guard let nextModule = self.modules.next(after: module) else {
 
-            // If enable call set isEnable
-            if process as? TealiumEnableRequest != nil {
-                self.isEnabled = true
+                // If enable call set isEnable
+                if process as? TealiumEnableRequest != nil {
+                    self.isEnabled = true
+                }
+                // Last module has finished processing
+                self.reportToModules(self.modulesRequestingReport,
+                                    request: process)
+
+                return
             }
-            // Last module has finished processing
-            reportToModules(modulesRequestingReport,
-                            request: process)
 
-            return
+            nextModule.handle(process)
         }
-
-        nextModule.handle(process)
     }
 
     public func tealiumModuleRequests(module: TealiumModule?,
@@ -203,7 +205,7 @@ extension Array where Element: TealiumModule {
 
     /// Get all existing module names, in current order
     ///
-    /// - Returns: Array of module names.
+    /// - returns: Array of module names.
     func moduleNames() -> [String] {
         return self.map { type(of: $0).moduleConfig().name }
     }

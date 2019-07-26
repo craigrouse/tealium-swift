@@ -15,28 +15,28 @@ extension TealiumConsentManagerModule: TealiumConsentManagerDelegate {
 
     /// Called when the consent manager will drop a request (user not consented)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willDropTrackingCall(_ request: TealiumTrackRequest) {
 
     }
 
     /// Called when the consent manager will queue a request (user consent state not determined)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willQueueTrackingCall(_ request: TealiumTrackRequest) {
 
     }
 
     /// Called when the consent manager will send a request (user has consented)
     ///
-    /// - Parameter request: TealiumTrackRequest
+    /// - parameter request: TealiumTrackRequest
     func willSendTrackingCall(_ request: TealiumTrackRequest) {
 
     }
 
     /// Called when the user has changed their consent status
     ///
-    /// - Parameter status: TealiumConsentStatus
+    /// - parameter status: TealiumConsentStatus
     func consentStatusChanged(_ status: TealiumConsentStatus) {
         switch status {
         case .notConsented:
@@ -60,7 +60,7 @@ extension TealiumConsentManagerModule: TealiumConsentManagerDelegate {
 
     /// Called when the user changed their consent category choices
     ///
-    /// - Parameter categories: [TealiumConsentCategories] containing the new list of consent categories selected by the user
+    /// - parameter categories: [TealiumConsentCategories] containing the new list of consent categories selected by the user
     func userChangedConsentCategories(categories: [TealiumConsentCategories]) {
 
     }
@@ -69,7 +69,7 @@ extension TealiumConsentManagerModule: TealiumConsentManagerDelegate {
 // public interface for consent manager
 public extension Tealium {
 
-    /// - Returns: TealiumConsentManager instance
+    /// - returns: TealiumConsentManager instance
     func consentManager() -> TealiumConsentManager? {
         guard let module = modulesManager.getModule(forName: TealiumConsentConstants.moduleName) as? TealiumConsentManagerModule else {
             return nil

@@ -46,7 +46,7 @@ public extension Disk {
     ///   - path: path where data file is stored
     ///   - directory: user directory to retrieve the file from
     ///   - type: here for Swifty generics magic, use Data.self
-    /// - Returns: Data retrieved from disk
+    /// - returns: Data retrieved from disk
     /// - Throws: Error if there were any issues retrieving the specified file's data
     static func retrieve(_ path: String, from directory: Directory, as type: Data.Type) throws -> Data {
         do {

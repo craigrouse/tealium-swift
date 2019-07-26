@@ -88,7 +88,7 @@ public class TealiumPersistentData {
     ///     for lifetime of app. Values will overwrite any pre-existing values
     ///     for a given key.
     ///
-    /// - Parameter data: [String:Any] of additional data to add.
+    /// - parameter data: [String:Any] of additional data to add.
     public func add(data: [String: Any]) {
         persistentDataCache.add(data: data)
         // TODO: Add logging here
@@ -97,7 +97,7 @@ public class TealiumPersistentData {
 
     /// Delete a saved value for a given key.
     ///
-    /// - Parameter forKeys: [String] Array of keys to remove.
+    /// - parameter forKeys: [String] Array of keys to remove.
     public func deleteData(forKeys: [String]) {
         var cacheCopy = persistentDataCache
 

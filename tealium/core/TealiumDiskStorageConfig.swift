@@ -19,14 +19,14 @@ public extension TealiumConfig {
 
     /// Enables (default) or disables disk storage
     /// If disabled, only critical data will be saved, and UserDefaults will be used in place of disk storage
-    /// - Parameter isEnabled: `Bool` indicating if disk storage should be enabled (default) or disabled
+    /// - parameter isEnabled: `Bool` indicating if disk storage should be enabled (default) or disabled
     func setDiskStorageEnabled(isEnabled: Bool = true) {
         self.optionalData[TealiumKey.diskStorageEnabled] = isEnabled
     }
 
     /// Set a net modules list to this config object.
     ///
-    /// - Parameter list: The TealiumModulesList to assign.
+    /// - parameter list: The TealiumModulesList to assign.
     func isDiskStorageEnabled() -> Bool {
         return self.optionalData[TealiumKey.diskStorageEnabled] as? Bool ?? true
     }

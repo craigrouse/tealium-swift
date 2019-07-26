@@ -63,4 +63,6 @@ public protocol TealiumDiskStorageProtocol {
 
     func removeFromDefaults(key: String)
 
+    func canWrite() -> Bool
+
 }

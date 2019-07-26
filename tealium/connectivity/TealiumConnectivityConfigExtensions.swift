@@ -15,7 +15,7 @@ public extension TealiumConfig {
 
     /// Sets the interval with which new connectivity checks will be carried out
     ///
-    /// - Parameter interval: Int representing the number of seconds between connectivity checks (default 30s)
+    /// - parameter interval: Int representing the number of seconds between connectivity checks (default 30s)
     func setConnectivityRefreshInterval(interval: Int) {
         optionalData[TealiumConnectivityKey.refreshIntervalKey] = interval
     }
@@ -23,7 +23,7 @@ public extension TealiumConfig {
     /// Determines if connectivity status checks should be carried out automatically.
     /// If true (default), queued track calls will be flushed when connectivity is restored.
     ///
-    /// - Parameter enabled: Bool (default true - set to false if needing to disable this functionality)
+    /// - parameter enabled: Bool (default true - set to false if needing to disable this functionality)
     func setConnectivityRefreshEnabled(enabled: Bool) {
         optionalData[TealiumConnectivityKey.refreshEnabledKey] = enabled
     }

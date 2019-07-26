@@ -13,12 +13,18 @@ import WebKit
 import TealiumCore
 #endif
 
+public enum WebViewState: Int {
+    case isLoaded = 0
+    case isLoading = 1
+    case didFailToLoad = 2
+    case notYetLoaded = 3
+}
+
 @available(iOS 11.0, *)
 public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtocol {
 
     var webview: WKWebView?
     var webviewConfig: WKWebViewConfiguration?
-    //    var navigationDelegate: TealiumWKNavigationDelegate?
     var webviewDidFinishLoading = false
     var enableCompletion: ((_ success: Bool, _ error: Error?) -> Void)?
     // current view being used for WKWebView
@@ -26,6 +32,14 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
     var url: URL?
     var reloading = false
     var reloadHandler: TealiumCompletion?
+    var currentState: AtomicInteger = AtomicInteger(value: WebViewState.notYetLoaded.rawValue) {
+        willSet {
+            // TODO: Make this use the core logger
+            if let state = WebViewState(rawValue: newValue.value) {
+                    print("Webview state changed to: \(state)")
+            }
+        }
+    }
 
     public var delegates = TealiumMulticastDelegate<WKNavigationDelegate>()
 
@@ -54,7 +68,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
 
     /// Sets a root view for WKWebView to be attached to. Only required for complex view hierarchies.
     ///
-    /// - Parameter view: UIView instance for WKWebView to be attached to
+    /// - parameter view: UIView instance for WKWebView to be attached to
     public func setRootView(_ view: UIView,
                             completion: ((_ success: Bool) -> Void)?) {
         self.view = view
@@ -66,7 +80,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
 
     /// Adds optional delegates to the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
     public func setWebViewDelegates(_ delegates: [AnyObject]) {
         delegates.forEach { delegate in
             if let delegate = delegate as? WKNavigationDelegate {
@@ -77,7 +91,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
 
     /// Removes optional delegates for the WebView instance
     ///
-    /// - Parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
+    /// - parameter delegates: Array of delegates, downcast from AnyObject due to different delegate APIs for UIWebView and WKWebView
     public func removeWebViewDelegates(_ delegates: [AnyObject]) {
         delegates.forEach { delegate in
             if let delegate = delegate as? WKNavigationDelegate {
@@ -88,8 +102,8 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
 
     /// Configures an instance of WKWebView for later use.
     ///
-    /// - Parameter forURL: The URL (typically for mobile.html) to load in the webview
-    func setupWebview(forURL url: URL?, withSpecificView: UIView?) {
+    /// - parameter forURL: The URL (typically for mobile.html) to load in the webview
+    func setupWebview(forURL url: URL?, withSpecificView specificView: UIView?) {
         // required to force cookies to sync
         WKWebsiteDataStore.default().httpCookieStore.add(self)
         let config = WKWebViewConfiguration()
@@ -101,7 +115,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
         }
 
         // attach the webview to the view before continuing
-        attachToUIView(specificView: view) { _ in
+        attachToUIView(specificView: specificView) { _ in
             migrateCookies(forWebView: webview) {
                 guard let url = url else {
                     self.enableCompletion?(false, TealiumWebviewError.webviewURLMissing)
@@ -123,18 +137,18 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
         self.reloadHandler = completion
         let request = URLRequest(url: url)
         DispatchQueue.main.async {
+            self.currentState = AtomicInteger(value: WebViewState.isLoading.rawValue)
             self.webview?.load(request)
         }
     }
 
     /// Internal webview status check.
-
-    /// - Returns: Bool indicating whether or not the internal webview is ready for dispatching.
+    /// - returns: Bool indicating whether or not the internal webview is ready for dispatching.
     public func isWebViewReady() -> Bool {
         guard webview != nil else {
             return false
         }
-        return webviewDidFinishLoading
+        return WebViewState(rawValue: currentState.value) == WebViewState.isLoaded
     }
 
     /// Process event data for UTAG delivery.
@@ -149,10 +163,11 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
                         TealiumTagManagementError.couldNotJSONEncodeData)
             return
         }
-
-        // always re-attach to UIView. If specific view has been previously passed in, this will be used.
-        // nil is passed to force attachToUIView to auto-detect and check for a valid view, since this track call could be happening after the view was dismissed
-        self.attachToUIView(specificView: nil) { _ in }
+        DispatchQueue.main.async {
+            // always re-attach to UIView. If specific view has been previously passed in, this will be used.
+            // nil is passed to force attachToUIView to auto-detect and check for a valid view, since this track call could be happening after the view was dismissed
+            self.attachToUIView(specificView: nil) { _ in }
+        }
 
         var info = [String: Any]()
         info[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
@@ -162,6 +177,27 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
             info += result
             completion?(true, info, nil)
         }
+    }
+
+    public func trackMultiple(_ data: [[String: Any]],
+                              completion: ((Bool, [String: Any], Error?) -> Void)?) {
+
+        let totalSuccesses = AtomicInteger(value: 0)
+
+        data.forEach {
+            self.track($0) { success, _, _ in
+                if success {
+                    _ = totalSuccesses.incrementAndGet()
+                } else {
+                    _ = totalSuccesses.decrementAndGet()
+                }
+            }
+        }
+
+        let allCallsSuccessful = totalSuccesses.value == data.count
+
+        completion?(allCallsSuccessful, ["": ""], nil)
+
     }
 
     /// Handles JavaScript evaluation on the WKWebView instance
@@ -191,10 +227,11 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
 
     /// Called by the WKWebView delegate when the page finishes loading
     ///
-    /// - Parameter state: The webview state after the state change
+    /// - parameter state: The webview state after the state change
     public func webviewStateDidChange(_ state: TealiumWebViewState, withError error: Error?) {
         switch state {
         case .loadSuccess:
+            self.currentState = AtomicInteger(value: WebViewState.isLoaded.rawValue)
             if let reloadHandler = self.reloadHandler {
                 self.webviewDidFinishLoading = true
                 self.reloading = false
@@ -209,6 +246,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
                 self.enableCompletion?(true, nil)
             }
         case .loadFailure:
+            self.currentState = AtomicInteger(value: WebViewState.didFailToLoad.rawValue)
             if let reloadHandler = self.reloadHandler {
                 self.webviewDidFinishLoading = true
                 self.reloading = false

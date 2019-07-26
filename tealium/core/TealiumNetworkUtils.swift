@@ -63,3 +63,12 @@ public func urlPOSTRequestWithJSONString(_ jsonString: String, dispatchURL: Stri
     }
     return nil
 }
+
+public extension Dictionary {
+    func toJSONString() -> String? {
+        if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: .prettyPrinted) {
+            return String(data: jsonData, encoding: .utf8)
+        }
+        return nil
+    }
+}

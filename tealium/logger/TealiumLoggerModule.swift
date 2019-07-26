@@ -104,17 +104,14 @@ class TealiumLoggerModule: TealiumModule {
         case is TealiumSaveRequest:
             logSave(moduleResponses)
         case is TealiumReportRequest:
-            moduleResponses.forEach({ _ in
-                logReport(request)
-            })
+            logReport(request)
         case let request as TealiumTrackRequest:
-//            moduleResponses.forEach({ response in
-//                if response.info == nil {
-//                    return
-//                }
-//                logTrack(response)
-//            })
             logTrack(request: request, responses: moduleResponses)
+        case let request as TealiumBatchTrackRequest:
+            let requests = request.trackRequests
+            requests.forEach {
+                logTrack(request: $0, responses: moduleResponses)
+            }
         default:
             // Only print errors if detected in module responses.
             moduleResponses.forEach({ response in
@@ -126,14 +123,14 @@ class TealiumLoggerModule: TealiumModule {
     func logEnable(_ response: TealiumModuleResponse) {
         let successMessage = response.success == true ? "ENABLED" : "FAILED TO ENABLE"
         let message = "\(response.moduleName): \(successMessage)"
-        _ = logger?.log(message: message,
-                        logLevel: .verbose)
+        logger?.log(message: message,
+                    logLevel: .verbose)
     }
 
     func logDisable(_ response: TealiumModuleResponse) {
         let successMessage = response.success == true ? "ENABLED" : "FAILED TO DISABLE"
         let message = "\(response.moduleName): \(successMessage)"
-        _ = logger?.log(message: message,
+        logger?.log(message: message,
                         logLevel: .verbose)
     }
 
@@ -142,7 +139,7 @@ class TealiumLoggerModule: TealiumModule {
             return
         }
         let message = "\(response.moduleName): Encountered error: \(error)"
-        _ = logger?.log(message: message,
+        logger?.log(message: message,
                         logLevel: .errors)
     }
 
@@ -165,13 +162,13 @@ class TealiumLoggerModule: TealiumModule {
             errors.forEach({ err in
                 message += "\(err.localizedDescription)\n"
             })
-            _ = logger?.log(message: message, logLevel: .verbose)
+            logger?.log(message: message, logLevel: .verbose)
             return
         }
         // Failed to load
         let message = "FAILED to load data. Possibly no data storage modules enabled."
-        _ = logger?.log(message: message,
-                        logLevel: .errors)
+        logger?.log(message: message,
+                    logLevel: .errors)
     }
 
     func logReport(_ request: TealiumRequest) {
@@ -179,8 +176,8 @@ class TealiumLoggerModule: TealiumModule {
             return
         }
         let message = "\(request.message)"
-        _ = logger?.log(message: message,
-                        logLevel: .verbose)
+        logger?.log(message: message,
+                    logLevel: .verbose)
     }
 
     func logSave(_ responses: [TealiumModuleResponse]) {
@@ -195,24 +192,19 @@ class TealiumLoggerModule: TealiumModule {
         }
         // Failed to load
         let message = "FAILED to save data. Possibly no storage persistence modules enabled."
-        _ = logger?.log(message: message,
-                        logLevel: .errors)
-    }
-
-    func logTrack(_ response: TealiumModuleResponse) {
-        let successMessage = response.success == true ? "SUCCESSFUL TRACK" : "FAILED TO TRACK"
-        let message = "\(response.moduleName): \(successMessage)\nINFO:\n\(response.info as AnyObject)"
-        _ = logger?.log(message: message,
-                        logLevel: .verbose)
+        logger?.log(message: message,
+                    logLevel: .errors)
     }
 
     func logTrack(request: TealiumTrackRequest,
                   responses: [TealiumModuleResponse]) {
         let trackNumber = Tealium.numberOfTrackRequests.incrementAndGet()
         var message = """
-            \n▶️[Track # \(trackNumber)]
+        \n=====================================
+        ▶️[Track #\(trackNumber)]: \(request.trackDictionary[TealiumKey.event] as? String ?? "")
         =====================================\n
         """
+
         if responses.count > 0 {
             message += "Module Responses:\n"
         }
@@ -228,12 +220,19 @@ class TealiumLoggerModule: TealiumModule {
             message = "\(message)\(trackMessage)\n"
         }
 
-        message = "\(message)\nTRACK REQUEST PAYLOAD:\n\(request.trackDictionary as AnyObject)"
+        message += "\nTRACK REQUEST PAYLOAD:\n"
+
+        if let jsonString = request.trackDictionary.toJSONString() {
+            message += jsonString
+        } else {
+            // peculiarity with AnyObject printing: quotes are randomly omitted from values
+            message += "\(request.trackDictionary as AnyObject)"
+        }
 
         message = "\(message)[Track # \(trackNumber)] ⏹\n"
 
-        _ = logger?.log(message: message,
-                        logLevel: .verbose)
+        logger?.log(message: message,
+                    logLevel: .verbose)
     }
 
     func logWithPrefix(fromModule: TealiumModule,
@@ -242,7 +241,7 @@ class TealiumLoggerModule: TealiumModule {
 
         let moduleConfig = type(of: fromModule).moduleConfig()
         let newMessage = "\(moduleConfig.name) module.\(moduleConfig.build): \(message)"
-        _ = logger?.log(message: newMessage, logLevel: logLevel)
+        logger?.log(message: newMessage, logLevel: logLevel)
     }
 
 }

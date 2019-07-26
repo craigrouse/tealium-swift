@@ -38,7 +38,7 @@ public struct TealiumLifecycle: Codable {
 
     /// Constructor. Should only be called at first init after install.
     ///
-    /// - Parameter date: Date that the object should be created for.
+    /// - parameter date: Date that the object should be created for.
     init() {
         countLaunch = 0
         countWake = 0
@@ -91,7 +91,7 @@ public struct TealiumLifecycle: Codable {
     /// - Parameters:
     ///   - atDate: Date to trigger launch from.
     ///   - overrideSession: Optional override session. For testing main use case.
-    /// - Returns: Dictionary of variables in a [String:Any] object
+    /// - returns: Dictionary of variables in a [String:Any] object
     public mutating func newLaunch(atDate: Date,
                                    overrideSession: TealiumLifecycleSession?) -> [String: Any] {
         autotracked = TealiumLifecycleValue.yes
@@ -119,7 +119,7 @@ public struct TealiumLifecycle: Codable {
     /// - Parameters:
     ///   - atDate: Date to trigger wake from.
     ///   - overrideSession: Optional override session.
-    /// - Returns: Dictionary of variables in a [String:Any] object
+    /// - returns: Dictionary of variables in a [String:Any] object
     public mutating func newWake(atDate: Date, overrideSession: TealiumLifecycleSession?) -> [String: Any] {
         autotracked = TealiumLifecycleValue.yes
         countWake += 1
@@ -134,8 +134,8 @@ public struct TealiumLifecycle: Codable {
 
     /// Trigger a new sleep and return data for it.
     ///
-    /// - Parameter atDate: Date to set sleep to.
-    /// - Returns: Dictionary of variables in a [String:Any] object
+    /// - parameter atDate: Date to set sleep to.
+    /// - returns: Dictionary of variables in a [String:Any] object
     public mutating func newSleep(atDate: Date) -> [String: Any] {
         autotracked = TealiumLifecycleValue.yes
         countSleep += 1
@@ -232,7 +232,7 @@ public struct TealiumLifecycle: Codable {
 
     /// Check if we're launching for first time after an app version update.
     ///
-    /// - Returns: String "true" or nil
+    /// - returns: String "true" or nil
     func isFirstLaunchAfterUpdate() -> String? {
         let prior = sessions.beforeLast()
         let current = sessions.last
@@ -400,7 +400,7 @@ public struct TealiumLifecycle: Codable {
 
     /// Seconds app was awake since last launch. Available only during launch calls.
     ///
-    /// - Returns: String of Int Seconds elapsed
+    /// - returns: String of Int Seconds elapsed
     func priorSecondsAwake() -> String? {
         var secondsAggregate = 0
         var count = sessions.count - 1
@@ -448,7 +448,7 @@ public struct TealiumLifecycle: Codable {
 //
 //    /// Constructor. Should only be called at first init after install.
 //    ///
-//    /// - Parameter date: Date that the object should be created for.
+//    /// - parameter date: Date that the object should be created for.
 //    override init() {
 //        self.countLaunch = 0
 //        self.countWake = 0
@@ -502,7 +502,7 @@ public struct TealiumLifecycle: Codable {
 //    /// - Parameters:
 //    ///   - atDate: Date to trigger launch from.
 //    ///   - overrideSession: Optional override session. For testing main use case.
-//    /// - Returns: Dictionary of variables in a [String:Any] object
+//    /// - returns: Dictionary of variables in a [String:Any] object
 //    public func newLaunch(atDate: Date,
 //                          overrideSession: TealiumLifecycleSession?) -> [String: Any] {
 //        autotracked = TealiumLifecycleValue.yes
@@ -530,7 +530,7 @@ public struct TealiumLifecycle: Codable {
 //    /// - Parameters:
 //    ///   - atDate: Date to trigger wake from.
 //    ///   - overrideSession: Optional override session.
-//    /// - Returns: Dictionary of variables in a [String:Any] object
+//    /// - returns: Dictionary of variables in a [String:Any] object
 //    public func newWake(atDate: Date, overrideSession: TealiumLifecycleSession?) -> [String: Any] {
 //        autotracked = TealiumLifecycleValue.yes
 //        countWake += 1
@@ -545,8 +545,8 @@ public struct TealiumLifecycle: Codable {
 //
 //    /// Trigger a new sleep and return data for it.
 //    ///
-//    /// - Parameter atDate: Date to set sleep to.
-//    /// - Returns: Dictionary of variables in a [String:Any] object
+//    /// - parameter atDate: Date to set sleep to.
+//    /// - returns: Dictionary of variables in a [String:Any] object
 //    public func newSleep(atDate: Date) -> [String: Any] {
 //        autotracked = TealiumLifecycleValue.yes
 //        countSleep += 1
@@ -641,7 +641,7 @@ public struct TealiumLifecycle: Codable {
 //
 //    /// Check if we're launching for first time after an app version update.
 //    ///
-//    /// - Returns: String "true" or nil
+//    /// - returns: String "true" or nil
 //    func isFirstLaunchAfterUpdate() -> String? {
 //        let prior = sessions.beforeLast()
 //        let current = sessions.last
@@ -809,7 +809,7 @@ public struct TealiumLifecycle: Codable {
 //
 //    /// Seconds app was awake since last launch. Available only during launch calls.
 //    ///
-//    /// - Returns: String of Int Seconds elapsed
+//    /// - returns: String of Int Seconds elapsed
 //    func priorSecondsAwake() -> String? {
 //        var secondsAggregate: Int = 0
 //        var count = sessions.count - 1

@@ -28,9 +28,9 @@ class TealiumCollectModule: TealiumModule {
         case let request as TealiumEnableRequest:
             enable(request)
         case let request as TealiumTrackRequest:
-            track(request)
+            prepareTrack(request)
         case let request as TealiumBatchTrackRequest:
-            batchTrack(request)
+            prepareTrack(request)
         default:
             didFinish(request)
         }
@@ -38,7 +38,7 @@ class TealiumCollectModule: TealiumModule {
 
     /// Enables the module and loads sets up a dispatcher
     ///
-    /// - Parameter request: TealiumEnableRequest - the request from the core library to enable this module
+    /// - parameter request: `TealiumEnableRequest` - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         isEnabled = true
         config = request.config
@@ -59,59 +59,97 @@ class TealiumCollectModule: TealiumModule {
         }
     }
 
-    /// Adds relevant info to the track request, then passes the request to a dipatcher for processing
-    ///
-    /// - Parameter track: TealiumTrackRequest to be dispatched
-    override func track(_ track: TealiumTrackRequest) {
-        if isEnabled == false {
-            didFinishWithNoResponse(track)
-            return
-        }
-        var newTrack = track.trackDictionary
-
-        if track.trackDictionary[TealiumKey.event] as? String == TealiumKey.updateConsentCookieEventName {
+    func prepareTrack(_ track: TealiumRequest) {
+        guard isEnabled == true else {
             didFinishWithNoResponse(track)
             return
         }
 
-        guard let collect = self.collect else {
+        guard collect != nil else {
             didFailToFinish(track,
                             error: TealiumCollectError.collectNotInitialized)
             return
         }
 
-        if newTrack[TealiumKey.account] == nil,
-            newTrack[TealiumKey.profile] == nil {
-                newTrack[TealiumKey.account] = config?.account
-                newTrack[TealiumKey.profile] = config?.profile
+        switch track {
+        case let track as TealiumTrackRequest:
+            guard track.trackDictionary[TealiumKey.event] as? String != TealiumKey.updateConsentCookieEventName else {
+                didFinishWithNoResponse(track)
+                return
+            }
+            self.track(prepareForDispatch(track))
+        case let track as TealiumBatchTrackRequest:
+            var requests = track.trackRequests
+            requests = requests.filter {
+                $0.trackDictionary[TealiumKey.event] as? String != TealiumKey.updateConsentCookieEventName
+            }.map {
+                prepareForDispatch($0)
+            }
+            var newRequest = TealiumBatchTrackRequest(trackRequests: requests, completion: track.completion)
+            newRequest.moduleResponses = track.moduleResponses
+            self.batchTrack(newRequest)
+        default:
+            self.didFinishWithNoResponse(track)
+            return
         }
-        newTrack += track.trackDictionary
-        let trackRequest = TealiumTrackRequest(data: newTrack, completion: track.completion)
-
-        // Send the current track call
-        dispatch(trackRequest,
-                 collect: collect)
-
     }
 
-    // take account of known shared keys
-
-    func batchTrack(_ request: TealiumBatchTrackRequest) {
-//        print(request.compressed()!)
-        guard collect is TealiumCollectPostDispatcher else {
+    /// Adds relevant info to the track request, then passes the request to a dipatcher for processing
+    ///
+    /// - parameter track: `TealiumTrackRequest` to be dispatched
+    override func track(_ track: TealiumTrackRequest) {
+        guard let collect = collect else {
+            didFinishWithNoResponse(track)
             return
         }
 
-//        collect?.dispatch(data: request.compressed()!, completion: nil)
-                collect?.dispatchBulk(data: request.uncompressed()!, completion: nil)
+        // Send the current track call
+        dispatch(track,
+                 collect: collect)
+    }
 
+    /// Adds relevant info to the track request, then passes the request to a dipatcher for processing
+    ///
+    /// - parameter track: `TealiumTrackRequest` to be dispatched
+    func batchTrack(_ request: TealiumBatchTrackRequest) {
+        guard let collect = collect else {
+            didFinishWithNoResponse(request)
+            return
+        }
+
+        var requests = [TealiumTrackRequest]()
+
+        request.trackRequests.forEach {
+            requests.append(prepareForDispatch($0))
+        }
+
+        let newBatchTrack = TealiumBatchTrackRequest(trackRequests: requests, completion: request.completion)
+
+        guard let compressed = newBatchTrack.compressed() else {
+            // TODO: Logging
+            return
+        }
+
+        collect.dispatchBulk(data: compressed) { _, info, _ in
+            // TODO: logging
+            self.didFinish(request, info: info)
+        }
+    }
+
+    func prepareForDispatch(_ request: TealiumTrackRequest) -> TealiumTrackRequest {
+        var newTrack = request.trackDictionary
+        if newTrack[TealiumKey.account] == nil,
+            newTrack[TealiumKey.profile] == nil {
+            newTrack[TealiumKey.account] = config?.account
+            newTrack[TealiumKey.profile] = config?.profile
+        }
+        return TealiumTrackRequest(data: newTrack, completion: request.completion)
     }
 
     /// Called when the module successfully finished processing a request
     ///
-    /// - Parameters:
-    /// - request: TealiumRequest that was processed
-    /// - info: [String: Any]? containing additional information about the request processing
+    /// - parameter request: `TealiumRequest` that was processed
+    /// - parameter info: `[String: Any]?` containing additional information about the request processing
     func didFinish(_ request: TealiumRequest,
                    info: [String: Any]?) {
         var newRequest = request
@@ -127,10 +165,9 @@ class TealiumCollectModule: TealiumModule {
 
     /// Called when the module failed for to complete a request
     ///
-    /// - Parameters:
-    /// - request: TealiumRequest that failed
-    /// - info: [String: Any]? containing information about the failure
-    /// - error: Error with precise information about the failure
+    /// - parameter request: `TealiumRequest` that failed
+    /// - parameter info: `[String: Any]? `containing information about the failure
+    /// - parameter error: `Error` with precise information about the failure
     func didFailToFinish(_ request: TealiumRequest,
                          info: [String: Any]?,
                          error: Error) {
@@ -146,9 +183,8 @@ class TealiumCollectModule: TealiumModule {
 
     /// Sends a track request to a specified dispatcher
     ///
-    /// - Parameters:
-    /// - track: TealiumTrackRequest to be processed
-    /// - collect: TealiumCollectProtocol instance to be used for this dispatch
+    /// - parameter track: `TealiumTrackRequest` to be processed
+    /// - parameter collect: `TealiumCollectProtocol` instance to be used for this dispatch
     func dispatch(_ track: TealiumTrackRequest,
                   collect: TealiumCollectProtocol) {
 
@@ -186,7 +222,7 @@ class TealiumCollectModule: TealiumModule {
 
     /// Disables the module
     ///
-    /// - Parameter request: TealiumDisableRequest
+    /// - parameter request: `TealiumDisableRequest`
     override func disable(_ request: TealiumDisableRequest) {
         isEnabled = false
         self.collect = nil

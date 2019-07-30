@@ -301,6 +301,8 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
         TealiumDiskStorage.readWriteQueue.read {
             return self.defaultsStorage?.value(forKey: key) as? String
         }
+        // TODO: figure out return issue - xcode 10 complaining
+        return nil
     }
 
     // TODO: Add completion with result
@@ -316,6 +318,8 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
         TealiumDiskStorage.readWriteQueue.read {
             return self.defaultsStorage?.value(forKey: key)
         }
+        // TODO: figure out return issue - xcode 10 complaining
+        return nil
     }
 
     // TODO: Add completion with result

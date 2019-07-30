@@ -91,7 +91,7 @@ public class Tealium {
         TealiumQueues.backgroundConcurrentQueue.write {
             let trackData = Tealium.trackDataFor(title: title,
                                                  optionalData: data)
-            let track = TealiumTrackRequest(data: trackData,
+            var track = TealiumTrackRequest(data: trackData,
                                             completion: completion)
             self.modulesManager.track(track)
         }

@@ -16,8 +16,8 @@ import TealiumCore
 
 class TealiumDispatchQueueModule: TealiumModule {
 
-    var persistentQueue: TealiumPersistentDispatchQueue?
-    var diskStorage: TealiumDiskStorageProtocol?
+    var persistentQueue: TealiumPersistentDispatchQueue!
+    var diskStorage: TealiumDiskStorageProtocol!
     // when to start trimming the queue (default 20) - e.g. if offline
     var maxQueueSize = TealiumDispatchQueueConstants.defaultMaxQueueSize
      // max number of events in a single batch

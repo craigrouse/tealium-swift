@@ -1508,6 +1508,7 @@
 		D7B04D412199977200C87E22 /* TealiumDispatchQueue-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TealiumDispatchQueue-Info.plist"; sourceTree = SOURCE_ROOT; };
 		D7B04DA52199E0D400C87E22 /* TealiumCrash.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TealiumCrash.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D7B04DA62199E0D400C87E22 /* TealiumCrash-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TealiumCrash-Info.plist"; sourceTree = SOURCE_ROOT; };
+		D7B32E2622EB6451003DC099 /* SwiftTestbed.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SwiftTestbed.entitlements; sourceTree = "<group>"; };
 		D7C4FB8621B9C464006E3CD8 /* TealiumTagManagementUIWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumTagManagementUIWebView.swift; sourceTree = "<group>"; };
 		D7C4FB8A21B9C4E6006E3CD8 /* TealiumTagManagementWKWebView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumTagManagementWKWebView.swift; sourceTree = "<group>"; };
 		D7C4FB9221BA9005006E3CD8 /* TealiumTagManagementUIWebViewDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumTagManagementUIWebViewDelegate.swift; sourceTree = "<group>"; };
@@ -2515,6 +2516,7 @@
 		D79A2D822087FB17001C1F80 /* SwiftTestbed */ = {
 			isa = PBXGroup;
 			children = (
+				D7B32E2622EB6451003DC099 /* SwiftTestbed.entitlements */,
 				D79A2D832087FB17001C1F80 /* AppDelegate.swift */,
 				D79A2D852087FB17001C1F80 /* ViewController.swift */,
 				D79A2D932087FB39001C1F80 /* TealiumHelper.swift */,
@@ -7265,7 +7267,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = SwiftTestbed/SwiftTestbed.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
@@ -7304,7 +7307,8 @@
 				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
 				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
 				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_ENTITLEMENTS = SwiftTestbed/SwiftTestbed.entitlements;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = XC939GDC9P;

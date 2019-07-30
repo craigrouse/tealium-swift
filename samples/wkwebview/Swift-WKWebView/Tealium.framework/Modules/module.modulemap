@@ -1,0 +1,4 @@
+framework module Tealium {
+  header "Tealium-Swift.h"
+  requires objc
+}

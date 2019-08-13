@@ -15,11 +15,12 @@ class TealiumRepeatingTimer {
 
     let timeInterval: TimeInterval
     let dispatchQueue: DispatchQueue
+    let readWriteQueue = TealiumQueues.backgroundConcurrentQueue
 
     /// - Parameters:
     /// - timeInterval: TimeInterval between runs of the timed event
     /// - dispatchQueue: The queue to use for the timer
-    init(timeInterval: TimeInterval, dispatchQueue: DispatchQueue) {
+    init(timeInterval: TimeInterval, dispatchQueue: DispatchQueue = TealiumQueues.backgroundSerialQueue) {
         self.timeInterval = timeInterval
         self.dispatchQueue = dispatchQueue
     }
@@ -56,19 +57,23 @@ class TealiumRepeatingTimer {
 
     /// Resumes this timer instance if suspended
     func resume() {
-        if state == .resumed {
-            return
+        readWriteQueue.write {
+            if self.state == .resumed {
+                return
+            }
+            self.state = .resumed
+            self.timer.resume()
         }
-        state = .resumed
-        timer.resume()
     }
 
     /// Suspends this timer instance if running
     func suspend() {
-        if state == .suspended {
-            return
+        readWriteQueue.write {
+            if self.state == .suspended {
+                return
+            }
+            self.state = .suspended
+            self.timer.suspend()
         }
-        state = .suspended
-        timer.suspend()
     }
 }

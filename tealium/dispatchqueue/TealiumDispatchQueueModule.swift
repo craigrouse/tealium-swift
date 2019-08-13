@@ -11,13 +11,10 @@ import Foundation
 import TealiumCore
 #endif
 
-// TODO:
-// Lifecycle Listener: Flush queue when app is terminated
-
 class TealiumDispatchQueueModule: TealiumModule {
 
-    var persistentQueue: TealiumPersistentDispatchQueue?
-    var diskStorage: TealiumDiskStorageProtocol?
+    var persistentQueue: TealiumPersistentDispatchQueue!
+    var diskStorage: TealiumDiskStorageProtocol!
     // when to start trimming the queue (default 20) - e.g. if offline
     var maxQueueSize = TealiumDispatchQueueConstants.defaultMaxQueueSize
      // max number of events in a single batch
@@ -45,10 +42,9 @@ class TealiumDispatchQueueModule: TealiumModule {
         self.eventsBeforeAutoDispatch = request.config.getDispatchAfterEvents()
         self.maxDispatchSize = request.config.getBatchSize()
         self.isBatchingEnabled = request.config.getIsEventBatchingEnabled()
-
         // always release queue at launch
-        releaseQueue(request)
         isEnabled = true
+        releaseQueue(request)
         didFinish(request)
     }
 
@@ -72,6 +68,9 @@ class TealiumDispatchQueueModule: TealiumModule {
     }
 
     func queue(_ request: TealiumEnqueueRequest) {
+        guard isEnabled else {
+            return
+        }
         removeOldDispatches()
         let allTrackRequests = request.data
 
@@ -80,31 +79,42 @@ class TealiumDispatchQueueModule: TealiumModule {
             newData[TealiumKey.wasQueued] = "true"
             let newTrack = TealiumTrackRequest(data: newData,
                                                completion: $0.completion)
-            persistentQueue?.saveDispatch(newTrack)
+            persistentQueue.saveDispatch(newTrack)
         }
     }
 
     func removeOldDispatches() {
+        guard isEnabled else {
+            return
+        }
         let currentDate = Date()
         var components = DateComponents()
         components.calendar = Calendar.autoupdatingCurrent
         // TODO: make this configurable
         components.setValue(-7, for: .day)
         let sinceDate = Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
-        persistentQueue?.removeOldDispatches(maxQueueSize, since: sinceDate)
+        persistentQueue.removeOldDispatches(maxQueueSize, since: sinceDate)
     }
 
-    func releaseQueue(_ request: TealiumRequest) {
-        if let queuedDispatches = persistentQueue?.dequeueDispatches() {
+    func releaseQueue(_ request: TealiumRequest = TealiumReleaseQueuesRequest(typeId: "dispatchqueue", moduleResponses: [], completion: nil)) {
+        // may be nil if module not yet enabled
+        guard isEnabled else {
+            return
+        }
+
+        if let queuedDispatches = persistentQueue.dequeueDispatches() {
             let batches: [[TealiumTrackRequest]] = queuedDispatches.chunks(maxDispatchSize)
 
             batches.forEach { batch in
 
                 switch batch.count {
                 case let val where val <= 1:
-                    if let data = batch.first?.trackDictionary {
+                    if var data = batch.first?.trackDictionary {
+                        // for all release calls, bypass the queue and send immediately
+                        data += ["bypass_queue": true]
                         let request = TealiumTrackRequest(data: data, completion: nil)
                         // TODO: Why doesn't this work without a delay?
+                        // suspect this is because modules aren't ready to process track calls yet
                         TealiumQueues.backgroundSerialQueue.asyncAfter(deadline: DispatchTime.now() + 1) {
                             self.delegate?.tealiumModuleRequests(module: self,
                                                                  process: request)
@@ -126,41 +136,59 @@ class TealiumDispatchQueueModule: TealiumModule {
         }
     }
 
-    func releaseQueue() {
-        let releaseRequest = TealiumReleaseQueuesRequest(typeId: "dispatchqueue", moduleResponses: [], completion: nil)
-        releaseQueue(releaseRequest)
-    }
-
     func clearQueue(_ request: TealiumRequest) {
-        persistentQueue?.clearQueue()
+        guard isEnabled else {
+            return
+        }
+        persistentQueue.clearQueue()
     }
 
     override func track(_ request: TealiumTrackRequest) {
-        guard isEnabled == true else {
+        guard isEnabled else {
             didFinishWithNoResponse(request)
             return
         }
 
+        if isLifecycleEvent(track: request) {
+            releaseQueue()
+        }
+
         if persistentQueue.currentEvents >= self.eventsBeforeAutoDispatch {
-            self.releaseQueue()
+            releaseQueue()
         }
 
         let canWrite = diskStorage.canWrite()
+        var data = request.trackDictionary
+        var shouldBypass = false
+        if data["bypass_queue"] as? Bool == true {
+            // swiftlint:disable force_cast
+            shouldBypass = data.removeValue(forKey: "bypass_queue") as! Bool
+            // swiftlint:enable force_cast
+        }
+        let newTrack = TealiumTrackRequest(data: data, completion: request.completion)
         // make sure batching is enabled and configured to send > 1 event, otherwise dispatch immediately
-        if isBatchingEnabled, eventsBeforeAutoDispatch > 1, maxDispatchSize > 1, maxQueueSize > 1,
-            canWrite, canQueueRequest(request) {
-            var requestData = request.trackDictionary
+        if isBatchingEnabled,
+            eventsBeforeAutoDispatch > 1,
+            maxDispatchSize > 1,
+            maxQueueSize > 1,
+            canWrite == true,
+            canQueueRequest(newTrack),
+            !shouldBypass {
+            var requestData = newTrack.trackDictionary
             requestData[TealiumKey.queueReason] = TealiumDispatchQueueConstants.batchingEnabled
             requestData[TealiumKey.wasQueued] = "true"
-            let newRequest = TealiumTrackRequest(data: requestData, completion: request.completion)
+            let newRequest = TealiumTrackRequest(data: requestData, completion: newTrack.completion)
             persistentQueue.saveDispatch(newRequest)
+
+            // todo: currently, even though items are being released, they are being re-queued if the queueing conditions haven't been exceeded. Need a flag to stop this. Maybe was_queued?
             logQueue(request: newRequest)
+
         } else {
-            if !canWrite {
+            if canWrite == false {
                 let report = TealiumReportRequest(message: "Insufficient disk storage available. Event Batching has been disabled.")
                 delegate?.tealiumModuleRequests(module: self, process: report)
             }
-            self.didFinishWithNoResponse(request)
+            self.didFinishWithNoResponse(newTrack)
         }
     }
 
@@ -194,4 +222,7 @@ class TealiumDispatchQueueModule: TealiumModule {
         return shouldQueue
     }
 
+    private func isLifecycleEvent(track: TealiumTrackRequest) -> Bool {
+        return track.trackDictionary[TealiumKey.event] as? String == "sleep" || track.trackDictionary[TealiumKey.event] as? String == "wake"
+    }
 }

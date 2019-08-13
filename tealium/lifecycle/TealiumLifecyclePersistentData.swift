@@ -19,8 +19,31 @@ open class TealiumLifecyclePersistentData {
 
     let diskStorage: TealiumDiskStorageProtocol
 
-    init(diskStorage: TealiumDiskStorageProtocol) {
+    init(diskStorage: TealiumDiskStorageProtocol,
+         uniqueId: String? = nil) {
         self.diskStorage = diskStorage
+        // one-time migration
+        if let uniqueId = uniqueId, let lifecycle = retrieveLegacyLifecycleData(uniqueId: uniqueId) {
+            _ = self.save(lifecycle, usingUniqueId: uniqueId)
+        }
+    }
+
+    func retrieveLegacyLifecycleData(uniqueId: String) -> TealiumLifecycle? {
+        guard let data = UserDefaults.standard.object(forKey: uniqueId) as? Data else {
+            // No saved data
+            return nil
+        }
+
+        do {
+            guard let lifecycle = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? TealiumLifecycle else {
+                return nil
+            }
+            UserDefaults.standard.removeObject(forKey: uniqueId)
+            return lifecycle
+        } catch {
+            // invalidArchiveOperationException
+            return nil
+        }
     }
 
     class func dataExists(forUniqueId: String) -> Bool {
@@ -40,9 +63,6 @@ open class TealiumLifecyclePersistentData {
     }
 
     func save(_ lifecycle: TealiumLifecycle, usingUniqueId: String) -> (success: Bool, error: Error?) {
-//        diskStorage.save(lifecycle as Encodable) { success, error in
-//            return (success, error)
-//        }
         diskStorage.save(lifecycle, completion: nil)
         return (true, nil)
     }

@@ -16,10 +16,11 @@ public class TealiumConsentManager {
     private var consentDelegates = TealiumMulticastDelegate<TealiumConsentManagerDelegate>()
     private weak var moduleDelegate: TealiumModuleDelegate?
     private var tealiumConfig: TealiumConfig?
-    private var consentUserPreferences: TealiumConsentUserPreferences?
-    private let consentPreferencesStorage = TealiumConsentPreferencesStorage()
+    private var consentUserPreferences: TealiumConsentUserPreferences!
+    private var consentPreferencesStorage: TealiumConsentPreferencesStorage!
     var consentLoggingEnabled = false
     var consentManagerModuleInstance: TealiumConsentManagerModule?
+    var diskStorage: TealiumDiskStorageProtocol?
 
     /// Initialize consent manager
     ///
@@ -27,7 +28,12 @@ public class TealiumConsentManager {
     /// - config: TealiumConfig
     /// - delegate: TealiumModuleDelegate?
     /// - completion: Optional completion block, called when fully initialized
-    public func start(config: TealiumConfig, delegate: TealiumModuleDelegate?, _ completion: (() -> Void)?) {
+    public func start(config: TealiumConfig,
+                      delegate: TealiumModuleDelegate?,
+                      diskStorage: TealiumDiskStorageProtocol,
+                      _ completion: (() -> Void)?) {
+        self.diskStorage = diskStorage
+        consentPreferencesStorage = TealiumConsentPreferencesStorage(diskStorage: diskStorage)
         tealiumConfig = config
         consentLoggingEnabled = config.isConsentLoggingEnabled()
         moduleDelegate = delegate
@@ -118,17 +124,12 @@ public class TealiumConsentManager {
 
     /// - returns: Existing preferences from UserDefaults if they exist
     func getSavedPreferences() -> TealiumConsentUserPreferences? {
-        if let existingPrefs = consentPreferencesStorage.retrieveConsentPreferences() {
-            var newPrefs = TealiumConsentUserPreferences(consentStatus: nil, consentCategories: nil)
-            newPrefs.initWithDictionary(preferencesDictionary: existingPrefs)
-            return newPrefs
-        }
-        return nil
+        return consentPreferencesStorage.retrieveConsentPreferences()
     }
 
     /// Saves current consent preferences to UserDefaults
     func storeConsentUserPreferences() {
-        guard let consentUserPrefs = getUserConsentPreferences()?.toDictionary() else {
+        guard let consentUserPrefs = getUserConsentPreferences() else {
             return
         }
         // store data

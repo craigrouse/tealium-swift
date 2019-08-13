@@ -75,12 +75,15 @@ public class TealiumPersistentData {
     }
 
     func setExistingPersistentData() {
-        diskStorage.retrieve(as: PersistentDataStorage.self) {_, data, _ in
-
-            guard let data = data else {
-                return
+        if let data = Migrator.getLegacyData(forModule: TealiumPersistentKey.moduleName) {
+            add(data: data)
+        } else {
+            diskStorage.retrieve(as: PersistentDataStorage.self) {_, data, _ in
+                guard let data = data else {
+                    return
+                }
+                self.persistentDataCache = data
             }
-            self.persistentDataCache = data
         }
     }
 

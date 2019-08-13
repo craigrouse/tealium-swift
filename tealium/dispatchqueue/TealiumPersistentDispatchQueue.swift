@@ -18,6 +18,14 @@ class TealiumPersistentDispatchQueue {
 
     public init(diskStorage: TealiumDiskStorageProtocol) {
         self.diskStorage = diskStorage
+
+        if let data = Migrator.getLegacyDataArray(forModule: TealiumDispatchQueueConstants.moduleName) {
+            data.forEach { trackRequest in
+                let newTrack = TealiumTrackRequest(data: trackRequest, completion: nil)
+                self.saveDispatch(newTrack)
+            }
+        }
+
         if let totalEvents = self.peek()?.count {
             self.currentEvents = totalEvents
         }

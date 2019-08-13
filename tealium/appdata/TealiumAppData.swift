@@ -28,16 +28,17 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     }
 
     func setExistingAppData() {
-        diskStorage.retrieve(as: PersistentAppData.self) {_, data, _ in
-//            guard let `self` = self else {
-//                return
-//            }
-
-            guard let data = data else {
-                self.setNewAppData()
-                return
+        if let data = Migrator.getLegacyData(forModule: TealiumAppDataKey.moduleName),
+            let persistentData = PersistentAppData.initFromDictionary(data) {
+            self.setLoadedAppData(data: persistentData)
+        } else {
+            diskStorage.retrieve(as: PersistentAppData.self) {_, data, _ in
+                guard let data = data else {
+                    self.setNewAppData()
+                    return
+                }
+                self.setLoadedAppData(data: data)
             }
-            self.setLoadedAppData(data: data)
         }
     }
 

@@ -37,16 +37,22 @@ public class TealiumAttributionData: TealiumAttributionDataProtocol {
 
     /// Loads persistent attribution data into memory, or fetches new data if not found
     func setPersistentAttributionData() {
-        diskStorage.retrieve(as: PersistentAttributionData.self) {_, data, _ in
+        if let data = Migrator.getLegacyData(forModule: TealiumAttributionKey.moduleName),
+            let persistentData = PersistentAttributionData(withDictionary: data) {
+            persistentAttributionData = persistentData
+            diskStorage.save(self.persistentAttributionData, completion: nil)
+        } else {
+            diskStorage.retrieve(as: PersistentAttributionData.self) {_, data, _ in
 
-            guard let data = data else {
-                self.appleSearchAdsData { data in
-                    self.persistentAttributionData = data
-                    self.diskStorage.save(self.persistentAttributionData, completion: nil)
+                guard let data = data else {
+                    self.appleSearchAdsData { data in
+                        self.persistentAttributionData = data
+                        self.diskStorage.save(self.persistentAttributionData, completion: nil)
+                    }
+                    return
                 }
-                return
+                self.persistentAttributionData = data
             }
-            self.persistentAttributionData = data
         }
     }
 

@@ -20,6 +20,18 @@ public struct PersistentAttributionData: Codable {
         adGroupName: String?,
         adKeyword: String?
 
+    init() {
+    }
+
+    // will only be called on migration from legacy storage
+    public init?(withDictionary dictionary: [String: Any]) {
+        if let json = try? JSONSerialization.data(withJSONObject: dictionary, options: []) {
+            if let data = try? JSONDecoder().decode(PersistentAttributionData.self, from: json) {
+                self = data
+            }
+        }
+    }
+
     /// returns: `[String: Any]`
     public func toDictionary() -> [String: Any] {
         var appleAttributionDetails = [String: Any]()
@@ -52,4 +64,5 @@ public struct PersistentAttributionData: Codable {
         }
         return appleAttributionDetails
     }
+
 }

@@ -15,6 +15,7 @@ class TealiumConsentManagerModule: TealiumModule {
 
     let consentManager = TealiumConsentManager()
     var ready: Bool = false
+    var diskStorage: TealiumDiskStorageProtocol!
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return  TealiumModuleConfig(name: TealiumConsentConstants.moduleName,
@@ -28,10 +29,12 @@ class TealiumConsentManagerModule: TealiumModule {
     /// - parameter request: `TealiumEnableRequest` - the request from the core library to enable this module
     override func enable(_ request: TealiumEnableRequest) {
         isEnabled = true
+        self.diskStorage = TealiumDiskStorage(config: request.config, forModule: TealiumConsentManagerModule.moduleConfig().name, isCritical: true)
         // start consent manager with completion block
-        consentManager.start(config: request.config, delegate: delegate) {
+        consentManager.start(config: request.config, delegate: delegate, diskStorage: diskStorage) {
             self.ready = true
-            self.releaseQueue()
+            // TODO: unnecessary release on start. Will be released anyway when dispatch queue starts
+//            self.releaseQueue()
             self.didFinish(request)
         }
         consentManager.addConsentDelegate(self)

@@ -63,6 +63,7 @@ class TealiumHelper: NSObject {
         let list = TealiumModulesList(isWhitelist: false,
                                       moduleNames: ["autotracking",
                                                     "filestorage",
+//                                                    "delegate",
 //                                                    "tagmanagement",
 //                                                    "appdata",
 //                                                    "devicedata",
@@ -125,16 +126,16 @@ class TealiumHelper: NSObject {
     }
 
     func trackView(title: String, data: [String: Any]?) {
-        tealium?.track(title: title,
-                       data: data,
-                       completion: { (success, info, error) in
-                        // Optional post processing
-                        if self.enableHelperLogs == false {
-                            return
-                        }
-                        // Alternatively, monitoring track completions can be done here vs. using the delegate module's callbacks.
-//                        print("*** TealiumHelper: view completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
-        })
+//        tealium?.track(title: title,
+//                       data: data,
+//                       completion: { (success, info, error) in
+//                        // Optional post processing
+//                        if self.enableHelperLogs == false {
+//                            return
+//                        }
+//                        // Alternatively, monitoring track completions can be done here vs. using the delegate module's callbacks.
+////                        print("*** TealiumHelper: view completed:\n\(success)\n\(String(describing: info))\n\(String(describing: error))")
+//        })
 
     }
 

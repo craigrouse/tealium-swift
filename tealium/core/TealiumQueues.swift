@@ -9,7 +9,7 @@
 import Foundation
 
 class TealiumQueues {
-    
+
     public static let backgroundConcurrentQueue = {
         return ReadWrite("com.tealium.backgroundconcurrentqueue")
     }()

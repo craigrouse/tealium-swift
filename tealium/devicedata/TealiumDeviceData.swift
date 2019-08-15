@@ -326,8 +326,7 @@ public class TealiumDeviceData: TealiumDeviceDataCollection {
         ]
         #endif
         #endif
-//        return carrierInfo
-        return [String: String]()
+        return carrierInfo
     }
 
     class func resolution() -> String {

@@ -32,14 +32,7 @@ public class TealiumTagManagementWKWebView: NSObject, TealiumTagManagementProtoc
     var url: URL?
     var reloading = false
     var reloadHandler: TealiumCompletion?
-    var currentState: AtomicInteger = AtomicInteger(value: WebViewState.notYetLoaded.rawValue) {
-        willSet {
-            // TODO: Make this use the core logger
-            if let state = WebViewState(rawValue: newValue.value) {
-                    print("Webview state changed to: \(state)")
-            }
-        }
-    }
+    var currentState: AtomicInteger = AtomicInteger(value: WebViewState.notYetLoaded.rawValue)
 
     public var delegates = TealiumMulticastDelegate<WKNavigationDelegate>()
 

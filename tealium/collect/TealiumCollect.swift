@@ -64,7 +64,7 @@ public class TealiumCollect: TealiumCollectProtocol {
 
     public func dispatchBulk(data: [String: Any],
                              completion: TealiumCompletion?) {
-        // TODO: Not supported
+        // Not supported
     }
 
     // MARK: INTERNAL METHODS

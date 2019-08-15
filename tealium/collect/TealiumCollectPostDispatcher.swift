@@ -29,7 +29,6 @@ class TealiumCollectPostDispatcher: TealiumCollectProtocol {
     /// - Parameters:
     /// - dispatchURL: String representation of the dispatch URL
     /// - completion: Completion handler to run when the dispatcher has finished initializing
-    // TODO: Test
     init(dispatchURL: String,
          _ completion: @escaping ((_ dispatcher: TealiumCollectPostDispatcher?) -> Void)) {
             if let baseURL = TealiumCollectPostDispatcher.getDomainFromURLString(url: dispatchURL) {

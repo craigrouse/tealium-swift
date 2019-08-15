@@ -92,7 +92,6 @@ class TealiumDispatchQueueModule: TealiumModule {
         let currentDate = Date()
         var components = DateComponents()
         components.calendar = Calendar.autoupdatingCurrent
-        // TODO: make this configurable
         components.setValue(-batchExpirationDays, for: .day)
         let sinceDate = Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
         persistentQueue.removeOldDispatches(maxQueueSize, since: sinceDate)

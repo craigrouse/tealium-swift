@@ -66,9 +66,7 @@ public class TealiumDiskStorage: TealiumDiskStorageProtocol {
         return available > minimumDiskSpace
     }
 
-    // TODO: Convert this to number, factor into CanWrite calculation.
     // Configurable max size of Tealium data
-    // TODO: Duplicate this for individual modules to prioritize important data (e.g. appdata very important, lifecycle queued events). If low, then stop batching data
     public func totalSizeSavedData() -> String? {
         if let fileUrl = try? Disk.url(for: filePrefix, in: defaultDirectory),
             let contents = try? FileManager.default.contentsOfDirectory(at: fileUrl, includingPropertiesForKeys: nil, options: []) {

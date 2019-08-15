@@ -134,7 +134,7 @@ class TealiumLoggerModule: TealiumModule {
         let successMessage = response.success == true ? "ENABLED" : "FAILED TO DISABLE"
         let message = "\(response.moduleName): \(successMessage)"
         logger?.log(message: message,
-                        logLevel: .verbose)
+                    logLevel: .verbose)
     }
 
     func logError(_ response: TealiumModuleResponse) {
@@ -143,7 +143,7 @@ class TealiumLoggerModule: TealiumModule {
         }
         let message = "\(response.moduleName): Encountered error: \(error)"
         logger?.log(message: message,
-                        logLevel: .errors)
+                    logLevel: .errors)
     }
 
     func logLoad(_ responses: [TealiumModuleResponse]) {

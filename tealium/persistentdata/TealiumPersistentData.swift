@@ -64,7 +64,6 @@ public struct PersistentDataStorage: Codable {
 
 public class TealiumPersistentData {
 
-//    var persistentDataCache = [String: Any]()
     var persistentDataCache = PersistentDataStorage()
     let diskStorage: TealiumDiskStorageProtocol
 

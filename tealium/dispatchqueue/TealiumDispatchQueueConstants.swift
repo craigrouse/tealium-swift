@@ -19,6 +19,8 @@ enum TealiumDispatchQueueConstants {
     static let eventLimit = "event_limit"
     static let batchingEnabled = "batching_enabled"
     static let batchingBypassKeys = "batching_bypass_keys"
+    static let defaultBatchExpirationDays = 7
+    static let batchExpirationDaysKey = "batch_expiration_days"
 }
 
 // These events will not be subject to batching

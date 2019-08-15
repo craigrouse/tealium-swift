@@ -59,4 +59,12 @@ public extension TealiumConfig {
         return self.optionalData[TealiumDispatchQueueConstants.batchingBypassKeys] as? [String]
     }
 
+    func setBatchExpirationDays(_ days: Int) {
+        self.optionalData[TealiumDispatchQueueConstants.batchExpirationDaysKey] = days
+    }
+
+    func getBatchExpirationDays() -> Int {
+        return self.optionalData[TealiumDispatchQueueConstants.batchExpirationDaysKey] as? Int ?? TealiumDispatchQueueConstants.defaultBatchExpirationDays
+    }
+
 }

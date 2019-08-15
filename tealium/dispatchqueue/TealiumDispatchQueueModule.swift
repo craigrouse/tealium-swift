@@ -22,6 +22,7 @@ class TealiumDispatchQueueModule: TealiumModule {
     var eventsBeforeAutoDispatch: Int!
     var isBatchingEnabled = true
     var batchingBypassKeys: [String]?
+    var batchExpirationDays: Int = TealiumDispatchQueueConstants.defaultBatchExpirationDays
 
     override class func moduleConfig() -> TealiumModuleConfig {
         return TealiumModuleConfig(name: TealiumDispatchQueueConstants.moduleName,
@@ -42,6 +43,7 @@ class TealiumDispatchQueueModule: TealiumModule {
         self.eventsBeforeAutoDispatch = request.config.getDispatchAfterEvents()
         self.maxDispatchSize = request.config.getBatchSize()
         self.isBatchingEnabled = request.config.getIsEventBatchingEnabled()
+        self.batchExpirationDays = request.config.getBatchExpirationDays()
         // always release queue at launch
         isEnabled = true
         releaseQueue(request)
@@ -91,7 +93,7 @@ class TealiumDispatchQueueModule: TealiumModule {
         var components = DateComponents()
         components.calendar = Calendar.autoupdatingCurrent
         // TODO: make this configurable
-        components.setValue(-7, for: .day)
+        components.setValue(-batchExpirationDays, for: .day)
         let sinceDate = Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
         persistentQueue.removeOldDispatches(maxQueueSize, since: sinceDate)
     }

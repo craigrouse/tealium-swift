@@ -46,23 +46,23 @@ class TealiumConnectivityModule: TealiumModule {
         case let request as TealiumDisableRequest:
             disable(request)
         case let request as TealiumTrackRequest:
-            track(request)
+            prepareTrack(request)
         case let request as TealiumBatchTrackRequest:
-            track(request)
+            prepareTrack(request)
         default:
             didFinishWithNoResponse(request)
         }
     }
-    
+
     func prepareTrack(_ track: TealiumRequest) {
         guard isEnabled == true else {
             didFinishWithNoResponse(track)
             return
         }
-        
+
         switch track {
         case let track as TealiumTrackRequest:
-            self.track(prepareForDispatch(track))
+            self.trackWithConnectivityCheck(prepareForDispatch(track))
         case let track as TealiumBatchTrackRequest:
             var requests = track.trackRequests
             requests = requests.map {
@@ -70,22 +70,25 @@ class TealiumConnectivityModule: TealiumModule {
             }
             var newRequest = TealiumBatchTrackRequest(trackRequests: requests, completion: track.completion)
             newRequest.moduleResponses = track.moduleResponses
-            self.batchTrack(newRequest)
+            self.trackWithConnectivityCheck(newRequest)
         default:
             self.didFinishWithNoResponse(track)
             return
         }
     }
-    
+
     func prepareForDispatch(_ request: TealiumTrackRequest) -> TealiumTrackRequest {
-        var newTrack = request.trackDictionary
-        newTrack[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
-        var newRequest = TealiumTrackRequest(data: newTrack, completion: request.completion)
+        var newData = request.trackDictionary
+        // do not add data to queued hits
+        if newData[TealiumKey.wasQueued] as? String == nil {
+            newData += [TealiumConnectivityKey.connectionType: TealiumConnectivity.currentConnectionType(),
+                        TealiumConnectivityKey.connectionTypeLegacy: TealiumConnectivity.currentConnectionType(),
+            ]
+        }
+        var newRequest = TealiumTrackRequest(data: newData, completion: request.completion)
         newRequest.moduleResponses = request.moduleResponses
         return newRequest
     }
-
-
 
     /// Enables the module and starts connectivity monitoring
     ///
@@ -100,28 +103,16 @@ class TealiumConnectivityModule: TealiumModule {
     /// Handles the track request and queues if no connection available (requires DispatchQueue module)
     ///
     /// - parameter track: `TealiumTrackRequest` to be processed
-    func track(_ request: TealiumRequest) {
+    func trackWithConnectivityCheck(_ request: TealiumRequest) {
         guard isEnabled == true else {
             didFinishWithNoResponse(request)
             return
         }
 
-        var newData = request.trackDictionary
-
-        // do not add data to queued hits
-        if newData[TealiumKey.wasQueued] as? String == nil {
-            newData += [TealiumConnectivityKey.connectionType: TealiumConnectivity.currentConnectionType(),
-                        TealiumConnectivityKey.connectionTypeLegacy: TealiumConnectivity.currentConnectionType(),
-            ]
-        }
-
-        let newTrack = TealiumTrackRequest(data: newData,
-                                           completion: request.completion)
-
         if TealiumConnectivity.isConnectedToNetwork() == false {
             self.refreshConnectivityStatus()
             // Save in cache
-            queue(newTrack)
+            queue(request)
 
             // Notify any logger
             let report = TealiumReportRequest(message: "Connectivity: Queued track. No internet connection.")
@@ -137,19 +128,41 @@ class TealiumConnectivityModule: TealiumModule {
         let report = TealiumReportRequest(message: "Connectivity: Sending queued track. Internet connection available.")
         delegate?.tealiumModuleRequests(module: self, process: report)
 
-        didFinishWithNoResponse(newTrack)
+        didFinishWithNoResponse(request)
     }
 
     /// Enqueues the track request for later transmission
     ///
     /// - parameter track: `TealiumTrackRequest` to be queued
-    func queue(_ track: TealiumTrackRequest) {
+    func queue(_ track: TealiumRequest) {
+        var enqueueRequest: TealiumEnqueueRequest
+        switch track {
+        case let track as TealiumTrackRequest:
+            var newTrack = addQueueData(track)
+            newTrack.moduleResponses = track.moduleResponses
+            enqueueRequest = TealiumEnqueueRequest(data: newTrack, completion: nil)
+        case let track as TealiumBatchTrackRequest:
+            var requests = track.trackRequests
+            requests = requests.map {
+                addQueueData($0)
+            }
+            var newRequest = TealiumBatchTrackRequest(trackRequests: requests, completion: track.completion)
+            newRequest.moduleResponses = track.moduleResponses
+            enqueueRequest = TealiumEnqueueRequest(data: newRequest, completion: nil)
+        default:
+            self.didFinishWithNoResponse(track)
+            return
+        }
+
+        delegate?.tealiumModuleRequests(module: self, process: enqueueRequest)
+    }
+
+    func addQueueData(_ track: TealiumTrackRequest) -> TealiumTrackRequest {
         var newData = track.trackDictionary
         newData[TealiumKey.queueReason] = TealiumConnectivityKey.moduleName
-        let newTrack = TealiumTrackRequest(data: newData,
-                                           completion: track.completion)
-        let req = TealiumEnqueueRequest(data: newTrack, completion: nil)
-        delegate?.tealiumModuleRequests(module: self, process: req)
+        newData[TealiumKey.wasQueued] = "true"
+        return TealiumTrackRequest(data: newData,
+                                   completion: track.completion)
     }
 
     /// Releases all queued track calls for dispatch

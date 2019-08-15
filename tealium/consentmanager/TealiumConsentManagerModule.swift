@@ -33,8 +33,6 @@ class TealiumConsentManagerModule: TealiumModule {
         // start consent manager with completion block
         consentManager.start(config: request.config, delegate: delegate, diskStorage: diskStorage) {
             self.ready = true
-            // TODO: unnecessary release on start. Will be released anyway when dispatch queue starts
-//            self.releaseQueue()
             self.didFinish(request)
         }
         consentManager.addConsentDelegate(self)

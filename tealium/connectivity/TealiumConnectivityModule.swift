@@ -40,16 +40,52 @@ class TealiumConnectivityModule: TealiumModule {
     ///
     /// - parameter request: TealiumRequest to be handled by the module
     override func handle(_ request: TealiumRequest) {
-        if let request = request as? TealiumEnableRequest {
+        switch request {
+        case let request as TealiumEnableRequest:
             enable(request)
-        } else if let request = request as? TealiumDisableRequest {
+        case let request as TealiumDisableRequest:
             disable(request)
-        } else if let request = request as? TealiumTrackRequest {
+        case let request as TealiumTrackRequest:
             track(request)
-        } else {
+        case let request as TealiumBatchTrackRequest:
+            track(request)
+        default:
             didFinishWithNoResponse(request)
         }
     }
+    
+    func prepareTrack(_ track: TealiumRequest) {
+        guard isEnabled == true else {
+            didFinishWithNoResponse(track)
+            return
+        }
+        
+        switch track {
+        case let track as TealiumTrackRequest:
+            self.track(prepareForDispatch(track))
+        case let track as TealiumBatchTrackRequest:
+            var requests = track.trackRequests
+            requests = requests.map {
+                prepareForDispatch($0)
+            }
+            var newRequest = TealiumBatchTrackRequest(trackRequests: requests, completion: track.completion)
+            newRequest.moduleResponses = track.moduleResponses
+            self.batchTrack(newRequest)
+        default:
+            self.didFinishWithNoResponse(track)
+            return
+        }
+    }
+    
+    func prepareForDispatch(_ request: TealiumTrackRequest) -> TealiumTrackRequest {
+        var newTrack = request.trackDictionary
+        newTrack[TealiumKey.dispatchService] = TealiumTagManagementKey.moduleName
+        var newRequest = TealiumTrackRequest(data: newTrack, completion: request.completion)
+        newRequest.moduleResponses = request.moduleResponses
+        return newRequest
+    }
+
+
 
     /// Enables the module and starts connectivity monitoring
     ///
@@ -64,7 +100,7 @@ class TealiumConnectivityModule: TealiumModule {
     /// Handles the track request and queues if no connection available (requires DispatchQueue module)
     ///
     /// - parameter track: `TealiumTrackRequest` to be processed
-    override func track(_ request: TealiumTrackRequest) {
+    func track(_ request: TealiumRequest) {
         guard isEnabled == true else {
             didFinishWithNoResponse(request)
             return
@@ -100,8 +136,6 @@ class TealiumConnectivityModule: TealiumModule {
 
         let report = TealiumReportRequest(message: "Connectivity: Sending queued track. Internet connection available.")
         delegate?.tealiumModuleRequests(module: self, process: report)
-
-//        release()
 
         didFinishWithNoResponse(newTrack)
     }

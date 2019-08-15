@@ -18,6 +18,7 @@ open class TealiumModulesManager: NSObject {
     public let timeoutMillisecondIncrement = 500
     public var timeoutMillisecondCurrent = 0
     public var timeoutMillisecondMax = 10000
+    weak var tealiumInstance: Tealium?
 
     func setupModulesFrom(config: TealiumConfig) {
         let modulesList = config.getModulesList()
@@ -37,9 +38,11 @@ open class TealiumModulesManager: NSObject {
                enableCompletion: enableCompletion)
     }
 
-    public func enable(config: TealiumConfig, enableCompletion: TealiumEnableCompletion?) {
+    public func enable(config: TealiumConfig,
+                       enableCompletion: TealiumEnableCompletion?,
+                       tealiumInstance: Tealium? = nil) {
         self.setupModulesFrom(config: config)
-//        self.queue = config.dispatchQueue()
+        self.tealiumInstance = tealiumInstance
         self.queue = TealiumQueues.backgroundConcurrentQueue
         let request = TealiumEnableRequest(config: config,
                                            enableCompletion: enableCompletion)
@@ -71,7 +74,7 @@ open class TealiumModulesManager: NSObject {
         return result
     }
 
-    public func track(_ track: TealiumTrackRequest) {
+    public func track(_ track: TealiumRequest) {
         guard let firstModule = modules.first else {
             track.completion?(false, nil, TealiumModulesManagerError.noModules)
             return
@@ -87,8 +90,16 @@ open class TealiumModulesManager: NSObject {
         if notReady.isEmpty == false {
             timeoutMillisecondCurrent += timeoutMillisecondIncrement
             if timeoutMillisecondCurrent >= timeoutMillisecondMax {
+                var request: TealiumEnqueueRequest
+                switch track {
+                case let track as TealiumTrackRequest:
+                    request = TealiumEnqueueRequest(data: track, completion: nil)
+                case let track as TealiumBatchTrackRequest:
+                    request = TealiumEnqueueRequest(data: track, completion: nil)
+                default:
+                    return
+                }
                 // if modules are not ready after timeout, event is queued until later
-                let request = TealiumEnqueueRequest(data: track, completion: nil)
                 tealiumModuleRequests(module: nil, process: request)
                 return
             }
@@ -130,12 +141,16 @@ extension TealiumModulesManager: TealiumModuleDelegate {
             guard let nextModule = self.modules.next(after: module) else {
 
                 // If enable call set isEnable
-                if process as? TealiumEnableRequest != nil {
+                if let process = process as? TealiumEnableRequest {
                     self.isEnabled = true
+                    // todo: should never be nil at this point, but we are running on a background thread, so there's a very slim chance. test for edge cases and remove if not necessary.
+                    if self.tealiumInstance != nil {
+                     process.enableCompletion?(process.moduleResponses)
+                    }
                 }
                 // Last module has finished processing
                 self.reportToModules(self.modulesRequestingReport,
-                                    request: process)
+                                     request: process)
 
                 return
             }
@@ -167,6 +182,11 @@ extension TealiumModulesManager: TealiumModuleDelegate {
         }
 
         if let track = process as? TealiumTrackRequest {
+            self.track(track)
+            return
+        }
+
+        if let track = process as? TealiumBatchTrackRequest {
             self.track(track)
             return
         }

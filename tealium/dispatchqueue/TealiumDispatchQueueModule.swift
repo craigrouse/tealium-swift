@@ -113,23 +113,17 @@ class TealiumDispatchQueueModule: TealiumModule {
                         // for all release calls, bypass the queue and send immediately
                         data += ["bypass_queue": true]
                         let request = TealiumTrackRequest(data: data, completion: nil)
-                        // TODO: Why doesn't this work without a delay?
-                        // suspect this is because modules aren't ready to process track calls yet
-                        TealiumQueues.backgroundSerialQueue.asyncAfter(deadline: DispatchTime.now() + 1) {
-                            self.delegate?.tealiumModuleRequests(module: self,
-                                                                 process: request)
-                        }
+                            delegate?.tealiumModuleRequests(module: self,
+                                                            process: request)
                     }
 
                 case let val where val > 1:
                     let batchRequest = TealiumBatchTrackRequest(trackRequests: batch, completion: nil)
-                    // TODO: Why doesn't this work without a delay?
-                    TealiumQueues.backgroundSerialQueue.asyncAfter(deadline: DispatchTime.now() + 1) {
-                        self.delegate?.tealiumModuleRequests(module: self,
-                                                             process: batchRequest)
-                    }
+                        delegate?.tealiumModuleRequests(module: self,
+                                                        process: batchRequest)
                 default:
-                    print("")
+                    // should never reach here
+                    return
                 }
 
             }

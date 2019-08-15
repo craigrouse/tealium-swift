@@ -31,7 +31,7 @@ public class Tealium {
         self.enableCompletion = enableCompletion
         modulesManager = TealiumModulesManager()
         TealiumQueues.backgroundConcurrentQueue.write {
-            self.enable()
+            self.enable(tealiumInstance: self)
             TealiumInstanceManager.shared.addInstance(self, config: config)
         }
     }
@@ -42,9 +42,11 @@ public class Tealium {
 
     /// Enablement call used after disable() to re-enable library activites. Unnecessary to call after
     /// initial init. Does NOT override individual module enabled flags.
-    public func enable() {
+    public func enable(tealiumInstance: Tealium? = nil) {
         TealiumQueues.backgroundConcurrentQueue.write {
-            self.modulesManager.enable(config: self.config, enableCompletion: self.enableCompletion)
+            self.modulesManager.enable(config: self.config,
+                                       enableCompletion: self.enableCompletion,
+                                       tealiumInstance: tealiumInstance)
         }
     }
 

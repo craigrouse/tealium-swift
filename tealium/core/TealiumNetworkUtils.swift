@@ -66,7 +66,14 @@ public func urlPOSTRequestWithJSONString(_ jsonString: String, dispatchURL: Stri
 
 public extension Dictionary {
     func toJSONString() -> String? {
-        if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: .prettyPrinted) {
+        var writingOptions: JSONSerialization.WritingOptions
+        if #available(iOS 11.0, tvOS 11.0, watchOS 4.0, OSX 10.13, *) {
+            writingOptions = [.prettyPrinted, .sortedKeys]
+        } else {
+            writingOptions = [.prettyPrinted]
+        }
+
+        if let jsonData = try? JSONSerialization.data(withJSONObject: self, options: writingOptions) {
             return String(data: jsonData, encoding: .utf8)
         }
         return nil

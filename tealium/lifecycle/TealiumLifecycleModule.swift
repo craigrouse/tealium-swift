@@ -23,7 +23,6 @@ import TealiumCore
 
 // MARK: ENUMS
 // swiftlint:disable file_length
-// swiftlint:disable line_length
 enum TealiumLifecycleModuleKey {
     static let moduleName = "lifecycle"
     static let queueName = "com.tealium.lifecycle"
@@ -72,17 +71,22 @@ public class TealiumLifecycleModule: TealiumModule {
     }
 
     override public func enable(_ request: TealiumEnableRequest) {
-        self.lifecyclePersistentData = TealiumLifecyclePersistentData(diskStorage: TealiumDiskStorage(config: request.config, forModule: TealiumLifecycleModuleKey.moduleName))
-        if areListenersActive == false {
+        let config = request.config
+        uniqueId = "\(config.account).\(config.profile).\(config.environment)"
+        self.lifecyclePersistentData = TealiumLifecyclePersistentData(diskStorage: TealiumDiskStorage(config: request.config, forModule: TealiumLifecycleModuleKey.moduleName), uniqueId: uniqueId)
+        if !areListenersActive {
             addListeners()
 
             delegate?.tealiumModuleRequests(module: self,
                                             process: TealiumReportNotificationsRequest())
         }
 
-        let config = request.config
-        uniqueId = "\(config.account).\(config.profile).\(config.environment)"
         lifecycle = savedOrNewLifeycle(uniqueId: uniqueId)
+        // testing only
+//        if let lifecycle = lifecycle {
+//            TealiumLifecyclePersistentData.saveLegacy(lifecycle, usingUniqueId: uniqueId)
+//        }
+
 //        let save = lifecyclePersistentData.save(lifecycle!, usingUniqueId: uniqueId)
 //
 //        if save.success == false {
@@ -404,6 +408,5 @@ extension Array where Element == TealiumLifecycleSession {
 
 }
 
-// swiftlint:enable line_length
 // swiftlint:enable type_body_length
 // swiftlint:enable file_length

@@ -118,8 +118,8 @@ public class Tealium {
                 newData += data
             }
 
-    //        newData[TealiumKey.callType] = TealiumTrackType.view.description()
-    //        newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
+            newData[TealiumKey.callType] = TealiumTrackType.view.description()
+            newData[TealiumKey.screenTitle] = title // added for backwards-compatibility
 
             self.track(title: title,
                        data: newData,

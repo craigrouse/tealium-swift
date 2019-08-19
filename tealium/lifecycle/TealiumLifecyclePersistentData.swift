@@ -67,6 +67,35 @@ open class TealiumLifecyclePersistentData {
         return (true, nil)
     }
 
+    class func saveLegacy(_ lifecycle: TealiumLifecycle, usingUniqueId: String) -> (success: Bool, error: Error?) {
+        guard let encodedData = try? JSONEncoder().encode(lifecycle), encodedData.count > 0 else {
+            return (false, nil)
+        }
+
+        let data = NSKeyedArchiver.archivedData(withRootObject: encodedData)
+
+        UserDefaults.standard.set(data, forKey: usingUniqueId)
+        guard let defaultsCheckData = UserDefaults.standard.object(forKey: usingUniqueId) as? Data else {
+            return (false, TealiumLifecyclePersistentDataError.couldNotArchiveAsData)
+        }
+
+        do {
+            guard let defaultsCheck = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(defaultsCheckData) as? TealiumLifecycle else {
+                return (false, TealiumLifecyclePersistentDataError.couldNotUnarchiveData)
+            }
+
+            let checkPassed = (defaultsCheck == lifecycle) ? true : false
+
+            if checkPassed == true {
+                return (true, nil)
+            }
+
+            return (false, TealiumLifecyclePersistentDataError.archivedDataMismatchWithOriginalData)
+        } catch {
+            return (false, TealiumLifecyclePersistentDataError.couldNotUnarchiveData)
+        }
+    }
+
     class func deleteAllData(forUniqueId: String) -> Bool {
         // False option not yet implemented
         if dataExists(forUniqueId: forUniqueId) == false {

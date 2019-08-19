@@ -8,6 +8,7 @@
 
 import Foundation
 
+// This will be removed in a future release. Only included to allow migration from legacy NSKeyedArchiver implementation
 public class TealiumLifecycleLegacyData: NSObject, NSCoding, Encodable {
 
     var autotracked: String?

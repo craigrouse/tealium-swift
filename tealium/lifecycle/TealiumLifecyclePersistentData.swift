@@ -34,6 +34,7 @@ open class TealiumLifecyclePersistentData {
         }
 
         do {
+            // TODO: Check namespacing for Carthage and CocoaPods - probably need TealiumLifecycle.TealiumLifeycle for Carthage
             NSKeyedUnarchiver.setClass(TealiumLifecycleLegacyData.self, forClassName: "Tealium.TealiumLifecycle")
             NSKeyedUnarchiver.setClass(TealiumLifecycleLegacySession.self, forClassName: "Tealium.TealiumLifecycleSession")
             guard let lifecycle = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? TealiumLifecycleLegacyData else {
@@ -47,7 +48,7 @@ open class TealiumLifecyclePersistentData {
             guard let decoded = try? decoder.decode(TealiumLifecycle.self, from: encoded) else {
                 return nil
             }
-//            UserDefaults.standard.removeObject(forKey: uniqueId)
+            UserDefaults.standard.removeObject(forKey: uniqueId)
             return decoded
         } catch {
             // invalidArchiveOperationException
@@ -74,35 +75,6 @@ open class TealiumLifecyclePersistentData {
     func save(_ lifecycle: TealiumLifecycle, usingUniqueId: String) -> (success: Bool, error: Error?) {
         diskStorage.save(lifecycle, completion: nil)
         return (true, nil)
-    }
-
-    class func saveLegacy(_ lifecycle: TealiumLifecycle, usingUniqueId: String) -> (success: Bool, error: Error?) {
-        guard let encodedData = try? JSONEncoder().encode(lifecycle), encodedData.count > 0 else {
-            return (false, nil)
-        }
-
-        let data = NSKeyedArchiver.archivedData(withRootObject: encodedData)
-
-        UserDefaults.standard.set(data, forKey: usingUniqueId)
-        guard let defaultsCheckData = UserDefaults.standard.object(forKey: usingUniqueId) as? Data else {
-            return (false, TealiumLifecyclePersistentDataError.couldNotArchiveAsData)
-        }
-
-        do {
-            guard let defaultsCheck = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(defaultsCheckData) as? TealiumLifecycle else {
-                return (false, TealiumLifecyclePersistentDataError.couldNotUnarchiveData)
-            }
-
-            let checkPassed = (defaultsCheck == lifecycle) ? true : false
-
-            if checkPassed == true {
-                return (true, nil)
-            }
-
-            return (false, TealiumLifecyclePersistentDataError.archivedDataMismatchWithOriginalData)
-        } catch {
-            return (false, TealiumLifecyclePersistentDataError.couldNotUnarchiveData)
-        }
     }
 
     class func deleteAllData(forUniqueId: String) -> Bool {

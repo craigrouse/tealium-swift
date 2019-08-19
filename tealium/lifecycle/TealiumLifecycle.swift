@@ -47,40 +47,8 @@ public struct TealiumLifecycle: Codable {
         countLaunchTotal = 0
         countWakeTotal = 0
         countSleepTotal = 0
-        sessionsSize = 100     // Need a wide berth to capture wakes, sleeps, and updates
+        sessionsSize = 100
         totalSecondsAwake = 0
-    }
-
-    // MARK: 
-    // MARK: PERSISTENCE SUPPORT
-    public init?(coder: NSCoder) {
-        countLaunch = coder.decodeInteger(forKey: TealiumLifecycleKey.launchCount)
-        countSleep = coder.decodeInteger(forKey: TealiumLifecycleKey.sleepCount)
-        countWake = coder.decodeInteger(forKey: TealiumLifecycleKey.wakeCount)
-        countCrashTotal = coder.decodeInteger(forKey: TealiumLifecycleKey.totalCrashCount)
-        countLaunchTotal = coder.decodeInteger(forKey: TealiumLifecycleKey.totalLaunchCount)
-        countSleepTotal = coder.decodeInteger(forKey: TealiumLifecycleKey.totalSleepCount)
-        countWakeTotal = coder.decodeInteger(forKey: TealiumLifecycleKey.totalWakeCount)
-        dateLastUpdate = coder.decodeObject(forKey: TealiumLifecycleKey.lastUpdateDate) as? Date
-        if let savedSessions = coder.decodeObject(forKey: TealiumLifecycleCodingKey.sessions) as? [TealiumLifecycleSession] {
-            sessions = savedSessions
-        }
-        sessionsSize = coder.decodeInteger(forKey: TealiumLifecycleCodingKey.sessionsSize)
-        totalSecondsAwake = coder.decodeInteger(forKey: TealiumLifecycleCodingKey.totalSecondsAwake)
-    }
-
-    public func encode(with coder: NSCoder) {
-        coder.encode(self.countLaunch, forKey: TealiumLifecycleKey.launchCount)
-        coder.encode(self.countSleep, forKey: TealiumLifecycleKey.sleepCount)
-        coder.encode(self.countWake, forKey: TealiumLifecycleKey.wakeCount)
-        coder.encode(self.countCrashTotal, forKey: TealiumLifecycleKey.totalCrashCount)
-        coder.encode(self.countLaunchTotal, forKey: TealiumLifecycleKey.totalLaunchCount)
-        coder.encode(self.countLaunchTotal, forKey: TealiumLifecycleKey.totalSleepCount)
-        coder.encode(self.countLaunchTotal, forKey: TealiumLifecycleKey.totalWakeCount)
-        coder.encode(self.dateLastUpdate, forKey: TealiumLifecycleKey.lastUpdateDate)
-        coder.encode(self.sessions, forKey: TealiumLifecycleCodingKey.sessions)
-        coder.encode(self.sessionsSize)
-        coder.encode(self.totalSecondsAwake, forKey: TealiumLifecycleCodingKey.totalSecondsAwake)
     }
 
     // MARK: 

@@ -671,6 +671,11 @@
 		D74C47EB22C505F600B1E0AC /* TealiumQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74C47E722C505F500B1E0AC /* TealiumQueues.swift */; };
 		D74C47EC22C505F600B1E0AC /* TealiumQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74C47E722C505F500B1E0AC /* TealiumQueues.swift */; };
 		D74C47ED22C505F600B1E0AC /* TealiumQueues.swift in Sources */ = {isa = PBXBuildFile; fileRef = D74C47E722C505F500B1E0AC /* TealiumQueues.swift */; };
+		D751B89E230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */; };
+		D751B89F230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */; };
+		D751B8A0230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */; };
+		D751B8A1230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */; };
+		D751B8A2230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */ = {isa = PBXBuildFile; fileRef = D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */; };
 		D755DC9A21945E41003C6BA1 /* Tealium.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F085C51DDE154C008850C8 /* Tealium.swift */; };
 		D755DCA121945E41003C6BA1 /* TealiumConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71F085C61DDE154C008850C8 /* TealiumConfig.swift */; };
 		D755DCA721945E41003C6BA1 /* TealiumNetworkUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7795933218CF0E900EA94A5 /* TealiumNetworkUtils.swift */; };
@@ -1437,6 +1442,7 @@
 		D74C47DD22C3A7CF00B1E0AC /* TealiumLifecycleModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumLifecycleModel.swift; sourceTree = "<group>"; };
 		D74C47E022C4B7DC00B1E0AC /* Data+Gzip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Gzip.swift"; sourceTree = "<group>"; };
 		D74C47E722C505F500B1E0AC /* TealiumQueues.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumQueues.swift; sourceTree = "<group>"; };
+		D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumLifecycleLegacyData.swift; sourceTree = "<group>"; };
 		D755DD0D21945E41003C6BA1 /* TealiumCore.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TealiumCore.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D755DD0E21945E41003C6BA1 /* TealiumCore-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "TealiumCore-Info.plist"; sourceTree = SOURCE_ROOT; };
 		D755DD8621945F99003C6BA1 /* TealiumTagManagement.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = TealiumTagManagement.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1931,6 +1937,7 @@
 				D7AA27E522CF947900254ADB /* TealiumLifecycleDiskStorage.swift */,
 				D7AA27E822CF95C800254ADB /* TealiumLifecycle.swift */,
 				D7AA27EB22CF983700254ADB /* TealiumLifecycleSession.swift */,
+				D751B89D230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift */,
 			);
 			path = lifecycle;
 			sourceTree = "<group>";
@@ -4366,6 +4373,7 @@
 				D79A2D962087FF49001C1F80 /* TealiumInstanceManager.swift in Sources */,
 				7121847B1E536099000DCE07 /* TealiumLifecycleModule.swift in Sources */,
 				71BE38251F26441B00BE74B6 /* TealiumLifecyclePersistentData.swift in Sources */,
+				D751B89E230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */,
 				D724D85A2230295100883C1E /* TealiumRemoteCommandsConstants.swift in Sources */,
 				4B74449B2006B79C00616F95 /* TealiumLogger.swift in Sources */,
 				D7C4FB9421BA9005006E3CD8 /* TealiumTagManagementUIWebViewDelegate.swift in Sources */,
@@ -4450,6 +4458,7 @@
 				D7AD8902218B40580018E2FA /* TealiumCollectPostDispatcher.swift in Sources */,
 				43DE5D88331953BED00F11C8 /* TealiumCollectProtocol.swift in Sources */,
 				D7F517B71F851AAD00CFA32C /* TealiumConnectivity.swift in Sources */,
+				D751B89F230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */,
 				D7215F0B22BCEA0F00DC5EA9 /* TealiumDiskStorageProtocol.swift in Sources */,
 				4B7444C02006C7F900616F95 /* TealiumConnectivityModule.swift in Sources */,
 				D74C47E922C505F600B1E0AC /* TealiumQueues.swift in Sources */,
@@ -4590,6 +4599,7 @@
 				D74C47EA22C505F600B1E0AC /* TealiumQueues.swift in Sources */,
 				D70FF58322416CAD00854F22 /* TealiumCollectErrors.swift in Sources */,
 				43DE5E2F7CB85C4260F23F36 /* DiskErrors.m in Sources */,
+				D751B8A0230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */,
 				43DE541831D8929DECCC2A43 /* Disk+Helpers.swift in Sources */,
 				43DE55DF1976267AD636FF07 /* Disk+[UIImage].swift in Sources */,
 				43DE57EB848CF95F037E148D /* Disk+[Data].swift in Sources */,
@@ -4696,6 +4706,7 @@
 				43DE5573087518173D8BD333 /* Disk+Data.swift in Sources */,
 				43DE5AB519D67BEAF94AEA95 /* Disk+UIImage.swift in Sources */,
 				43DE5A032AC0AB5B2229E7AC /* Disk+InternalHelpers.swift in Sources */,
+				D751B8A1230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */,
 				43DE5027282A3D5F6392FAB1 /* Disk+VolumeInformation.swift in Sources */,
 				43DE595E4DA32D2BC9A1E853 /* Disk.swift in Sources */,
 				43DE5D504D633CEDCE76F7C5 /* Disk+Errors.swift in Sources */,
@@ -5057,6 +5068,7 @@
 				D7881F0221998E25002CDCC1 /* TealiumLifecyclePersistentData.swift in Sources */,
 				D7AA27ED22CF983700254ADB /* TealiumLifecycleSession.swift in Sources */,
 				D74C47ED22C505F600B1E0AC /* TealiumQueues.swift in Sources */,
+				D751B8A2230ABF450068D1C9 /* TealiumLifecycleLegacyData.swift in Sources */,
 				D7AA27E722CF947900254ADB /* TealiumLifecycleDiskStorage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

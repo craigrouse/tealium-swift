@@ -14,7 +14,6 @@ enum TealiumLifecyclePersistentDataError: Error {
     case archivedDataMismatchWithOriginalData
 }
 
-// TODO: Unarchiving legacy lifecycle causes a crash
 open class TealiumLifecyclePersistentData {
 
     let diskStorage: TealiumDiskStorageProtocol
@@ -35,11 +34,21 @@ open class TealiumLifecyclePersistentData {
         }
 
         do {
-            guard let lifecycle = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? TealiumLifecycle else {
+            NSKeyedUnarchiver.setClass(TealiumLifecycleLegacyData.self, forClassName: "Tealium.TealiumLifecycle")
+            NSKeyedUnarchiver.setClass(TealiumLifecycleLegacySession.self, forClassName: "Tealium.TealiumLifecycleSession")
+            guard let lifecycle = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data) as? TealiumLifecycleLegacyData else {
                 return nil
             }
-            UserDefaults.standard.removeObject(forKey: uniqueId)
-            return lifecycle
+            let encoder = JSONEncoder()
+            guard let encoded = try? encoder.encode(lifecycle) else {
+                return nil
+            }
+            let decoder = JSONDecoder()
+            guard let decoded = try? decoder.decode(TealiumLifecycle.self, from: encoded) else {
+                return nil
+            }
+//            UserDefaults.standard.removeObject(forKey: uniqueId)
+            return decoded
         } catch {
             // invalidArchiveOperationException
             return nil

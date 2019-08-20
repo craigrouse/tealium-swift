@@ -17,6 +17,7 @@ enum TealiumTestKey {
 enum TealiumTestValue {
     static let account = "testAccount"
     static let profile = "testProfile"
+    static let dataSource = "abc123"
     static let environment = "testEnvironment"
     static let eventType = TealiumTrackType.event.description()
     static let stringValue = "value"
@@ -39,6 +40,7 @@ var testOptionalData = [TealiumTestKey.stringKey: TealiumTestValue.stringValue,
 let testTealiumConfig = TealiumConfig(account: TealiumTestValue.account,
                                       profile: TealiumTestValue.profile,
                                       environment: TealiumTestValue.environment,
+                                      datasource: TealiumTestValue.dataSource,
                                       optionalData: testOptionalData as [String: Any])
 
 let testDeleteRequest = TealiumDeleteRequest(name: "testDelete")

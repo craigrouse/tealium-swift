@@ -13,7 +13,6 @@ class TealiumAppDataTests: XCTestCase {
 
     var appData: TealiumAppData?
     var appDataModule: TealiumAppDataModule?
-    var saveDelegateCalled = 0
 
     override func setUp() {
         super.setUp()
@@ -24,8 +23,8 @@ class TealiumAppDataTests: XCTestCase {
         module.enable(enableRequest)
 
         appDataModule = module
-        appData = module.appData as? TealiumAppData
-        appData?.delegate = self
+        appData = TealiumAppData(diskStorage: MockDiskStorageGoodData())
+//        appData = module.appData as? TealiumAppData
     }
 
     override func tearDown() {
@@ -34,7 +33,7 @@ class TealiumAppDataTests: XCTestCase {
     }
 
     func testDeleteAllData() {
-        appData?.add(data: ["a": "1", "b": "2"])
+//        appData?.add(data: ["a": "1", "b": "2"])
         XCTAssertEqual(2, appData?.count, "tealiumAppData counts do not match")
         appData?.deleteAllData()
         XCTAssertEqual(0, appData?.count, "tealiumAppData did not deleteAllData")
@@ -59,7 +58,7 @@ class TealiumAppDataTests: XCTestCase {
         let vid = appData?.visitorId(from: testUuid)
 
         XCTAssertTrue(manualVid == vid, "VisitorId method does not modify string correctly. \n Returned:\(String(describing: vid)) \n Expected:\(manualVid)")
-        guard let newData = appData?.newPersistentData(for: testUuid) else {
+        guard let newData = appData?.newPersistentData(for: testUuid).toDictionary() else {
 
             XCTFail("Could not create newPersistent data from appDataModule")
             return
@@ -107,12 +106,12 @@ class TealiumAppDataTests: XCTestCase {
             XCTFail("appData not initailized correctly")
             return
         }
-        let result = appData.newVolatileData()
+        appData.newVolatileData()
 
-        XCTAssertNotNil(result[TealiumAppDataKey.name] as? String)
-        XCTAssertNotNil(result[TealiumAppDataKey.rdns] as? String)
-        XCTAssertNotNil(result[TealiumAppDataKey.version] as? String)
-        XCTAssertNotNil(result[TealiumAppDataKey.build] as? String)
+        XCTAssertNotNil(appData.name as? String)
+        XCTAssertNotNil(appData.rdns as? String)
+        XCTAssertNotNil(appData.version as? String)
+        XCTAssertNotNil(appData.build as? String)
     }
 
     func testSetNewAppDataAddsPersistentData() {
@@ -159,9 +158,9 @@ class TealiumAppDataTests: XCTestCase {
             XCTFail("TealiumAppData not initialized correctly")
             return
         }
-        XCTAssertEqual(0, saveDelegateCalled)
+//        XCTAssertEqual(0, saveDelegateCalled)
         appData.setNewAppData()
-        XCTAssertEqual(1, saveDelegateCalled)
+//        XCTAssertEqual(1, saveDelegateCalled)
     }
 
     func testSetLoadedAppDataAddsNewVolatileData() {
@@ -170,7 +169,7 @@ class TealiumAppDataTests: XCTestCase {
             return
         }
         XCTAssertEqual(0, appData.count)
-        appData.setLoadedAppData(data: ["a": "1"])
+        appData.setLoadedAppData(data: PersistentAppData(visitorId: TealiumTestValue.visitorID, uuid: TealiumTestValue.visitorID))
         let result = appData.getData()
 
         XCTAssertNotNil(result[TealiumAppDataKey.name] as? String)
@@ -191,6 +190,86 @@ extension TealiumAppDataTests: TealiumModuleDelegate {
     func tealiumModuleRequests(module: TealiumModule?, process: TealiumRequest) {
     }
 }
+
+class MockDiskStorageGoodData: TealiumDiskStorageProtocol {
+    func save(_ data: AnyCodable, completion: TealiumCompletion?) {
+        
+    }
+    
+    func save(_ data: AnyCodable, fileName: String, completion: TealiumCompletion?) {
+            }
+    
+    func save<T>(_ data: T, completion: TealiumCompletion?) where T : Encodable {
+            }
+    
+    func save<T>(_ data: T, fileName: String, completion: TealiumCompletion?) where T : Encodable {
+            }
+    
+    func append<T>(_ data: T, completion: TealiumCompletion?) where T : Decodable, T : Encodable {
+            }
+    
+    func append<T>(_ data: T, fileName: String, completion: TealiumCompletion?) where T : Decodable, T : Encodable {
+            }
+    
+    func retrieve<T>(as type: T.Type, completion: @escaping (Bool, T?, Error?) -> Void) where T : Decodable {
+        guard T.self == PersistentAppData.self,
+            let completion = completion as? (Bool, PersistentAppData?, Error?) -> Void
+        else {
+            return
+        }
+        completion(true, PersistentAppData(visitorId: TealiumTestValue.visitorID, uuid: TealiumTestValue.visitorID), nil)
+    }
+    
+    func retrieve<T>(_ fileName: String, as type: T.Type, completion: @escaping (Bool, T?, Error?) -> Void) where T : Decodable {
+    }
+    
+    func retrieve(fileName: String, completion: (Bool, [String : Any]?, Error?) -> Void) {
+        
+    }
+    
+    func append(_ data: [String : Any], forKey: String, fileName: String, completion: TealiumCompletion?) {
+        
+    }
+    
+    func delete(completion: TealiumCompletion?) {
+        completion?(true,nil,nil)
+    }
+    
+    func totalSizeSavedData() -> String? {
+        return "1000"
+    }
+    
+    func saveStringToDefaults(key: String, value: String) {
+        
+    }
+    
+    func getStringFromDefaults(key: String) -> String? {
+        return ""
+    }
+    
+    func saveToDefaults(key: String, value: Any) {
+        
+    }
+    
+    func getFromDefaults(key: String) -> Any? {
+        return ""
+    }
+    
+    func removeFromDefaults(key: String) {
+        
+    }
+    
+    func canWrite() -> Bool {
+        return true
+    }
+    
+    
+    
+    
+    
+    
+}
+
 
 //extension TealiumAppDataTests: TealiumSaveDelegate {
 //    func savePersistentData(data: [String: Any]) {

@@ -52,14 +52,14 @@ public class TealiumCrashReporter: TealiumCrashReporterType {
     }
 
     /// Invokes a crash
-    /// - Parameters:
-    /// - name: name of the crash
-    /// - reason: reason for the crash
+    /// - parameter name: name of the crash
+    /// - parameter reason: reason for the crash
     public class func invokeCrash(name: String, reason: String) {
         NSException(name: NSExceptionName(rawValue: name), reason: reason, userInfo: nil).raise()
     }
 
     /// Gets crash data if crash module is enabled.
+    /// - returns: `[String: Any]` containing crash information
     public func getData() -> [String: Any]? {
         do {
             guard crashData == nil else {

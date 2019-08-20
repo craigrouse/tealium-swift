@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if appdata
+import TealiumCore
+#endif
 
 struct VolatileAppData: Codable {
     var name: String?,

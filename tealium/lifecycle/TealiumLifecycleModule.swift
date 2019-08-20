@@ -57,9 +57,6 @@ public class TealiumLifecycleModule: TealiumModule {
     var lifecycle: TealiumLifecycle?
     var uniqueId: String = ""
     var lastProcess: TealiumLifecycleType?
-//    lazy var dispatchQueue: DispatchQueue? = {
-//        return DispatchQueue(label: TealiumLifecycleModuleKey.moduleName)
-//    }()
     var lifecyclePersistentData: TealiumLifecyclePersistentData!
 
     // MARK: TEALIUM MODULE CONFIG
@@ -82,19 +79,7 @@ public class TealiumLifecycleModule: TealiumModule {
         }
 
         lifecycle = savedOrNewLifeycle(uniqueId: uniqueId)
-        // testing only
-//        if let lifecycle = lifecycle {
-//            TealiumLifecyclePersistentData.saveLegacy(lifecycle, usingUniqueId: uniqueId)
-//        }
-
-//        let save = lifecyclePersistentData.save(lifecycle!, usingUniqueId: uniqueId)
-//
-//        if save.success == false {
-//            self.didFailToFinish(request,
-//                                 error: save.error!)
-//            return
-//        }
-
+        save()
         isEnabled = true
 
         didFinish(request)
@@ -103,7 +88,6 @@ public class TealiumLifecycleModule: TealiumModule {
     override public func disable(_ request: TealiumDisableRequest) {
         isEnabled = false
         lifecycle = nil
-//        dispatchQueue = nil
         didFinish(request)
     }
 
@@ -206,9 +190,7 @@ public class TealiumLifecycleModule: TealiumModule {
         }
 
         lastProcess = type
-//        dispatchQueue?.async {
-            self.process(type: type)
-//        }
+        self.process(type: type)
     }
 
     func process(type: TealiumLifecycleType) {

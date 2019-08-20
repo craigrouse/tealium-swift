@@ -14,54 +14,6 @@ import TealiumCore
 
 import Foundation
 
-//// MARK:
-//// MARK: PERSISTENT DATA
-//
-//protocol TealiumPersistentDataDelegate: class {
-//    func requestSave(data: [String: Any])
-//    func requestLoad(completion: @escaping TealiumCompletion)
-//}
-
-public struct PersistentDataStorage: Codable {
-    var data: AnyCodable
-    lazy var isEmpty: Bool = {
-        guard let totalValues = (self.data.value as? [String: Any])?.count else {
-            return true
-        }
-        return !(totalValues > 0)
-    }()
-
-    public init() {
-        self.data = [String: Any]().codable
-    }
-
-    public func values() -> [String: Any]? {
-        return self.data.value as? [String: Any]
-    }
-
-    public mutating func add(data: [String: Any]) {
-        var newData = [String: Any]()
-
-        if let existingData = self.data.value as? [String: Any] {
-            newData += existingData
-        }
-
-        newData += data
-        self.data = newData.codable
-    }
-
-    public mutating func delete(forKey key: String) {
-        guard var data = self.data.value as? [String: Any] else {
-            return
-        }
-
-        data[key] = nil
-
-        self.data = data.codable
-    }
-
-}
-
 public class TealiumPersistentData {
 
     var persistentDataCache = PersistentDataStorage()

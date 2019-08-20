@@ -126,12 +126,19 @@ class TealiumCollectModule: TealiumModule {
         let newBatchTrack = TealiumBatchTrackRequest(trackRequests: requests, completion: request.completion)
 
         guard let compressed = newBatchTrack.compressed() else {
-            // TODO: Logging
+            let logRequest = TealiumReportRequest(message: "Batch track request failed. Will not be sent.")
+            delegate?.tealiumModuleRequests(module: self, process: logRequest)
             return
         }
 
-        collect.dispatchBulk(data: compressed) { _, info, _ in
-            // TODO: logging
+        collect.dispatchBulk(data: compressed) { success, info, error in
+
+            guard success else {
+                let logRequest = TealiumReportRequest(message: "Batch track request failed. Error: \(error?.localizedDescription ?? "unknown")")
+                self.delegate?.tealiumModuleRequests(module: self, process: logRequest)
+                return
+            }
+
             self.didFinish(request, info: info)
         }
     }

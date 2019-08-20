@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if appdata
+import TealiumCore
+#endif
 
 public struct PersistentAppData: Codable {
     public let visitorId: String

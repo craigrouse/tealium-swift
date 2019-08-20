@@ -21,8 +21,6 @@ public class ReadWrite {
 
     public init(_ label: String) {
         queueLabel = label
-//        queue = DispatchQueue(label: queueLabel, attributes: .concurrent)
-        //TODO: Test this
         queue = DispatchQueue(label: queueLabel, qos: .background, attributes: .concurrent, autoreleaseFrequency: .inherit, target: .global())
         queue.setSpecific(key: queueSpecificKey, value: queueLabel)
     }

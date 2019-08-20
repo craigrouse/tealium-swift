@@ -8,7 +8,7 @@
 
 import Foundation
 
-class Migrator {
+public class Migrator {
 
     var defaultsKey: String
     var filePath: String?

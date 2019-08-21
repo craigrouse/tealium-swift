@@ -75,7 +75,9 @@ class TealiumAppDataModule: TealiumModule {
     ///
     /// - parameter request: `TealiumDisableRequest`
     override func disable(_ request: TealiumDisableRequest) {
-        appData.deleteAllData()
+        if appData != nil {
+            appData.deleteAllData()
+        }
         isEnabled = false
 
         didFinish(request)

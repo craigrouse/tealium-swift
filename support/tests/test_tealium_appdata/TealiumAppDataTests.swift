@@ -12,19 +12,12 @@ import XCTest
 class TealiumAppDataTests: XCTestCase {
 
     var appData: TealiumAppData?
-    var appDataModule: TealiumAppDataModule?
-
+    var bundle: Bundle?
+    
     override func setUp() {
         super.setUp()
-
-        let helper = TestTealiumHelper()
-        let enableRequest = TealiumEnableRequest(config: helper.getConfig(), enableCompletion: nil)
-        let module = TealiumAppDataModule(delegate: self)
-        module.enable(enableRequest)
-
-        appDataModule = module
-        appData = TealiumAppData(diskStorage: MockDiskStorageGoodData())
-//        appData = module.appData as? TealiumAppData
+        appData = TealiumAppData(diskStorage: MockDiskStorage())
+        bundle = Bundle(for: TealiumAppData.self)
     }
 
     override func tearDown() {
@@ -33,8 +26,8 @@ class TealiumAppDataTests: XCTestCase {
     }
 
     func testDeleteAllData() {
-//        appData?.add(data: ["a": "1", "b": "2"])
-        XCTAssertEqual(2, appData?.count, "tealiumAppData counts do not match")
+        appData?.setLoadedAppData(data: PersistentAppData(visitorId: TealiumTestValue.visitorID, uuid: TealiumTestValue.visitorID))
+        XCTAssertEqual(6, appData?.count, "tealiumAppData counts do not match")
         appData?.deleteAllData()
         XCTAssertEqual(0, appData?.count, "tealiumAppData did not deleteAllData")
     }
@@ -106,12 +99,14 @@ class TealiumAppDataTests: XCTestCase {
             XCTFail("appData not initailized correctly")
             return
         }
+        
         appData.newVolatileData()
-
-        XCTAssertNotNil(appData.name as? String)
-        XCTAssertNotNil(appData.rdns as? String)
-        XCTAssertNotNil(appData.version as? String)
-        XCTAssertNotNil(appData.build as? String)
+        
+       let appDataVolatile = appData.appData
+        XCTAssertNotNil(appDataVolatile.name)
+        XCTAssertNotNil(appDataVolatile.rdns)
+        XCTAssertNotNil(appDataVolatile.version)
+        XCTAssertNotNil(appDataVolatile.build)
     }
 
     func testSetNewAppDataAddsPersistentData() {
@@ -168,15 +163,17 @@ class TealiumAppDataTests: XCTestCase {
             XCTFail("TealiumAppData not initialized correctly")
             return
         }
-        XCTAssertEqual(0, appData.count)
+        XCTAssertEqual(6, appData.count)
         appData.setLoadedAppData(data: PersistentAppData(visitorId: TealiumTestValue.visitorID, uuid: TealiumTestValue.visitorID))
-        let result = appData.getData()
-
+            let result = appData.getData()
         XCTAssertNotNil(result[TealiumAppDataKey.name] as? String)
+        
+        XCTAssertEqual(TealiumTestValue.visitorID, result[TealiumKey.visitorId] as? String)
+        
+        XCTAssertEqual(TealiumTestValue.visitorID, result[TealiumKey.uuid] as? String)
         XCTAssertNotNil(result[TealiumAppDataKey.rdns] as? String)
         XCTAssertNotNil(result[TealiumAppDataKey.version] as? String)
         XCTAssertNotNil(result[TealiumAppDataKey.build] as? String)
-        XCTAssertNotNil(result["a"] as? String)
     }
 }
 
@@ -191,25 +188,25 @@ extension TealiumAppDataTests: TealiumModuleDelegate {
     }
 }
 
-class MockDiskStorageGoodData: TealiumDiskStorageProtocol {
+class MockDiskStorage: TealiumDiskStorageProtocol {
     func save(_ data: AnyCodable, completion: TealiumCompletion?) {
         
     }
     
     func save(_ data: AnyCodable, fileName: String, completion: TealiumCompletion?) {
-            }
+    }
     
     func save<T>(_ data: T, completion: TealiumCompletion?) where T : Encodable {
-            }
+    }
     
     func save<T>(_ data: T, fileName: String, completion: TealiumCompletion?) where T : Encodable {
-            }
+    }
     
-    func append<T>(_ data: T, completion: TealiumCompletion?) where T : Decodable, T : Encodable {
-            }
+    func append<T>(_ data: T, completion: TealiumCompletion?) where T: Decodable, T: Encodable {
+    }
     
     func append<T>(_ data: T, fileName: String, completion: TealiumCompletion?) where T : Decodable, T : Encodable {
-            }
+    }
     
     func retrieve<T>(as type: T.Type, completion: @escaping (Bool, T?, Error?) -> Void) where T : Decodable {
         guard T.self == PersistentAppData.self,
@@ -262,10 +259,6 @@ class MockDiskStorageGoodData: TealiumDiskStorageProtocol {
     func canWrite() -> Bool {
         return true
     }
-    
-    
-    
-    
     
     
 }

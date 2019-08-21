@@ -21,6 +21,7 @@ class TealiumAppDataModuleTests: XCTestCase {
     override func setUp() {
         super.setUp()
         appDataModule = TealiumAppDataModule(delegate: nil)
+        appDataModule?.diskStorage = MockDiskStorage()
         delegateModuleRequests = 0
         delegateModuleFinished = 0
     }
@@ -34,7 +35,10 @@ class TealiumAppDataModuleTests: XCTestCase {
 
     func testForFailingRequests() {
         let helper = TestTealiumHelper()
-        let module = TealiumAppDataModule(delegate: nil)
+        guard let module = appDataModule else {
+            XCTFail()
+            return
+        }
 
         let failing = helper.failingRequestsFor(module: module)
         XCTAssert(failing.count == 0, "Unexpected failing requests: \(failing)")

@@ -8,9 +8,9 @@
 if which swiftlint > /dev/null; then
 echo ${PROJECT_DIR}
 echo $SRCROOT
-cd $SRCROOT/../support/tests/ && swiftlint autocorrect --config ${PROJECT_DIR}/../.swiftlint-tests.yml
+cd $SRCROOT/../support/tests/ && swiftlint autocorrect --config ${PROJECT_DIR}/../.swiftlint.yml
 cd $SRCROOT/
-swiftlint lint --config ${PROJECT_DIR}/../.swiftlint_tests.yml
+swiftlint lint --config ${PROJECT_DIR}/../.swiftlint.yml
 else
 echo “warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint”
 fi

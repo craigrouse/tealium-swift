@@ -16,9 +16,10 @@ public class TealiumAppData: TealiumAppDataProtocol, TealiumAppDataCollection {
     private(set) var uuid: String?
     private var diskStorage: TealiumDiskStorageProtocol!
     private let bundle = Bundle.main
-    private var appData = VolatileAppData()
+    var appData = VolatileAppData()
 
-    init(diskStorage: TealiumDiskStorageProtocol) {
+    init(diskStorage: TealiumDiskStorageProtocol,
+         bundle: Bundle = Bundle.main) {
         self.diskStorage = diskStorage
         setExistingAppData()
     }

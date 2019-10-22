@@ -1,1 +1,2 @@
-github "tealium/plcrashreporter"
+#github "tealium/plcrashreporter"
+binary "https://api.myjson.com/bins/10lo4o"
